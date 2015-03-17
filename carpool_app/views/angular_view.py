@@ -6,12 +6,12 @@ We have started you with an initial blueprint. Add more as needed.
 from flask import Blueprint, flash
 
 
-carpool_app = Blueprint("carpool_app", __name__)
+angular_view = Blueprint("angular_view", __name__, static_folder='../static')
 
 
-@carpool_app.route("/")
+@angular_view.route("/")
 def index():
-    return "Hello, world!"
+    return angular_view.send_static_file("index.html")
 
 
 def flash_errors(form, category="warning"):
