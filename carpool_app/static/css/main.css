@@ -53,6 +53,7 @@ a {
   margin-bottom: .5em; }
 
 nav {
+  margin-top: 1em;
   text-align: center;
   margin-bottom: 2em; }
 
@@ -60,6 +61,9 @@ nav li {
   display: inline-block;
   min-width: 20%;
   margin: 0 auto;
+  margin: 0 .5em; }
+
+.root-content {
   margin: 0 1em; }
 
 h1, h2, h3, h4, h5, p, span, a {
@@ -79,3 +83,9 @@ h4 {
 
 h5 {
   font-size: 1.43em; }
+
+.hero--content {
+  height: 20em; }
+
+.hero--title {
+  margin-top: 10em; }

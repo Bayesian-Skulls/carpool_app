@@ -1,4 +1,4 @@
-app.factory('currentUser' ['User', function(User) {
+app.factory('currentUser', ['User', function(User) {
 
   return User();
 

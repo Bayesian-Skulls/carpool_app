@@ -1,6 +1,6 @@
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
-    templateUrl: '/static/js/home/home.html',
+    templateUrl: '/static/js/new-user/register.html',
     controller: 'newUserCtrl',
     controllerAs: 'vm'
   };
