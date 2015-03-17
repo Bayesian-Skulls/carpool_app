@@ -1,5 +1,5 @@
 * {
-  font-family: sans-serif;
+  box-sizing: border-box;
 }
 
 a {
@@ -7,4 +7,19 @@ a {
   &:visited {
     color: inherit;
   }
+}
+
+.page-logo {
+  margin-bottom: .5em;
+}
+
+nav {
+  text-align: center;
+  margin-bottom: 2em;
+}
+nav li {
+  display: inline-block;
+  min-width: 20%;
+  margin: 0 auto;
+  margin: 0 1em;
 }

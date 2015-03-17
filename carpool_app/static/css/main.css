@@ -42,14 +42,27 @@ html {
   box-sizing: inherit; }
 
 * {
-  font-family: sans-serif; }
+  box-sizing: border-box; }
 
 a {
   text-decoration: none; }
   a:visited {
     color: inherit; }
 
-h1, h2, h3, h4, h5, p, span {
+.page-logo {
+  margin-bottom: .5em; }
+
+nav {
+  text-align: center;
+  margin-bottom: 2em; }
+
+nav li {
+  display: inline-block;
+  min-width: 20%;
+  margin: 0 auto;
+  margin: 0 1em; }
+
+h1, h2, h3, h4, h5, p, span, a {
   font-family: sans-serif; }
 
 h1 {

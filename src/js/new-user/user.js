@@ -7,7 +7,7 @@ app.factory('User', [function(){
       email: spec.email || '',
       paypal: spec.paypal || '',
       id: spec.id || '',
-      street: spec.street_address || '',
+      street_address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',

@@ -15,24 +15,7 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
-<<<<<<< HEAD
-app.config(['$routeProvider', function($routeProvider){
-  var routeDefinition = {
-    templateUrl: 'static/js/lists/list.html',
-    controller: 'RegCtrl',
-    controllerAs: 'vm'
-  };
-
-  $routeProvider.when('static/register', routeDefinition);
-
-}]).controller('RegCtrl', ['$log', function($log) {
-
-}]);
-
-app.config(['$routeProvider', function($routeProvider) {
-=======
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
->>>>>>> devsetup
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
@@ -44,7 +27,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   });
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', 'User', function($log, User){
 
 
 
@@ -68,8 +51,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
-<<<<<<< HEAD
-=======
 app.factory('User', [function(){
 
   return function (spec) {
@@ -78,8 +59,8 @@ app.factory('User', [function(){
       name: spec.name || '',
       email: spec.email || '',
       paypal: spec.paypal || '',
-      user_id: spec.user_id || '',
-      street: spec.street_address || '',
+      id: spec.id || '',
+      street_address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
@@ -110,7 +91,8 @@ app.factory('Work', [function(){
     spec = spec || {};
     return {
       name: spec.name || '',
-      street: spec.street_address || '',
+      user_id: spec.user_id || '',
+      street_address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
@@ -135,7 +117,12 @@ app.config(['$routeProvider', function($routeProvider){
 
 }]);
 
->>>>>>> devsetup
+app.factory('currentUser' ['User', function(User) {
+
+  return User();
+
+}]);
+
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
