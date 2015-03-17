@@ -5,7 +5,7 @@ from .extensions import db, migrate, config
 from .views import carpool_app
 
 
-SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/carpool_app.db"
+SQLALCHEMY_DATABASE_URI = "postgres://localhost/carpool_app"
 DEBUG = True
 SECRET_KEY = 'development-key'
 
