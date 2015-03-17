@@ -3,7 +3,7 @@ from functools import wraps
 from flask import session, Blueprint, url_for, request, redirect, flash, render_template, jsonify
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
 
-
+from ..views import carpool_app
 from ..models import User
 from ..extensions import oauth, db
 
@@ -47,7 +47,7 @@ def facebook_login():
 
 @users.route('/login/facebook/authorized', methods=["GET", "POST"])
 def facebook_authorized():
-    next_url = "http://espn.go.com/"
+    next_url = "http://media.cmgdigital.com/shared/img/photos/2013/05/17/ed/33/abc_-_CarIntoPoolF1.jpg"
     resp = facebook.authorized_response()
     if resp is None:
         flash('You denied the request to sign in.')
@@ -70,3 +70,4 @@ def facebook_authorized():
 
     flash('You were signed in as %s' % repr(me.data['email']))
     return redirect(next_url)
+
