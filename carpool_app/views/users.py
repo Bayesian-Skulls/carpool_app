@@ -18,6 +18,6 @@ facebook = oauth.remote_app('facebook',
 users = Blueprint("users", __name__)
 
 
-@users.route("/")
-def home():
-    return render_template("facebook.html")
+#@users.route("/")
+#def home():
+#    return render_template("facebook.html")

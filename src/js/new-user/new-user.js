@@ -1,16 +1,16 @@
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
-    controller: 'HomeCtrl',
+    controller: 'newUserCtrl',
     controllerAs: 'vm'
   };
   $locationProvider.html5Mode({
     enabled: true,
     requireBase: false
   });
-  $routeProvider.when('/', routeOptions);
+  $routeProvider.when('/register', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', function($log){
+}]).controller('newUserCtrl', ['$log', function($log){
 
 
 

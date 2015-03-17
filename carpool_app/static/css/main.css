@@ -40,3 +40,29 @@ html {
 
 *, *:before, *:after {
   box-sizing: inherit; }
+
+* {
+  font-family: sans-serif; }
+
+a {
+  text-decoration: none; }
+  a:visited {
+    color: inherit; }
+
+h1, h2, h3, h4, h5, p, span {
+  font-family: sans-serif; }
+
+h1 {
+  font-size: 4em; }
+
+h2 {
+  font-size: 3.21em; }
+
+h3 {
+  font-size: 2.6em; }
+
+h4 {
+  font-size: 1.7em; }
+
+h5 {
+  font-size: 1.43em; }

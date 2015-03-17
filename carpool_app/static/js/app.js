@@ -15,16 +15,19 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
-app.config(['$routeProvider', function($routeProvider) {
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
-    templateUrl: 'static/js/home/home.html',
+    templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
+  $locationProvider.html5Mode({
+    enabled: true,
+    requireBase: false
+  });
   $routeProvider.when('/', routeOptions);
 
 }]).controller('HomeCtrl', ['$log', function($log){
-
 
 
 
