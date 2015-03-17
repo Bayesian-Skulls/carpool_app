@@ -10,6 +10,7 @@ from carpool_app import create_app, db
 
 app = create_app()
 manager = Manager(app)
+
 manager.add_command('server', Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command('show-urls', ShowUrls())

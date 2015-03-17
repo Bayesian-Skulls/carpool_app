@@ -176,3 +176,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+#Config files
+config.cfg
