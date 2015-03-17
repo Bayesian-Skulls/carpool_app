@@ -70,4 +70,3 @@ def facebook_authorized():
 
     flash('You were signed in as %s' % repr(me.data['email']))
     return redirect(next_url)
-
