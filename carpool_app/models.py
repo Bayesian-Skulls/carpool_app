@@ -3,7 +3,6 @@ from flask.ext.login import UserMixin
 
 from datetime import datetime
 
-
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
@@ -40,11 +39,18 @@ class User(db.Model, UserMixin):
         print("User ID: ", id)
         return User.query.get(id)
 
+    def to_dict(self):
+        return {"street_number": self.street_number,
+                "street": self.street,
+                "city": self.city,
+                "state": self.state,
+                "zip": self.zip}
+
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     street_number = db.Column(db.String(16))
     street = db.Column(db.String(64))
     city = db.Column(db.String(64))
@@ -53,11 +59,18 @@ class Work(db.Model):
     lat = db.Column(db.Float)
     long = db.Column(db.Float)
 
+    def to_dict(self):
+        return {"street_number": self.street_number,
+                "street": self.street,
+                "city": self.city,
+                "state": self.state,
+                "zip": self.zip}
+
 
 class Calendar(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    work_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    work_id = db.Column(db.Integer, db.ForeignKey('work.id'), nullable=False)
     arrival_datetime = db.Column(db.DateTime, nullable=False)
     departure_datetime = db.Column(db.DateTime, nullable=False)
 
@@ -65,9 +78,9 @@ class Calendar(db.Model):
 class Carpool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     accepted = db.Column(db.Boolean, nullable=False)
-    driver_calendar_id = db.Column(db.Integer, nullable=False)
-    passenger_calendar_id = db.Column(db.Integer, nullable=False)
-    vehicle_id = db.Column(db.Integer)
+    driver_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
+    passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
 
 
 class Vehicle(db.Model):
@@ -76,12 +89,17 @@ class Vehicle(db.Model):
     make = db.Column(db.String(64))
     model = db.Column(db.String(64))
 
+    def to_dict(self):
+        return {"year": self.year,
+                "make": self.make,
+                "model": self.model}
+
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    commenter_id = db.Column(db.Integer, nullable=False)
-    recipient_id = db.Column(db.Integer, nullable=False)
-    carpool_id = db.Column(db.Integer)                  # If feedback refers to specific ride
+    commenter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    carpool_id = db.Column(db.Integer, db.ForeignKey('carpool.id'))  # If feedback refers to specific ride
     timestamp = db.Column(db.DateTime, nullable=False)  # Timestamp of Comment
     rating = db.Column(db.Integer)
     comments = db.Column(db.String(255))
