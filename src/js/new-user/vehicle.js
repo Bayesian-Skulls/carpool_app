@@ -10,5 +10,3 @@ app.factory('Vehicle', [function(){
     };
   };
 }]);
-
-id year make model

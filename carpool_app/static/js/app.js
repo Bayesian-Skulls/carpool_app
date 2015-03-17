@@ -33,6 +33,76 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/home/home.html',
+    controller: 'newUserCtrl',
+    controllerAs: 'vm'
+  };
+  $locationProvider.html5Mode({
+    enabled: true,
+    requireBase: false
+  });
+  $routeProvider.when('/register', routeOptions);
+
+}]).controller('newUserCtrl', ['$log', function($log){
+
+
+
+}]);
+
+app.factory('User', [function(){
+
+  return function (spec) {
+    spec = spec || {};
+    return {
+      name: spec.name || '',
+      email: spec.email || '',
+      paypal: spec.paypal || '',
+      user_id: spec.user_id || '',
+      street: spec.street_address || '',
+      street_number: spec.street_number || '',
+      street: spec.street || '',
+      city: spec.city || '',
+      state: spec.state || '',
+      zip: spec.zip || '',
+      lat: spec.lat || '',
+      long: spec.long || ''
+    };
+  };
+}]);
+
+app.factory('Vehicle', [function(){
+
+  return function (spec) {
+    spec = spec || {};
+    return {
+      id: spec.id || '',
+      make: spec.make || '',
+      model: spec.model || '',
+      year: spec.year || ''
+    };
+  };
+}]);
+
+app.factory('Work', [function(){
+
+  return function (spec) {
+    spec = spec || {};
+    return {
+      name: spec.name || '',
+      street: spec.street_address || '',
+      street_number: spec.street_number || '',
+      street: spec.street || '',
+      city: spec.city || '',
+      state: spec.state || '',
+      zip: spec.zip || '',
+      lat: spec.lat || '',
+      long: spec.long || ''
+    };
+  };
+}]);
+
 app.config(['$routeProvider', function($routeProvider){
   var routeDefinition = {
     templateUrl: 'static/js/lists/list.html',

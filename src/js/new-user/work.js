@@ -1,12 +1,9 @@
-app.factory('User', [function(){
+app.factory('Work', [function(){
 
   return function (spec) {
     spec = spec || {};
     return {
       name: spec.name || '',
-      email: spec.email || '',
-      paypal: spec.paypal || '',
-      id: spec.id || '',
       street: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
