@@ -32,5 +32,10 @@ Flask-Script
 # DateUtil
 python-dateutil==2.4.0
 
+<<<<<<< HEAD
 #Flask OAuth
 Flask-OAuthlib
+=======
+#OAuth
+Flask-OAuthlib
+>>>>>>> 163bd079cd128de57cf92bf72234be402a37c160
