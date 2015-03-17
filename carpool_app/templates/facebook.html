@@ -5,6 +5,8 @@
 <meta charset="UTF-8">
 </head>
     <body>
+        <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+        </fb:login-button>
         <script>
           function statusChangeCallback(response) {
             console.log('statusChangeCallback');
@@ -30,7 +32,7 @@
 
           window.fbAsyncInit = function() {
           FB.init({
-            appId      : '{your-app-id}',
+            appId      : 410559155795197,
             cookie     : true,  // enable cookies to allow the server to access
                                 // the session
             xfbml      : true,  // parse social plugins on this page
@@ -67,8 +69,7 @@
 
 
 
-    <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-    </fb:login-button>
+
 
     <div id="status">
 </div>
