@@ -1,0 +1,17 @@
+{
+  "name": "coaction",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Bayesian-Skulls/carpool_app",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-route": "~1.3.14",
+    "angular": "~1.3.14"
+  }
+}
