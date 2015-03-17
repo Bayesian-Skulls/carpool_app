@@ -5,7 +5,7 @@ app.config(['$routeProvider', function($routeProvider){
     controllerAs: 'vm'
   };
 
-  $routeProvider.when('/register', routeDefinition);
+  $routeProvider.when('static/register', routeDefinition);
 
 }]).controller('RegCtrl', ['$log', function($log) {
 

@@ -5,7 +5,16 @@
 <meta charset="UTF-8">
 </head>
     <body>
+
+      <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+      </fb:login-button>
+
+      <div id="status">
+
         <script>
+        (function(){
+
+
           function statusChangeCallback(response) {
             console.log('statusChangeCallback');
             console.log(response);
@@ -62,15 +71,8 @@
                 'Thanks for logging in, ' + response.name + '!';
             });
           }
+        })();
         </script>
-
-
-
-
-    <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-    </fb:login-button>
-
-    <div id="status">
 </div>
 
 </body>

@@ -7,7 +7,7 @@ app.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.otherwise({
     controller: 'Error404Ctrl',
     controllerAs: 'vm',
-    templateUrl: '/errors/404/error-404.html'
+    templateUrl: 'static/errors/404/error-404.html'
   });
 }]);
 
@@ -17,7 +17,7 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
 
 app.config(['$routeProvider', function($routeProvider) {
   var routeOptions = {
-    templateUrl: 'js/home/home.html',
+    templateUrl: 'static/js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
@@ -37,23 +37,11 @@ app.config(['$routeProvider', function($routeProvider){
     controllerAs: 'vm'
   };
 
-  $routeProvider.when('/register', routeDefinition);
+  $routeProvider.when('static/register', routeDefinition);
 
 }]).controller('RegCtrl', ['$log', function($log) {
 
 }]);
-
-app.factory('Task', function() {
-  var date = new Date();
-  return function(spec) {
-    spec = spec || {};
-    return {
-      title: spec.title || '',
-      status: 'new',
-      date_due: date.toISOString().slice(0, 10)
-    };
-  };
-});
 
 app.factory('ajaxService', ['$log', function($log) {
 

@@ -1,6 +1,6 @@
 app.config(['$routeProvider', function($routeProvider) {
   var routeOptions = {
-    templateUrl: 'js/home/home.html',
+    templateUrl: 'static/js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };

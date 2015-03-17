@@ -20,4 +20,4 @@ users = Blueprint("users", __name__)
 
 @users.route("/")
 def home():
-    return render_template("layout.html")
+    return render_template("facebook.html")
