@@ -1,13 +1,13 @@
 // Declare our app module, and import the ngRoute and ngAnimate
 // modules into it.
-var app = angular.module('app', ['ngRoute', 'ngAnimate']);
+var app = angular.module('app', ['ngRoute', 'ngAnimate',]);
 
 // Set up our 404 handler
 app.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.otherwise({
     controller: 'Error404Ctrl',
     controllerAs: 'vm',
-    templateUrl: 'static/errors/404/error-404.html'
+    templateUrl: '/errors/404/error-404.html'
   });
 }]);
 
@@ -15,15 +15,15 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
-app.config('$routeController', function($routeController) {
-  routeOptions = {
-    templateUrl: 'static/js/lists/list.html',
+app.config(['$routeProvider', function($routeProvider) {
+  var routeOptions = {
+    templateUrl: 'js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
-  $routeProvider.when('/', routeDefinition);
+  $routeProvider.when('/', routeOptions);
 
-}).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', function($log){
 
 
 
@@ -34,8 +34,7 @@ app.config(['$routeProvider', function($routeProvider){
   var routeDefinition = {
     templateUrl: 'static/js/lists/list.html',
     controller: 'RegCtrl',
-    controllerAs: 'vm',
-    resolve: {}
+    controllerAs: 'vm'
   };
 
   $routeProvider.when('/register', routeDefinition);

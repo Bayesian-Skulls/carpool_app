@@ -1,12 +1,12 @@
-app.config('$routeController', function($routeController) {
-  routeOptions = {
-    templateUrl: 'static/js/lists/list.html',
+app.config(['$routeProvider', function($routeProvider) {
+  var routeOptions = {
+    templateUrl: 'js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
-  $routeProvider.when('/', routeDefinition);
+  $routeProvider.when('/', routeOptions);
 
-}).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', function($log){
 
 
 

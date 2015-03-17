@@ -7,7 +7,6 @@ Werkzeug==0.9.6
 Jinja2==2.7.3
 itsdangerous==0.24
 marshmallow==1.2.3
-Flask-OAuth
 
 # Database
 Flask-SQLAlchemy==2.0
