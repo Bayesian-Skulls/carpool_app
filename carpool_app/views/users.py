@@ -8,14 +8,15 @@ from ..extensions import oauth, db
 users = Blueprint("users", __name__)
 
 facebook = oauth.remote_app('facebook',
-                            base_url='https://graph.facebook.com/',
-                            request_token_url=None,
-                            access_token_url='/oauth/access_token',
-                            authorize_url='https://www.facebook.com/dialog/oauth',
-                            consumer_key="376010165919678",
-                            consumer_secret="1a6fa46f249a4b1bade7916e2fd6874c",
-                            request_token_params={'scope': 'email, public_profile'}
-                            )
+    base_url='https://graph.facebook.com/',
+    request_token_url=None,
+    access_token_url='/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    consumer_key="FACEBOOK-KEY",
+    consumer_secret="FACEBOOK-CONSUMER-SECRET",
+    request_token_params={'scope': 'email, public_profile'}
+)
+
 
 
 @facebook.tokengetter
@@ -65,4 +66,4 @@ def facebook_authorized():
         login_user(user)
 
     flash('You were signed in as %s' % repr(me.data['email']))
-    return redirect(next_url)
+    return redirect("/register")
