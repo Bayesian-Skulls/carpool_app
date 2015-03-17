@@ -8,6 +8,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     encrypted_password = db.Column(db.String(60))
+    facebook_id = db.Column(db.Integer)
     paypal = db.Column(db.String(64))
     drivers_license = db.Column(db.Integer)
     plate_number = db.Column(db.String(16))

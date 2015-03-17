@@ -25,12 +25,12 @@ class WorkSchema(Schema):
     zip = fields.String()
 
 
-def legit_year(self, year):
+def legit_year(year):
     if not 1930 <= year <= 2016:
         raise ValidationError("Invalid Year")
 
 
-def legit_rating(self, rating):
+def legit_rating(rating):
     if not 0 <= rating <= 5:
         raise ValidationError("Invalid Rating")
 

@@ -2,21 +2,20 @@ from functools import wraps
 
 from flask import session, Blueprint, url_for, request, redirect, flash, render_template, jsonify
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
-
-from ..views import carpool_app
 from ..models import User
 from ..extensions import oauth, db
 
+users = Blueprint("users", __name__)
 
 facebook = oauth.remote_app('facebook',
-    base_url='https://graph.facebook.com/',
-    request_token_url=None,
-    access_token_url='/oauth/access_token',
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    consumer_key="410559155795197",
-    consumer_secret="f64f456e4558a27416c075b7b9446050",
-    request_token_params={'scope': 'email, public_profile'}
-)
+                            base_url='https://graph.facebook.com/',
+                            request_token_url=None,
+                            access_token_url='/oauth/access_token',
+                            authorize_url='https://www.facebook.com/dialog/oauth',
+                            consumer_key="376010165919678",
+                            consumer_secret="1a6fa46f249a4b1bade7916e2fd6874c",
+                            request_token_params={'scope': 'email, public_profile'}
+                            )
 
 
 @facebook.tokengetter
@@ -31,10 +30,7 @@ def require_login(view):
             return view(*args, **kwargs)
         else:
             return redirect(url_for("users.login"))
-
     return decorated_view
-
-users = Blueprint("users", __name__)
 
 
 @users.route("/facebook/login")
