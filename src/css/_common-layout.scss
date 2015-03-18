@@ -1,3 +1,24 @@
 * {
-  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  &:visited {
+    color: inherit;
+  }
+}
+
+.page-logo {
+  margin-bottom: .5em;
+}
+
+page-nav {
+  text-align: center;
+}
+nav li {
+  display: inline-block;
+  min-width: 20%;
+  margin: 0 auto;
+  margin: 0 .5em;
 }

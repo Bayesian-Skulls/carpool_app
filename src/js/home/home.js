@@ -1,14 +1,19 @@
-app.config(['$routeProvider', function($routeProvider) {
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
-    templateUrl: 'js/home/home.html',
+    templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', '$location', 'currentUser', 'Work', function($log, $location, currentUser, Work){
+  var self = this;
 
+  self.currentUser = currentUser;
+  self.newWork = Work();
 
-
-
+  self.register = function() {
+    self.currentUser.work = self.newWork;
+    $location.path('/register');
+  };
 }]);

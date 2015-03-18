@@ -12,10 +12,10 @@ api = Blueprint("api", __name__)
 def index():
     return angular_view.send_static_file("index.html")
 
-
 @api.route("/")
 @login_required
 def api_index():
+
     print("Current User:  ", current_user)
     return str(current_user.id)
 
@@ -44,4 +44,5 @@ def authorize_user(user_data):
     user = User.query.filter_by(facebook_id=user_data['facebook_id']).first()
     login_user(user)
     return jsonify({"user": user.to_dict()}), 201
+
 
