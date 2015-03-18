@@ -121,17 +121,23 @@ app.directive('mainNav', function() {
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
-    templateUrl: '/static/js/new-user/register.html',
+    templateUrl: '/static/js/register/register.html',
     controller: 'registerCtrl',
     controllerAs: 'vm'
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', 'currentUser', function($log, currentUser){
+}]).controller('registerCtrl', ['$log', 'currentUser', 'Work', 'userService', function($log, currentUser, Work, userService){
 
   var self = this;
-  console.log(currentUser);
   self.currentUser = currentUser;
+  self.newWork = Work();
+
+  self.signup = function() {
+    userService.addUser().then(function() {
+
+    });
+  };
 
 }]);
 

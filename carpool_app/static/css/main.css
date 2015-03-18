@@ -42,7 +42,7 @@ button {
   button:focus {
     outline: none; }
 
-input[type="text"] {
+input {
   padding: .5em 1em;
   border: 1px solid #ddd;
   box-sizing: border-box;
@@ -79,7 +79,8 @@ nav li {
   margin: 0 .5em; }
 
 h1, h2, h3, h4, h5, p, span, a, input, label {
-  font-family: sans-serif; }
+  font-family: sans-serif;
+  line-height: 1.2em; }
 
 h1 {
   font-size: 4em; }
@@ -94,6 +95,7 @@ h4 {
   font-size: 1.7em; }
 
 h5 {
+  margin-top: 1em;
   font-size: 1.43em; }
 
 p {
@@ -181,6 +183,10 @@ p {
 .user-input {
   margin: .2em 0;
   width: 75%; }
+
+.register-input {
+  margin: .2em 0;
+  width: 100%; }
 
 .sliding-menu-content {
   position: fixed;
