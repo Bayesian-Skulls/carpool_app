@@ -11,12 +11,12 @@ def user_generator(n):
     for i in range(n//2):
         mname = fake.name_male()
         email = mname.replace(" ", "").lower()
-        user_list.append({"name": mname, "email": email + "@carpool.com", "facebook_id": randint(100, 10000),
+        user_list.append({"name": mname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
                           "gender": "male"})
     for i in range(n//2):
         fname = fake.name_female()
         email = fname.replace(" ", "").lower()
-        user_list.append({"name": fname, "email": email + "@carpool.com", "facebook_id": randint(100, 10000),
+        user_list.append({"name": fname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
                           "gender": "female"})
 
     return user_list

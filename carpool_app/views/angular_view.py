@@ -48,7 +48,9 @@ def get_current_user():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-def add_work():
+@login_required
+def add_work(user_id):
+    print(request.get_json())
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     input_data = request.get_json()
@@ -63,7 +65,7 @@ def add_work():
 
 
 @api.route('/users/<user_id>/vehicle')
-def add_vehicle():
+def add_vehicle(user_id):
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     input_data = request.get_json()
