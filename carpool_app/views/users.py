@@ -63,3 +63,4 @@ def facebook_authorized():
             "facebook_id": me.data['id']}
     flash('You were signed in as {}'.format(me.data['email']))
     return create_user(user)
+
