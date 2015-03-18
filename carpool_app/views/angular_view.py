@@ -4,7 +4,7 @@ from flask.ext.login import current_user, abort, login_user, logout_user, login_
 from ..models import User, Work, Vehicle
 from ..schemas import UserSchema, WorkSchema, VehicleSchema
 from ..extensions import oauth, db
-from .users import users
+
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
 api = Blueprint("api", __name__)
@@ -22,13 +22,7 @@ def api_index():
     return str(current_user.id)
 
 @api.route("/users/", methods=['POST'])
-def authorize_user(user_data):
-    """
-    This method will either create a new user and/or login the authorized
-    user from facebook's OAuth
-    :param user_data:
-    :return: jsonified version of user
-    """
+def register_or_login_user(user_data):
     if not user_data:
         body = request.get_data(as_text=True)
         user_data = json.loads(body)
@@ -48,12 +42,12 @@ def authorize_user(user_data):
     return jsonify({"user": user.to_dict()}), 201
 
 
-@users.route('/me', methods=["GET"])
+@api.route('/me', methods=["GET"])
 def get_current_user():
     return current_user
 
 
-@users.route('/users/<user_id>/work', methods=["POST"])
+@api.route('/users/<user_id>/work', methods=["POST"])
 def add_work():
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
@@ -68,7 +62,7 @@ def add_work():
     return jsonify({"message": "Added work", "work": result.data}), 200
 
 
-@users.route('/users/<user_id>/vehicle')
+@api.route('/users/<user_id>/vehicle')
 def add_vehicle():
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400

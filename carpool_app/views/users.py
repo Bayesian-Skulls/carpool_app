@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import session, Blueprint, url_for, request, redirect, flash
-from .angular_view import authorize_user
+from .angular_view import register_or_login_user
 from ..extensions import oauth
 
 
@@ -60,5 +60,5 @@ def facebook_authorized():
             "email": me.data['email'],
             "facebook_id": me.data['id']}
     flash('You were signed in as {}'.format(me.data['email']))
-    return authorize_user(user)
+    return register_or_login_user(user)
 
