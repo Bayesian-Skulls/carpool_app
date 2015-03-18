@@ -19,3 +19,6 @@ login_manager = LoginManager()
 
 from flask.ext.bcrypt import Bcrypt
 bcrypt = Bcrypt()
+
+from flask_oauthlib.client import OAuth
+oauth = OAuth()

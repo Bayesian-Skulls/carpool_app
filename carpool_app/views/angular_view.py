@@ -1,13 +1,8 @@
-"""Add your views here.
-
-We have started you with an initial blueprint. Add more as needed.
-"""
-
-from flask import Blueprint, flash
+from flask import Blueprint
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
-
+api = Blueprint("api", __name__)
 
 @angular_view.route("/")
 def index():
