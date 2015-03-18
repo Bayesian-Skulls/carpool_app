@@ -12,8 +12,7 @@ facebook = oauth.remote_app('facebook',
     request_token_url=None,
     access_token_url='/oauth/access_token',
     authorize_url='https://www.facebook.com/dialog/oauth',
-    consumer_key="FACEBOOK-KEY",
-    consumer_secret="FACEBOOK-CONSUMER-SECRET",
+    app_key="FACEBOOK",
     request_token_params={'scope': 'email, public_profile'}
 )
 
@@ -67,3 +66,4 @@ def facebook_authorized():
 
     flash('You were signed in as %s' % repr(me.data['email']))
     return redirect("/register")
+
