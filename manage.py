@@ -4,9 +4,9 @@ import os
 from flask.ext.script import Manager, Shell, Server
 from flask.ext.migrate import MigrateCommand
 from flask.ext.script.commands import ShowUrls, Clean
-
+from seeder import user_generator
 from carpool_app import create_app, db
-
+from carpool_app.views.angular_view import register_or_login_user
 
 app = create_app()
 manager = Manager(app)
@@ -24,6 +24,12 @@ def make_shell_context():
     """
 
     return dict(app=app, db=db)
+
+@manager.command
+def seed_db():
+    user_list = user_generator(20)
+    for user in user_list:
+        register_or_login_user(user)
 
 
 if __name__ == '__main__':

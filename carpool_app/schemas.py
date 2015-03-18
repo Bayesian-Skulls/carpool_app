@@ -5,14 +5,16 @@ from .models import User, Work
 class UserSchema(Schema):
     name = fields.String(required=True)
     email = fields.Email(required=True)
-    paypal = fields.String()
+    gender = fields.String()
+    paypal_id = fields.String()
+    facebook_id = fields.String()
     drivers_license = fields.Integer()
     plate_number = fields.String()
     street_number = fields.String()
     street = fields.String()
     city = fields.String()
     state = fields.String()
-    zip = fields.String()
+    zip_code = fields.String()
 
 
 class WorkSchema(Schema):
@@ -22,7 +24,7 @@ class WorkSchema(Schema):
     street = fields.String()
     city = fields.String()
     state = fields.String()
-    zip = fields.String()
+    zip_code = fields.String()
 
 
 def legit_year(year):

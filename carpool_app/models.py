@@ -7,18 +7,19 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
+    gender = db.Column(db.String(64), nullable=False)
     encrypted_password = db.Column(db.String(60))
-    facebook_id = db.Column(db.Integer)
-    paypal = db.Column(db.String(64))
+    facebook_id = db.Column(db.String(64))
+    paypal_id = db.Column(db.String(64))
     drivers_license = db.Column(db.Integer)
     plate_number = db.Column(db.String(16))
     street_number = db.Column(db.String(16))
     street = db.Column(db.String(64))
     city = db.Column(db.String(64))
     state = db.Column(db.String(64))
-    zip = db.Column(db.String(64))
-    lat = db.Column(db.Float)
-    long = db.Column(db.Float)
+    zip_code = db.Column(db.String(64))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
 
     def get_password(self):
         return getattr(self, "_password", None)
@@ -35,18 +36,24 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return "<User {}>".format(self.email)
 
-    @login_manager.user_loader
-    def load_user(id):
-        print("User ID: ", id)
-        return User.query.get(id)
-
     def to_dict(self):
-        return {"street_number": self.street_number,
+        return {"id": self.id,
+                "name": self.name,
+                "email": self.email,
+                "gender": self.gender,
+                "facebook_id": self.facebook_id,
+                "paypal_id": self.paypal_id,
+                "drivers_license": self.drivers_license,
+                "plate_number": self.plate_number,
+                "street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
                 "state": self.state,
-                "zip": self.zip}
+                "zip_code": self.zip_code}
 
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(id)
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -56,16 +63,16 @@ class Work(db.Model):
     street = db.Column(db.String(64))
     city = db.Column(db.String(64))
     state = db.Column(db.String(64))
-    zip = db.Column(db.String(64))
-    lat = db.Column(db.Float)
-    long = db.Column(db.Float)
+    zip_code = db.Column(db.String(64))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
 
     def to_dict(self):
         return {"street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
                 "state": self.state,
-                "zip": self.zip}
+                "zip_code": self.zip_code}
 
 
 class Calendar(db.Model):

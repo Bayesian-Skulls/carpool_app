@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 
 from . import models
-from .extensions import db, migrate, config, oauth
+from .extensions import db, migrate, config, oauth, login_manager
 from .views.angular_view import angular_view, api
 from .views.users import users, facebook
 
@@ -23,5 +23,6 @@ def create_app():
     oauth.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
 
     return app
