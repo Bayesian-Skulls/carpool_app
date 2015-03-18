@@ -4,7 +4,8 @@ app.factory('Work', [function(){
     spec = spec || {};
     return {
       name: spec.name || '',
-      street: spec.street_address || '',
+      user_id: spec.user_id || '',
+      street_address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',

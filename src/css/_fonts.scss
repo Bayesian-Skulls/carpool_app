@@ -1,4 +1,4 @@
-h1, h2, h3, h4, h5, p, span {
+h1, h2, h3, h4, h5, p, span, a, input, label {
   font-family: sans-serif;
 }
 
@@ -20,4 +20,8 @@ h4 {
 
 h5 {
   font-size: 1.43em;
+}
+
+p {
+  font-size: 1em;
 }

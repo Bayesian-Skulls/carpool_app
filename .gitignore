@@ -179,3 +179,6 @@ target/
 
 #Config files
 config.cfg
+
+# Private
+.env

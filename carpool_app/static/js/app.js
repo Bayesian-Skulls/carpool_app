@@ -15,24 +15,30 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
-<<<<<<< HEAD
-app.config(['$routeProvider', function($routeProvider){
-  var routeDefinition = {
-    templateUrl: 'static/js/lists/list.html',
-    controller: 'RegCtrl',
-    controllerAs: 'vm'
-  };
+app.directive('googleplace', function() {
+    return {
+        require: 'ngModel',
+        scope: {
+            ngModel: '='
+        },
+        link: function(scope, element, attrs, model) {
+            var options = {
+                types: [],
+                componentRestrictions: {}
+            };
+            scope.gPlace = new google.maps.places.Autocomplete(element[0], options);
 
-  $routeProvider.when('static/register', routeDefinition);
+            google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
+                scope.$apply(function() {
+                    scope.details = scope.gPlace.getPlace();
+                    model.$setViewValue(element.val());
+                });
+            });
+        }
+    };
+});
 
-}]).controller('RegCtrl', ['$log', function($log) {
-
-}]);
-
-app.config(['$routeProvider', function($routeProvider) {
-=======
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
->>>>>>> devsetup
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
@@ -44,15 +50,68 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   });
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', 'User', function($log, User){
 
 
 
 }]);
 
+app.directive('mainNav', function() {
+
+  return {
+
+    replace: true,
+
+    scope: {
+      onclose: '='
+    },
+
+    templateUrl: '/static/js/nav/main-nav.html',
+
+    controller: ['$location', 'StringUtil', '$log', 'currentUser', '$scope', '$rootScope',
+    function($location, StringUtil, $log, currentUser, $scope, $rootScope) {
+      var self = this;
+
+      self.isActive = function (path) {
+
+        if (path === '/') {
+          return $location.path() === '/';
+        }
+        return StringUtil.startsWith($location.path(), path);
+      };
+
+      self.currentUser = currentUser;
+
+      self.goTo = function(elem) {
+        $location.hash(elem);
+
+        $anchorScroll();
+      };
+
+    }],
+
+    controllerAs: 'vm',
+
+    link: function ($scope, element, attrs, ctrl) {
+
+      $(document).ready(function(){
+        $('.js-menu-trigger, .js-menu-screen').on('click touchstart', function (e) {
+          $('.js-menu,.js-menu-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+
+
+    }
+  };
+
+
+
+});
+
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
-    templateUrl: '/static/js/home/home.html',
+    templateUrl: '/static/js/new-user/register.html',
     controller: 'newUserCtrl',
     controllerAs: 'vm'
   };
@@ -68,8 +127,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
-<<<<<<< HEAD
-=======
 app.factory('User', [function(){
 
   return function (spec) {
@@ -78,8 +135,8 @@ app.factory('User', [function(){
       name: spec.name || '',
       email: spec.email || '',
       paypal: spec.paypal || '',
-      user_id: spec.user_id || '',
-      street: spec.street_address || '',
+      id: spec.id || '',
+      address: spec.address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
@@ -110,7 +167,8 @@ app.factory('Work', [function(){
     spec = spec || {};
     return {
       name: spec.name || '',
-      street: spec.street_address || '',
+      user_id: spec.user_id || '',
+      street_address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
@@ -135,7 +193,12 @@ app.config(['$routeProvider', function($routeProvider){
 
 }]);
 
->>>>>>> devsetup
+app.factory('currentUser', ['User', function(User) {
+
+  return User();
+
+}]);
+
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
@@ -150,6 +213,16 @@ app.factory('ajaxService', ['$log', function($log) {
   };
 
 }]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
 
 app.factory('ridesService', ['ajaxService', '$http', function(ajaxService, $http) {
 

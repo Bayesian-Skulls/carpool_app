@@ -10,7 +10,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   });
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', function($log){
+}]).controller('HomeCtrl', ['$log', 'User', function($log, User){
 
 
 
