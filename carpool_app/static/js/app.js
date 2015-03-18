@@ -15,6 +15,29 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
+app.directive('googleplace', function() {
+    return {
+        require: 'ngModel',
+        scope: {
+            ngModel: '='
+        },
+        link: function(scope, element, attrs, model) {
+            var options = {
+                types: [],
+                componentRestrictions: {}
+            };
+            scope.gPlace = new google.maps.places.Autocomplete(element[0], options);
+
+            google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
+                scope.$apply(function() {
+                    scope.details = scope.gPlace.getPlace();
+                    model.$setViewValue(element.val());
+                });
+            });
+        }
+    };
+});
+
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
@@ -32,6 +55,59 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 
 }]);
+
+app.directive('mainNav', function() {
+
+  return {
+
+    replace: true,
+
+    scope: {
+      onclose: '='
+    },
+
+    templateUrl: '/static/js/nav/main-nav.html',
+
+    controller: ['$location', 'StringUtil', '$log', 'currentUser', '$scope', '$rootScope',
+    function($location, StringUtil, $log, currentUser, $scope, $rootScope) {
+      var self = this;
+
+      self.isActive = function (path) {
+
+        if (path === '/') {
+          return $location.path() === '/';
+        }
+        return StringUtil.startsWith($location.path(), path);
+      };
+
+      self.currentUser = currentUser;
+
+      self.goTo = function(elem) {
+        $location.hash(elem);
+
+        $anchorScroll();
+      };
+
+    }],
+
+    controllerAs: 'vm',
+
+    link: function ($scope, element, attrs, ctrl) {
+
+      $(document).ready(function(){
+        $('.js-menu-trigger, .js-menu-screen').on('click touchstart', function (e) {
+          $('.js-menu,.js-menu-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+
+
+    }
+  };
+
+
+
+});
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
@@ -60,7 +136,7 @@ app.factory('User', [function(){
       email: spec.email || '',
       paypal: spec.paypal || '',
       id: spec.id || '',
-      street_address: spec.street_address || '',
+      address: spec.address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
@@ -104,12 +180,6 @@ app.factory('Work', [function(){
   };
 }]);
 
-app.factory('currentUser', ['User', function(User) {
-
-  return User();
-
-}]);
-
 app.config(['$routeProvider', function($routeProvider){
   var routeDefinition = {
     templateUrl: 'static/js/lists/list.html',
@@ -120,6 +190,12 @@ app.config(['$routeProvider', function($routeProvider){
   $routeProvider.when('static/register', routeDefinition);
 
 }]).controller('RegCtrl', ['$log', function($log) {
+
+}]);
+
+app.factory('currentUser', ['User', function(User) {
+
+  return User();
 
 }]);
 
@@ -137,6 +213,16 @@ app.factory('ajaxService', ['$log', function($log) {
   };
 
 }]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
 
 app.factory('ridesService', ['ajaxService', '$http', function(ajaxService, $http) {
 

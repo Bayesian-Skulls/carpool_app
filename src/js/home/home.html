@@ -1,36 +1,19 @@
-<header class="page-header">
-  <nav>
-    <a href="/">
-      <h5 class="page-logo">RIDEO</h5>
-    </a>
-    <ul class="nav-options">
-      <li>
-        <a href="/">
-          Why Carpool?
-        </a>
-      </li>
-      <li>
-        <a href="/">
-          How it works
-        </a>
-      </li>
-      <li>
-        <a href="/facebook/login">
-          login
-        </a>
-      </li>
-    </ul>
-  </nav>
-</header>
 <div class="page-content">
-  <div class="hero--content">
-    <div class="hero--title">
-      <h2>GET TO<br>WORK</h2>
-    </div>
+  <div class="hero">
+  	<div class="hero-inner">
+      <!-- <a href="" class="hero-logo"><img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/placeholder_logo_1.png" alt="Logo Image"></a> -->
+  		<div class="hero-copy">
+  			<h1>GET TO WORK</h1>
+  			<p>Crowded Roadways need a hero. You can help.</p>
+  		</div>
+      <button>Learn More</button>
+  	</div>
   </div>
-  <div class="signup--form">
-    <label>address <br>
-      <input ng-model="user.pickup_address">
-    </label>
-  </div>
+  <address-form class="signup-form">
+    <label class="user-address-label" for="user-address">street address:</label>
+      <input googleplace name="user-addres" class="user-address" type="text" ng-model="user.address" autcomplete="false">
+      <a href="/register">
+        <button>Try It</button>
+      </a>
+  </address-form>
 </div>
