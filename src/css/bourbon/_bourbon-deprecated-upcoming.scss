@@ -3,7 +3,7 @@
 @mixin inline-block {
   display: inline-block;
 
-  @warn "The inline-block mixin is deprecated and will be removed in the next major version release";
+  // @warn "The inline-block mixin is deprecated and will be removed in the next major version release";
 }
 
 @mixin button ($style: simple, $base-color: #4294f0, $text-size: inherit, $padding: 7px 18px) {
@@ -61,7 +61,7 @@
     opacity: 0.5;
   }
 
-  @warn "The button mixin is deprecated and will be removed in the next major version release";
+  // @warn "The button mixin is deprecated and will be removed in the next major version release";
 }
 
 // Selector Style Button

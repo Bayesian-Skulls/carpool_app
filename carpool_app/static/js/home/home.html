@@ -1,6 +1,19 @@
-<header>
-  <h1>RideShare</h1>
-</header>
-<div class="body-content">
-
+<div class="page-content">
+  <div class="hero">
+  	<div class="hero-inner">
+      <!-- <a href="" class="hero-logo"><img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/placeholder_logo_1.png" alt="Logo Image"></a> -->
+  		<div class="hero-copy">
+  			<h1>GET TO WORK</h1>
+  			<p>Crowded Roadways need a hero. You can help.</p>
+  		</div>
+      <button>Learn More</button>
+  	</div>
+  </div>
+  <form name="signup" class="signup-form" ng-submit="vm.register()">
+    <label for="work-name">where are you headed?</label><br>
+    <input class="user-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name" required><br>
+    <label class="user-input-label" for="work-address">street address:</label><br>
+      <input googleplace name="work-address" details="vm.newWork" class="user-input" type="text" ng-model="vm.newWork.address" autcomplete="false">
+      <button>Try It</button>
+  </form>
 </div>

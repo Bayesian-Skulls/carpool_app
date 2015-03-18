@@ -14,7 +14,6 @@ vehicle_schema = VehicleSchema()
 def index():
     return angular_view.send_static_file("index.html")
 
-
 @api.route("/")
 def api_index():
     return "Hellowwww"
@@ -53,3 +52,4 @@ def add_vehicle():
     db.session.commit()
     result = work_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
+
