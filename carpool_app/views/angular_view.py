@@ -8,7 +8,6 @@ api = Blueprint("api", __name__)
 def index():
     return angular_view.send_static_file("index.html")
 
-
 @api.route("/")
 def api_index():
     return "Hellowwww"
