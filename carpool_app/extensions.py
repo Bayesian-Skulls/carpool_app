@@ -19,3 +19,4 @@ login_manager = LoginManager()
 
 from flask.ext.bcrypt import Bcrypt
 bcrypt = Bcrypt()
+

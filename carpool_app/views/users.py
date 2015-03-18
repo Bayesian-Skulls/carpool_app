@@ -1,21 +1,19 @@
 from functools import wraps
 
-from flask import session, Blueprint, url_for, request, redirect, flash, render_template, jsonify
-from flask.ext.login import current_user, abort, login_user, logout_user, login_required
+from flask import session, Blueprint, url_for, request, redirect, flash
+from .angular_view import register_or_login_user
+from ..extensions import oauth
 
-from ..views import carpool_app
-from ..models import User
-from ..extensions import oauth, db
 
+users = Blueprint("users", __name__)
 
 facebook = oauth.remote_app('facebook',
-    base_url='https://graph.facebook.com/',
-    request_token_url=None,
-    access_token_url='/oauth/access_token',
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    consumer_key="FACEBOOK-KEY",
-    consumer_secret="FACEBOOK-CONSUMER-SECRET",
-    request_token_params={'scope': 'email, public_profile'}
+                            base_url='https://graph.facebook.com/',
+                            request_token_url=None,
+                            access_token_url='/oauth/access_token',
+                            authorize_url='https://www.facebook.com/dialog/oauth',
+                            app_key="FACEBOOK",
+                            request_token_params={'scope': 'email, public_profile'}
 )
 
 
@@ -31,18 +29,15 @@ def require_login(view):
             return view(*args, **kwargs)
         else:
             return redirect(url_for("users.login"))
-
     return decorated_view
-
-users = Blueprint("users", __name__)
 
 
 @users.route("/facebook/login")
 def facebook_login():
     session.pop('facebook_token', None)
     return facebook.authorize(callback=url_for('.facebook_authorized',
-                                             _external=True,
-                                             next=request.args.get('next')))
+                                               _external=True,
+                                               next=request.args.get('next')))
 
 
 @users.route('/login/facebook/authorized', methods=["GET", "POST"])
@@ -56,17 +51,14 @@ def facebook_authorized():
     session['facebook_token'] = (resp['access_token'],)
     me = facebook.get('/me')
     session['facebook_name'] = me.data['first_name']
-    user = User.query.filter_by(email=me.data['email']).first()
-    if user:
-        print("user already exists")
-    else:
-        user = User(name=me.data['name'],
-                    email=me.data['email'],
-                    facebook_id=me.data['id']
-                    )
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
+    print("\n\nYour name is", me.data['first_name'])
+    for key in me.data.keys():
+        print("{} = {}".format(key, me.data[key]))
 
-    flash('You were signed in as %s' % repr(me.data['email']))
-    return redirect("/register")
+    user = {"name": me.data['name'],
+            "gender": me.data['gender'],
+            "email": me.data['email'],
+            "facebook_id": me.data['id']}
+    flash('You were signed in as {}'.format(me.data['email']))
+    return register_or_login_user(user)
+

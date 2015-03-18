@@ -1,0 +1,27 @@
+<div class="register-form">
+  <h4>Register with Facebook</h4>
+  <button href="/facebook/login">REGISTER</button>
+  <form class="signup-form" ng-submit="vm.register()">
+    <h5 for="work-name">Tell Us About You</h5><br>
+    <label class="user-input-label" for="user-name">name:</label><br>
+      <input class="register-input" type="text" name="user-name" ng-model="vm.currentUser.name" placeholder="Enter your name" required><br>
+
+    <label class="user-input-label" for="user-email">email:</label><br>
+      <input class="register-input" type="text" name="user-email" ng-model="vm.currentUser.email" placeholder="Enter your email" required><br>
+
+    <label class="user-input-label" for="user-address">street address:</label><br>
+      <input googleplace name="user-address" details="vm.currentUser" class="register-input" type="text" ng-model="vm.currentUser.address" autcomplete="false" required>
+      <br>
+    <label class="register-input-label" for="user-password">password:</label><br>
+      <input class="register-input" type="password" name="user-password" ng-model="vm.currentUser.password" placeholder="Enter your password" required><br>
+    <div ng-show"!vm.currentUser.work">
+    <h5 for="work-name">Your Work</h5><br>
+      <label for="work-name">where are you headed?</label><br>
+      <input class="register-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name" required>
+      <br>
+      <label class="user-input-label" for="work-address">street address:</label><br>
+        <input googleplace name="work-address" details="vm.newWork" class="register-input" type="text" ng-model="vm.newWork.address" autcomplete="false">
+    </div>
+    <button>Sign Up!</button>
+  </form>
+</div>

@@ -7,6 +7,6 @@ app.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.otherwise({
     controller: 'Error404Ctrl',
     controllerAs: 'vm',
-    templateUrl: '/errors/404/error-404.html'
+    templateUrl: 'static/errors/404/error-404.html'
   });
 }]);
