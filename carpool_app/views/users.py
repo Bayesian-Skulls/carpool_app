@@ -67,6 +67,3 @@ def facebook_authorized():
     flash('You were signed in as %s' % repr(me.data['email']))
     return redirect("/register")
 
-@users.route('/api/users', methods=['POST'])
-def create_users():
-    user = User()
