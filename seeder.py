@@ -1,7 +1,8 @@
+import json
+import re
+import urllib.request as url
 from faker import Faker
-from random import randint
-from random import random, uniform
-from os import write
+from random import randint, uniform, shuffle
 
 fake = Faker()
 
@@ -11,16 +12,45 @@ def user_generator(n):
     for i in range(n//2):
         mname = fake.name_male()
         email = mname.replace(" ", "").lower()
-        user_list.append({"name": mname, "email": email + "@carpool.com", "facebook_id": randint(100, 10000),
+        user_list.append({"name": mname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
                           "gender": "male"})
     for i in range(n//2):
         fname = fake.name_female()
         email = fname.replace(" ", "").lower()
-        user_list.append({"name": fname, "email": email + "@carpool.com", "facebook_id": randint(100, 10000),
+        user_list.append({"name": fname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
                           "gender": "female"})
-
     return user_list
 
+
+def generate_location_json(key):
+    cities =['Raleigh', 'Durham']
+    shuffle(cities)
+    origin = cities.pop()
+    latitude, longitude = generate_coordinate(origin)
+    data = lat_long_to_address(key, latitude, longitude)
+    data['latitude'] = latitude
+    data['longitude'] = longitude
+    return data
+
+
+def lat_long_to_address(key, latitude, longitude):
+    base_url = "http://open.mapquestapi.com/geocoding/v1/reverse?key="\
+               + key +\
+               "&callback=renderReverse&location=" + str(latitude) +\
+               "," + str(longitude)
+
+    request = url.urlopen(base_url)
+    request = str(request.read(), encoding="utf-8")
+    data = json.loads(re.findall(r"\((.+)\);", request)[0])
+    address = {}
+    for item in data["results"]:
+        for location in item["locations"]:
+            address = {"street": location["street"],
+                       "city": location["adminArea5"],
+                       "state": location["adminArea3"],
+                       "zip": location["postalCode"]
+                      }
+    return address
 
 
 # North South
@@ -31,12 +61,14 @@ def user_generator(n):
 # Raleigh Min, Max ==  -78.782904, -78.580220
 # Durham Min, Max == -79.012512, -78.830551
 
+
 def generate_coordinate(city):
     if city == 'Raleigh':
         # returns (lat, long) tuple
         return uniform(35.730954, 35.908726), uniform(-78.782904, -78.580220)
     else:
         return uniform(35.963243, 36.069284), uniform(-79.012512, -78.830551)
+
 
 def build_seed(k):
     file = open("seed.data", "w+")
