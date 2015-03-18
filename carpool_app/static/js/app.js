@@ -180,12 +180,6 @@ app.factory('Work', [function(){
   };
 }]);
 
-app.factory('currentUser', ['User', function(User) {
-
-  return User();
-
-}]);
-
 app.config(['$routeProvider', function($routeProvider){
   var routeDefinition = {
     templateUrl: 'static/js/lists/list.html',
@@ -196,6 +190,12 @@ app.config(['$routeProvider', function($routeProvider){
   $routeProvider.when('static/register', routeDefinition);
 
 }]).controller('RegCtrl', ['$log', function($log) {
+
+}]);
+
+app.factory('currentUser', ['User', function(User) {
+
+  return User();
 
 }]);
 
