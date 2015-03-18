@@ -10,9 +10,10 @@ app.factory('Work', [function(){
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || '',
+      zip: spec.zip || undefined,
       lat: spec.lat || '',
       long: spec.long || ''
     };
   };
+
 }]);

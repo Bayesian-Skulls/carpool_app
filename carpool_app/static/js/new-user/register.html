@@ -1,7 +1,13 @@
 <div class="register-form">
-  <a href="/">
-    <button>Home</button>
-  </a>
   <h4>To Get Started, Register with Facebook</h4>
   <a href="/facebook/login">REGISTER</a>
+  <form class="signup-form" ng-submit="vm.register()">
+    <h5 for="work-name">Tell Us About You</h5><br>
+    <label class="user-input-label" for="user-name">name</label><br>
+    <input class="user-input" type="text" name="user-name" ng-model="vm.currentUser.name"><br>
+    <input class="user-input" type="text" name="user-email" ng-model="vm.currentUser.email"><br>
+    <label class="user-input-label" for="user-address">street address:</label><br>
+    <input googleplace name="user-address" details="vm.currentUser" class="user-input" type="text" ng-model="vm.currentUser.address" autcomplete="false">
+    <input class="user-input" type="password" name="user-email" ng-model="vm.currentUser.password"><br>
+  </form>
 </div>

@@ -4,14 +4,16 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
-  $locationProvider.html5Mode({
-    enabled: true,
-    requireBase: false
-  });
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', 'User', function($log, User){
+}]).controller('HomeCtrl', ['$log', '$location', 'currentUser', 'Work', function($log, $location, currentUser, Work){
+  var self = this;
 
+  self.currentUser = currentUser;
+  self.newWork = Work();
 
-
+  self.register = function() {
+    self.currentUser.work = self.newWork;
+    $location.path('/register');
+  };
 }]);

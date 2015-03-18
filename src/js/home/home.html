@@ -9,11 +9,11 @@
       <button>Learn More</button>
   	</div>
   </div>
-  <address-form class="signup-form">
-    <label class="user-address-label" for="user-address">street address:</label>
-      <input googleplace name="user-addres" class="user-address" type="text" ng-model="user.address" autcomplete="false">
-      <a href="/register">
-        <button>Try It</button>
-      </a>
-  </address-form>
+  <form name="signup" class="signup-form" ng-submit="vm.register()">
+    <label for="work-name">where are you headed?</label><br>
+    <input class="user-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name" required>
+    <label class="user-input-label" for="work-address">street address:</label><br>
+      <input googleplace name="work-address" details="vm.newWork" class="user-input" type="text" ng-model="vm.newWork.address" autcomplete="false">
+      <button>Try It</button>
+  </form>
 </div>

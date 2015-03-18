@@ -19,7 +19,8 @@ app.directive('googleplace', function() {
     return {
         require: 'ngModel',
         scope: {
-            ngModel: '='
+            ngModel: '=',
+            details: '=?'
         },
         link: function(scope, element, attrs, model) {
             var options = {
@@ -30,8 +31,15 @@ app.directive('googleplace', function() {
 
             google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
                 scope.$apply(function() {
-                    scope.details = scope.gPlace.getPlace();
+                    var addressObj = scope.gPlace.getPlace();
                     model.$setViewValue(element.val());
+                    scope.details.city = addressObj.address_components[3].long_name;
+                    scope.details.state = addressObj.address_components[6].long_name;
+                    scope.details.street_number = addressObj.address_components[0].long_name;
+                    scope.details.street = addressObj.address_components[1].long_name;
+                    scope.details.zip = addressObj.address_components[8].long_name;
+                    scope.details.lat = addressObj.geometry.location.k;
+                    scope.details.long = addressObj.geometry.location.D;
                 });
             });
         }
@@ -44,16 +52,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     controller: 'HomeCtrl',
     controllerAs: 'vm'
   };
-  $locationProvider.html5Mode({
-    enabled: true,
-    requireBase: false
-  });
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', 'User', function($log, User){
+}]).controller('HomeCtrl', ['$log', '$location', 'currentUser', 'Work', function($log, $location, currentUser, Work){
+  var self = this;
 
+  self.currentUser = currentUser;
+  self.newWork = Work();
 
-
+  self.register = function() {
+    self.currentUser.work = self.newWork;
+    $location.path('/register');
+  };
 }]);
 
 app.directive('mainNav', function() {
@@ -112,18 +122,16 @@ app.directive('mainNav', function() {
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/new-user/register.html',
-    controller: 'newUserCtrl',
+    controller: 'registerCtrl',
     controllerAs: 'vm'
   };
-  $locationProvider.html5Mode({
-    enabled: true,
-    requireBase: false
-  });
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('newUserCtrl', ['$log', function($log){
+}]).controller('registerCtrl', ['$log', 'currentUser', function($log, currentUser){
 
-
+  var self = this;
+  console.log(currentUser);
+  self.currentUser = currentUser;
 
 }]);
 
@@ -173,23 +181,11 @@ app.factory('Work', [function(){
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || '',
+      zip: spec.zip || undefined,
       lat: spec.lat || '',
       long: spec.long || ''
     };
   };
-}]);
-
-app.config(['$routeProvider', function($routeProvider){
-  var routeDefinition = {
-    templateUrl: 'static/js/lists/list.html',
-    controller: 'RegCtrl',
-    controllerAs: 'vm'
-  };
-
-  $routeProvider.when('static/register', routeDefinition);
-
-}]).controller('RegCtrl', ['$log', function($log) {
 
 }]);
 
@@ -223,6 +219,29 @@ app.factory('StringUtil', function() {
     }
   };
 });
+
+app.factory('userService', ['ajaxService', function(ajaxService) {
+
+  return {
+
+    addUser: function(user) {
+        return ajaxService.call($http.post('/api/user/' + user.user_id, user));
+    },
+
+    editUser: function() {
+      return ajaxService.call($http.post('/api/user/' + user.user_id, user));
+    },
+
+    getCurrent: function() {
+      return ajaxService.call($http.get('/api/me'));
+    }
+
+  };
+
+
+
+}]);
+
 
 app.factory('ridesService', ['ajaxService', '$http', function(ajaxService, $http) {
 
