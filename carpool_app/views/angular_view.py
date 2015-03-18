@@ -1,6 +1,7 @@
 import json
 from flask import Blueprint, request, jsonify
-from ..extensions import db
+from flask.ext.login import login_user, login_required, current_user
+from ..extensions import db, login_manager
 from ..schemas import UserSchema
 from ..models import User
 
@@ -13,33 +14,34 @@ def index():
 
 
 @api.route("/")
+@login_required
 def api_index():
-    return "Hellowwww"
+    print("Current User:  ", current_user)
+    return str(current_user.id)
 
 @api.route("/users/", methods=['POST'])
-def create_user(user_data):
-    print(user_data)
+def authorize_user(user_data):
+    """
+    This method will either create a new user and/or login the authorized
+    user from facebook's OAuth
+    :param user_data:
+    :return: jsonified version of user
+    """
     if not user_data:
         body = request.get_data(as_text=True)
         user_data = json.loads(body)
-
     errors = UserSchema().validate(user_data)
     if errors:
         return jsonify(errors), 400
     else:
-        facebook_id = "FB-{}".format(user_data['facebook_id'])
         user = User(name=user_data['name'],
                     email=user_data['email'],
                     gender=user_data['gender'],
                     facebook_id=user_data['facebook_id'])
-        if not User.query.filter_by(facebook_id=facebook_id).first():
+        if not User.query.filter_by(facebook_id=user_data['facebook_id']).first():
             db.session.add(user)
             db.session.commit()
-            return jsonify({"user": user.to_dict() }), 201
-        else:
-            return jsonify({"ERROR": "Account already exists."})
-
-
-
-
+    user = User.query.filter_by(facebook_id=user_data['facebook_id']).first()
+    login_user(user)
+    return jsonify({"user": user.to_dict()}), 201
 

@@ -1,21 +1,19 @@
 from functools import wraps
 
-from flask import session, Blueprint, url_for, request, redirect, flash, render_template, jsonify
-from flask.ext.login import current_user, abort, login_user, logout_user, login_required
-from ..models import User
-from .angular_view import create_user
-from ..extensions import oauth, db
+from flask import session, Blueprint, url_for, request, redirect, flash
+from .angular_view import authorize_user
+from ..extensions import oauth
 
 
 users = Blueprint("users", __name__)
 
 facebook = oauth.remote_app('facebook',
-    base_url='https://graph.facebook.com/',
-    request_token_url=None,
-    access_token_url='/oauth/access_token',
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    app_key="FACEBOOK",
-    request_token_params={'scope': 'email, public_profile'}
+                            base_url='https://graph.facebook.com/',
+                            request_token_url=None,
+                            access_token_url='/oauth/access_token',
+                            authorize_url='https://www.facebook.com/dialog/oauth',
+                            app_key="FACEBOOK",
+                            request_token_params={'scope': 'email, public_profile'}
 )
 
 
@@ -38,8 +36,8 @@ def require_login(view):
 def facebook_login():
     session.pop('facebook_token', None)
     return facebook.authorize(callback=url_for('.facebook_authorized',
-                                             _external=True,
-                                             next=request.args.get('next')))
+                                               _external=True,
+                                               next=request.args.get('next')))
 
 
 @users.route('/login/facebook/authorized', methods=["GET", "POST"])
@@ -62,5 +60,5 @@ def facebook_authorized():
             "email": me.data['email'],
             "facebook_id": me.data['id']}
     flash('You were signed in as {}'.format(me.data['email']))
-    return create_user(user)
+    return authorize_user(user)
 

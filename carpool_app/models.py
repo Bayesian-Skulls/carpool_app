@@ -36,11 +36,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return "<User {}>".format(self.email)
 
-    @login_manager.user_loader
-    def load_user(id):
-        print("User ID: ", id)
-        return User.query.get(id)
-
     def to_dict(self):
         return {"id": self.id,
                 "name": self.name,
@@ -56,6 +51,9 @@ class User(db.Model, UserMixin):
                 "state": self.state,
                 "zip_code": self.zip_code}
 
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(id)
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
