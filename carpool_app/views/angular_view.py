@@ -11,15 +11,18 @@ api = Blueprint("api", __name__)
 work_schema = WorkSchema()
 vehicle_schema = VehicleSchema()
 
+
 @angular_view.route("/")
 def index():
     return angular_view.send_static_file("index.html")
+
 
 @api.route("/")
 @login_required
 def api_index():
     print("Current User:  ", current_user)
     return str(current_user.id)
+
 
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
@@ -40,6 +43,7 @@ def register_or_login_user(data):
     user = User.query.filter_by(facebook_id=data['facebook_id']).first()
     login_user(user)
     return jsonify({"user": user.to_dict()}), 201
+
 
 @api.route("/user", methods=['PUT'])
 @login_required
@@ -66,12 +70,14 @@ def update_user(user_id=None, data=None):
 def get_current_user():
     return current_user
 
+
 @api.route("/logout")
 @login_required
 def logout():
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     return jsonify({"user": user.to_dict()}), 201
+
 
 @api.route('/users/<user_id>/work', methods=["POST"])
 @login_required

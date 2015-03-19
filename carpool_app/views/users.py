@@ -13,8 +13,7 @@ facebook = oauth.remote_app('facebook',
                             access_token_url='/oauth/access_token',
                             authorize_url='https://www.facebook.com/dialog/oauth',
                             app_key="FACEBOOK",
-                            request_token_params={'scope': 'email, public_profile'}
-)
+                            request_token_params={'scope': 'email, public_profile'})
 
 
 @facebook.tokengetter
@@ -42,11 +41,10 @@ def facebook_login():
 
 @users.route('/login/facebook/authorized', methods=["GET", "POST"])
 def facebook_authorized():
-    next_url = "http://media.cmgdigital.com/shared/img/photos/2013/05/17/ed/33/abc_-_CarIntoPoolF1.jpg"
     resp = facebook.authorized_response()
     if resp is None:
         flash('You denied the request to sign in.')
-        return redirect(next_url)
+        return redirect("/login")
 
     session['facebook_token'] = (resp['access_token'],)
     me = facebook.get('/me')
@@ -60,5 +58,5 @@ def facebook_authorized():
             "email": me.data['email'],
             "facebook_id": me.data['id']}
     flash('You were signed in as {}'.format(me.data['email']))
-    return register_or_login_user(user)
-
+    register_or_login_user(user)
+    return redirect("/#/register", 302)
