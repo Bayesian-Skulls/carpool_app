@@ -14,7 +14,6 @@ class User(db.Model, UserMixin):
     facebook_id = db.Column(db.String(64))
     paypal_id = db.Column(db.String(64))
     drivers_license = db.Column(db.Integer)
-    plate_number = db.Column(db.String(16))
     street_number = db.Column(db.String(16))
     street = db.Column(db.String(64))
     city = db.Column(db.String(64))
@@ -84,6 +83,13 @@ class Calendar(db.Model):
     arrival_datetime = db.Column(db.DateTime, nullable=False)
     departure_datetime = db.Column(db.DateTime, nullable=False)
 
+    def to_dict(self):
+        return {"id": self.id,
+                "user_id": self.user_id,
+                "work_id": self.work_id,
+                "arrival_datetime": self.arrival_datetime,
+                "departure_datetime": self.departure_datetime}
+
 
 class Carpool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -95,9 +101,12 @@ class Carpool(db.Model):
 
 class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     year = db.Column(db.Integer)
     make = db.Column(db.String(64))
     model = db.Column(db.String(64))
+    plate_number = db.Column(db.String(16))
+
 
     def to_dict(self):
         return {"year": self.year,
@@ -113,4 +122,3 @@ class Feedback(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False)  # Timestamp of Comment
     rating = db.Column(db.Integer)
     comments = db.Column(db.String(255))
-

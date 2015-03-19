@@ -48,7 +48,8 @@ def lat_long_to_address(key, latitude, longitude):
             address = {"street": location["street"],
                        "city": location["adminArea5"],
                        "state": location["adminArea3"],
-                       "zip_code": location["postalCode"]}
+                       "zip_code": location["postalCode"]
+                      }
     return address
 
 

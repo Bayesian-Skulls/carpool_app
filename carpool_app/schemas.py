@@ -49,14 +49,9 @@ class Feedback(Schema):
     comments = fields.String()
 
 
-
-
-
-
-
-
-
-
-
-
-
+class CalendarSchema(Schema):
+    date = fields.String()
+    arrive_hour = fields.Integer()
+    arrive_minutes = fields.Integer()
+    depart_hour = fields.Integer()
+    depart_minutes = fields.Integer()

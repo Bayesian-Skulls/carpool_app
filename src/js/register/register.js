@@ -6,7 +6,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', 'currentUser', 'Work', 'userService', function($log, currentUser, Work, userService){
+}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'userService',
+      function($log, $location, currentUser, Work, userService){
 
   var self = this;
   self.currentUser = currentUser;
@@ -16,6 +17,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     userService.addUser().then(function() {
 
     });
+  };
+
+  self.fbRegister = function() {
+    $location.path('/facebook/login');
   };
 
 }]);
