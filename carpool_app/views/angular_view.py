@@ -117,7 +117,6 @@ def add_vehicle(user_id):
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
 
-<<<<<<< HEAD
 @api.route('/users/calendar', methods=["POST"])
 #@login_required
 def add_calendar(user_id=None, data=None):
@@ -159,7 +158,8 @@ def clean_date_inputs(input_data):
                             minutes=input_data["return_minutes"])
     depart_datetime = arrive_date + depart_time
     return arrive_datetime, depart_datetime
-=======
+
+
 @api.route('/users/<user_id>/work', methods=["GET"])
 @login_required
 def get_work(user_id):
@@ -176,4 +176,4 @@ def get_vehicle(user_id):
     serializer = VehicleSchema(many=False)
     result = serializer.dump(vehicle)
     return jsonify({"vehicle": result.data}), 200
->>>>>>> f12d5b98095fdde4eccba53db922f75cbb87a7ff
+
