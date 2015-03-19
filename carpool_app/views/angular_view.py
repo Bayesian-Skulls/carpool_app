@@ -66,7 +66,7 @@ def update_user(user_id=None, data=None):
 
 @api.route('/me', methods=["GET"])
 def get_current_user():
-    return jsonify(current_user)
+    return jsonify({"user": current_user.to_dict()})
 
 
 @api.route("/logout")
