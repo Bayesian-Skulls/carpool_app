@@ -29,16 +29,12 @@ def api_index():
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
     if not data:
-        body = request.get_data(as_text=True)
-        data = json.loads(body)
+        data = request.get_json()
     errors = UserSchema().validate(data)
     if errors:
         return jsonify(errors), 400
     else:
-        user = User(name=data['name'],
-                    email=data['email'],
-                    gender=data['gender'],
-                    facebook_id=data['facebook_id'])
+        user = User(**data)
         if not User.query.filter_by(facebook_id=data['facebook_id']).first():
             db.session.add(user)
             db.session.commit()
