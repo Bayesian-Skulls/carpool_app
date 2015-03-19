@@ -3,10 +3,12 @@ from .models import User, Work
 
 
 class UserSchema(Schema):
+    id = fields.Integer()
     name = fields.String(required=True)
     email = fields.Email(required=True)
     gender = fields.String()
     paypal_id = fields.String()
+    phone_number = fields.String()
     facebook_id = fields.String()
     drivers_license = fields.Integer()
     street_number = fields.String()
@@ -17,6 +19,7 @@ class UserSchema(Schema):
 
 
 class WorkSchema(Schema):
+    id = fields.Integer()
     name = fields.String(required=True)
     user_id = fields.Integer(required=True)
     street_number = fields.String()

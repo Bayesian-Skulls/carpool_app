@@ -42,6 +42,7 @@ class User(db.Model, UserMixin):
                 "name": self.name,
                 "email": self.email,
                 "gender": self.gender,
+                "phone_number": self.phone_number,
                 "facebook_id": self.facebook_id,
                 "paypal_id": self.paypal_id,
                 "drivers_license": self.drivers_license,
@@ -56,6 +57,7 @@ class User(db.Model, UserMixin):
 def load_user(id):
     return User.query.get(id)
 
+
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
@@ -69,11 +71,16 @@ class Work(db.Model):
     longitude = db.Column(db.Float)
 
     def to_dict(self):
-        return {"street_number": self.street_number,
+        return {"id": self.id,
+                "name": self.name,
+                "user_id": self.user_id,
+                "street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
                 "state": self.state,
-                "zip_code": self.zip_code}
+                "zip_code": self.zip_code,
+                "latitude": self.latitude,
+                "longitude": self.longitude}
 
 
 class Calendar(db.Model):
