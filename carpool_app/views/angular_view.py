@@ -50,7 +50,7 @@ def register_or_login_user(data):
 @api.route("/user", methods=['PUT'])
 #@login_required
 def update_user(user_id=None, data=None):
-    if not id:
+    if not user_id:
         user_id = current_user.id
     if not data:
         data = request.get_json()
