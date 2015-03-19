@@ -23,7 +23,7 @@ def user_generator(n):
 
 
 def generate_location_json(key):
-    cities =['Raleigh', 'Durham']
+    cities = ['Raleigh', 'Durham']
     shuffle(cities)
     origin = cities.pop()
     latitude, longitude = generate_coordinate(origin)
@@ -48,8 +48,7 @@ def lat_long_to_address(key, latitude, longitude):
             address = {"street": location["street"],
                        "city": location["adminArea5"],
                        "state": location["adminArea3"],
-                       "zip": location["postalCode"]
-                      }
+                       "zip_code": location["postalCode"]}
     return address
 
 
@@ -77,6 +76,6 @@ def build_seed(k):
     for n in range(k):
         latR, longR = generate_coordinate("Raleigh")
         latD, longD = generate_coordinate("Durham")
-        csv = csv + "{},{},{},{},{},{},{},{}".format(n, "Raleigh", latR, longR,"Durham", latD, longD, "9:00\n")
+        csv = csv + "{},{},{},{},{},{},{},{}".format(n, "Raleigh", latR, longR, "Durham", latD, longD, "9:00\n")
     file.write(csv)
     file.close()
