@@ -14,6 +14,8 @@ module.exports = {
     'bower_components/angular-animate/angular-animate.min.js',
     'bower_components/d3/d3.min.js',
     'bower_components/c3/c3.min.js',
-    'bower_components/pickadate/c3.min.js',
+    'bower_components/pickadate/lib/picker.js',
+    'bower_components/pickadate/lib/picker.date.js',
+    'bower_components/pickadate/lib/picker.time.js'
   ]
 };

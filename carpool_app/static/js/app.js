@@ -83,6 +83,27 @@ app.directive('googleplace', function() {
     };
 });
 
+app.directive('picker', function() {
+  return {
+      require: 'ngModel',
+      scope: {
+          ngModel: '=',
+          pickerType: '=?',
+          details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        if(scope.pickerType==='date'){
+          $(element).pickadate({
+            formatSubmit: 'yyyy/mm/dd'
+          });
+        } else if (scope.pickerType==='time') {
+          $(element[0]).pickatime();
+        }
+      }
+  };
+  // {{vm.user.schedule.slice(0,5).trim()}}
+});
+
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
@@ -277,15 +298,15 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
   return {
 
     addUser: function(user) {
-        return ajaxService.call($http.post('/api/user/' + user.user_id, user));
+        return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
     },
 
     editUser: function() {
-      return ajaxService.call($http.post('/api/user/' + user.user_id, user));
+      return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
     },
 
     getCurrent: function() {
-      return ajaxService.call($http.get('/login/facebook/'));
+      return ajaxService.call($http.get('/api/v1/me'));
     }
 
   };

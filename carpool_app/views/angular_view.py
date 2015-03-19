@@ -82,7 +82,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-@login.required
+@login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
