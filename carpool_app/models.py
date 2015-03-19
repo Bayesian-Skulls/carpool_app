@@ -113,7 +113,6 @@ class Vehicle(db.Model):
     model = db.Column(db.String(64))
     plate_number = db.Column(db.String(16))
 
-
     def to_dict(self):
         return {"year": self.year,
                 "make": self.make,
