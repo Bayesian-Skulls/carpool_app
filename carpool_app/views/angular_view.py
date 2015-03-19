@@ -68,7 +68,7 @@ def update_user(user_id=None, data=None):
 
 @api.route('/me', methods=["GET"])
 def get_current_user():
-    return current_user
+    return jsonify(current_user)
 
 
 @api.route("/logout")
@@ -110,3 +110,21 @@ def add_vehicle(user_id):
     db.session.commit()
     result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
+
+
+@api.route('/users/<user_id>/work', methods=["GET"])
+@login_required
+def get_work(user_id):
+    work = Work.query.filter_by(user_id=current_user.id)
+    serializer = WorkSchema(many=True)
+    result = serializer.dump(work)
+    return jsonify({"work": result.data}), 200
+
+
+@api.route('/users/<user_id>/vehicle', methods=["GET"])
+@login_required
+def get_vehicle(user_id):
+    vehicle = Vehicle.query.filter_by(user_id=current_user.id)
+    serializer = VehicleSchema(many=False)
+    result = serializer.dump(vehicle)
+    return jsonify({"vehicle": result.data}), 200
