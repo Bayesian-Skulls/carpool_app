@@ -101,5 +101,3 @@ def add_vehicle():
     db.session.commit()
     result = work_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
-
-

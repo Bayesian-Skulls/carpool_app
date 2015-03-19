@@ -15,6 +15,22 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/dashboard/dashboard.html',
+    controller: 'dashCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/dashboard', routeOptions);
+
+}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
+      function($log, $location, currentUser, userService){
+
+  var self = this;
+  self.currentUser = currentUser;
+
+}]);
+
 app.directive('googleplace', function() {
     return {
         require: 'ngModel',
@@ -127,7 +143,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', 'currentUser', 'Work', 'userService', function($log, currentUser, Work, userService){
+}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'userService',
+      function($log, $location, currentUser, Work, userService){
 
   var self = this;
   self.currentUser = currentUser;
@@ -137,6 +154,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     userService.addUser().then(function() {
 
     });
+  };
+
+  self.fbRegister = function() {
+    $location.path('/facebook/login');
   };
 
 }]);
@@ -195,7 +216,11 @@ app.factory('Work', [function(){
 
 }]);
 
-app.factory('currentUser', ['User', function(User) {
+app.factory('currentUser', ['User', 'userService', function(User, userService) {
+
+  userService.getCurrent(function(data){
+    console.log(data);
+  });
 
   return User();
 
@@ -226,22 +251,7 @@ app.factory('StringUtil', function() {
   };
 });
 
-app.factory('ridesService', ['ajaxService', '$http', function(ajaxService, $http) {
-
-  return {
-
-    rideList: function() {
-      return ajaxService.call($http.get('api/rides'));
-    },
-
-    assignmentList: function() {
-      return ajaxService.call($http.get('/api/assignments'));
-    }
-  };
-
-}]);
-
-app.factory('userService', ['ajaxService', function(ajaxService) {
+app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
 
   return {
 
@@ -254,7 +264,7 @@ app.factory('userService', ['ajaxService', function(ajaxService) {
     },
 
     getCurrent: function() {
-      return ajaxService.call($http.get('/api/me'));
+      return ajaxService.call($http.get('/login/facebook/'));
     }
 
   };

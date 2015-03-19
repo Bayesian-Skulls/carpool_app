@@ -1,4 +1,4 @@
-app.factory('userService', ['ajaxService', function(ajaxService) {
+app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
 
   return {
 
@@ -11,7 +11,7 @@ app.factory('userService', ['ajaxService', function(ajaxService) {
     },
 
     getCurrent: function() {
-      return ajaxService.call($http.get('/api/me'));
+      return ajaxService.call($http.get('/login/facebook/'));
     }
 
   };
