@@ -82,7 +82,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-@login.required
+@login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -150,12 +150,12 @@ def add_calendar(user_id=None, data=None):
 
 
 def clean_date_inputs(input_data):
-    arrive_date = datetime.strptime(input_data["date"], "%m/%d/%Y")
-    arrive_time = timedelta(hours=input_data["depart_hour"],
-                            minutes=input_data["depart_minutes"])
+    arrive_date = datetime.strptime(input_data["date"], "%Y-%m-%d")
+    arrive_time = timedelta(hours=input_data["arrive_hour"],
+                            minutes=input_data["arrive_minutes"])
     arrive_datetime = arrive_date + arrive_time
-    depart_time = timedelta(hours=input_data["return_hour"],
-                            minutes=input_data["return_minutes"])
+    depart_time = timedelta(hours=input_data["depart_hour"],
+                            minutes=input_data["depart_minutes"])
     depart_datetime = arrive_date + depart_time
     return arrive_datetime, depart_datetime
 
