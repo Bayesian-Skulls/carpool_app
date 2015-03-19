@@ -44,7 +44,7 @@ def facebook_authorized():
     resp = facebook.authorized_response()
     if resp is None:
         flash('You denied the request to sign in.')
-        return redirect("/login")
+        return redirect("#/")
 
     session['facebook_token'] = (resp['access_token'],)
     me = facebook.get('/me')

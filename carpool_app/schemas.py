@@ -9,7 +9,6 @@ class UserSchema(Schema):
     paypal_id = fields.String()
     facebook_id = fields.String()
     drivers_license = fields.Integer()
-    plate_number = fields.String()
     street_number = fields.String()
     street = fields.String()
     city = fields.String()
@@ -41,6 +40,7 @@ class VehicleSchema(Schema):
     year = fields.Integer(validate=legit_year)
     make = fields.String()
     model = fields.String()
+    plate_number = fields.String()
 
 
 class Feedback(Schema):

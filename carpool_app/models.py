@@ -44,7 +44,6 @@ class User(db.Model, UserMixin):
                 "facebook_id": self.facebook_id,
                 "paypal_id": self.paypal_id,
                 "drivers_license": self.drivers_license,
-                "plate_number": self.plate_number,
                 "street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
@@ -110,7 +109,8 @@ class Vehicle(db.Model):
     def to_dict(self):
         return {"year": self.year,
                 "make": self.make,
-                "model": self.model}
+                "model": self.model,
+                "plate_number" : self.plate_number}
 
 
 class Feedback(db.Model):
