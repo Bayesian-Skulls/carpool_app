@@ -9,6 +9,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     gender = db.Column(db.String(64), nullable=False)
+    phone_number = db.Column(db.String(64))
     encrypted_password = db.Column(db.String(60))
     facebook_id = db.Column(db.String(64))
     paypal_id = db.Column(db.String(64))
@@ -41,6 +42,7 @@ class User(db.Model, UserMixin):
                 "name": self.name,
                 "email": self.email,
                 "gender": self.gender,
+                "phone_number": self.phone_number,
                 "facebook_id": self.facebook_id,
                 "paypal_id": self.paypal_id,
                 "drivers_license": self.drivers_license,
@@ -53,6 +55,7 @@ class User(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(id)
+
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -67,11 +70,16 @@ class Work(db.Model):
     longitude = db.Column(db.Float)
 
     def to_dict(self):
-        return {"street_number": self.street_number,
+        return {"id": self.id,
+                "name": self.name,
+                "user_id": self.user_id,
+                "street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
                 "state": self.state,
-                "zip_code": self.zip_code}
+                "zip_code": self.zip_code,
+                "latitude": self.latitude,
+                "longitude": self.longitude}
 
 
 class Calendar(db.Model):
@@ -105,11 +113,11 @@ class Vehicle(db.Model):
     model = db.Column(db.String(64))
     plate_number = db.Column(db.String(16))
 
-
     def to_dict(self):
         return {"year": self.year,
                 "make": self.make,
-                "model": self.model}
+                "model": self.model,
+                "plate_number" : self.plate_number}
 
 
 class Feedback(db.Model):

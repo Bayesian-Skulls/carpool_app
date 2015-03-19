@@ -29,16 +29,12 @@ def api_index():
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
     if not data:
-        body = request.get_data(as_text=True)
-        data = json.loads(body)
+        data = request.get_json()
     errors = UserSchema().validate(data)
     if errors:
         return jsonify(errors), 400
     else:
-        user = User(name=data['name'],
-                    email=data['email'],
-                    gender=data['gender'],
-                    facebook_id=data['facebook_id'])
+        user = User(**data)
         if not User.query.filter_by(facebook_id=data['facebook_id']).first():
             db.session.add(user)
             db.session.commit()
@@ -50,7 +46,7 @@ def register_or_login_user(data):
 @api.route("/user", methods=['PUT'])
 #@login_required
 def update_user(user_id=None, data=None):
-    if not id:
+    if not user_id:
         user_id = current_user.id
     if not data:
         data = request.get_json()
@@ -70,7 +66,7 @@ def update_user(user_id=None, data=None):
 
 @api.route('/me', methods=["GET"])
 def get_current_user():
-    return jsonify(current_user)
+    return jsonify({"user": current_user.to_dict()})
 
 
 @api.route("/logout")
@@ -150,12 +146,12 @@ def add_calendar(user_id=None, data=None):
 
 
 def clean_date_inputs(input_data):
-    arrive_date = datetime.strptime(input_data["date"], "%m/%d/%Y")
-    arrive_time = timedelta(hours=input_data["depart_hour"],
-                            minutes=input_data["depart_minutes"])
+    arrive_date = datetime.strptime(input_data["date"], "%Y-%m-%d")
+    arrive_time = timedelta(hours=input_data["arrive_hour"],
+                            minutes=input_data["arrive_minutes"])
     arrive_datetime = arrive_date + arrive_time
-    depart_time = timedelta(hours=input_data["return_hour"],
-                            minutes=input_data["return_minutes"])
+    depart_time = timedelta(hours=input_data["depart_hour"],
+                            minutes=input_data["depart_minutes"])
     depart_datetime = arrive_date + depart_time
     return arrive_datetime, depart_datetime
 

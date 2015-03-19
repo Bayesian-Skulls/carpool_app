@@ -3,13 +3,14 @@ from .models import User, Work
 
 
 class UserSchema(Schema):
+    id = fields.Integer()
     name = fields.String(required=True)
     email = fields.Email(required=True)
     gender = fields.String()
     paypal_id = fields.String()
+    phone_number = fields.String()
     facebook_id = fields.String()
     drivers_license = fields.Integer()
-    plate_number = fields.String()
     street_number = fields.String()
     street = fields.String()
     city = fields.String()
@@ -18,6 +19,7 @@ class UserSchema(Schema):
 
 
 class WorkSchema(Schema):
+    id = fields.Integer()
     name = fields.String(required=True)
     user_id = fields.Integer(required=True)
     street_number = fields.String()
@@ -39,8 +41,10 @@ def legit_rating(rating):
 
 class VehicleSchema(Schema):
     year = fields.Integer(validate=legit_year)
+    user_id = fields.Integer()
     make = fields.String()
     model = fields.String()
+    plate_number = fields.String()
 
 
 class Feedback(Schema):
@@ -49,7 +53,7 @@ class Feedback(Schema):
 
 
 class CalendarSchema(Schema):
-    date = fields.Date()
+    date = fields.String()
     arrive_hour = fields.Integer()
     arrive_minutes = fields.Integer()
     depart_hour = fields.Integer()
