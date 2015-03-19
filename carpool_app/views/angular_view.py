@@ -64,7 +64,8 @@ def add_work(user_id):
     return jsonify({"message": "Added work", "work": result.data}), 200
 
 
-@api.route('/users/<user_id>/vehicle')
+@api.route('/users/<user_id>/vehicle', methods=["POST"])
+@login_required
 def add_vehicle(user_id):
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
@@ -75,7 +76,7 @@ def add_vehicle(user_id):
     vehicle = Vehicle(**input_data)
     db.session.add(vehicle)
     db.session.commit()
-    result = work_schema.dump(Vehicle.query.get(vehicle.id))
+    result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
 
