@@ -13,15 +13,18 @@ work_schema = WorkSchema()
 vehicle_schema = VehicleSchema()
 calendar_schema = CalendarSchema()
 
+
 @angular_view.route("/")
 def index():
     return angular_view.send_static_file("index.html")
+
 
 @api.route("/")
 @login_required
 def api_index():
     print("Current User:  ", current_user)
     return str(current_user.id)
+
 
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
@@ -42,6 +45,7 @@ def register_or_login_user(data):
     user = User.query.filter_by(facebook_id=data['facebook_id']).first()
     login_user(user)
     return jsonify({"user": user.to_dict()}), 201
+
 
 @api.route("/user", methods=['PUT'])
 #@login_required
@@ -66,7 +70,8 @@ def update_user(user_id=None, data=None):
 
 @api.route('/me', methods=["GET"])
 def get_current_user():
-    return current_user
+    return jsonify(current_user)
+
 
 @api.route("/logout")
 @login_required
@@ -75,7 +80,9 @@ def logout():
     logout_user()
     return jsonify({"user": user.to_dict()}), 201
 
+
 @api.route('/users/<user_id>/work', methods=["POST"])
+@login.required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -94,8 +101,9 @@ def add_work(user_id=None, data=None):
     return jsonify({"message": "Added work", "work": result.data}), 200
 
 
-@api.route('/users/<user_id>/vehicle')
-def add_vehicle():
+@api.route('/users/<user_id>/vehicle', methods=["POST"])
+@login_required
+def add_vehicle(user_id):
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     input_data = request.get_json()
@@ -105,10 +113,11 @@ def add_vehicle():
     vehicle = Vehicle(**input_data)
     db.session.add(vehicle)
     db.session.commit()
-    result = work_schema.dump(Vehicle.query.get(vehicle.id))
+    result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
 
+<<<<<<< HEAD
 @api.route('/users/calendar', methods=["POST"])
 #@login_required
 def add_calendar(user_id=None, data=None):
@@ -150,3 +159,21 @@ def clean_date_inputs(input_data):
                             minutes=input_data["return_minutes"])
     depart_datetime = arrive_date + depart_time
     return arrive_datetime, depart_datetime
+=======
+@api.route('/users/<user_id>/work', methods=["GET"])
+@login_required
+def get_work(user_id):
+    work = Work.query.filter_by(user_id=current_user.id)
+    serializer = WorkSchema(many=True)
+    result = serializer.dump(work)
+    return jsonify({"work": result.data}), 200
+
+
+@api.route('/users/<user_id>/vehicle', methods=["GET"])
+@login_required
+def get_vehicle(user_id):
+    vehicle = Vehicle.query.filter_by(user_id=current_user.id)
+    serializer = VehicleSchema(many=False)
+    result = serializer.dump(vehicle)
+    return jsonify({"vehicle": result.data}), 200
+>>>>>>> f12d5b98095fdde4eccba53db922f75cbb87a7ff

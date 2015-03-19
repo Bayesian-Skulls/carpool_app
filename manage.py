@@ -26,16 +26,19 @@ def make_shell_context():
     """
     return dict(app=app, db=db)
 
+
 @manager.command
 def seed_all():
     seed_users()
     seed_addresses()
+
 
 @manager.command
 def seed_users():
     user_list = user_generator(20)
     for user in user_list:
         register_or_login_user(user)
+
 
 @manager.command
 def seed_addresses():
