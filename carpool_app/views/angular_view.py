@@ -11,15 +11,18 @@ api = Blueprint("api", __name__)
 work_schema = WorkSchema()
 vehicle_schema = VehicleSchema()
 
+
 @angular_view.route("/")
 def index():
     return angular_view.send_static_file("index.html")
+
 
 @api.route("/")
 @login_required
 def api_index():
     print("Current User:  ", current_user)
     return str(current_user.id)
+
 
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
@@ -40,6 +43,7 @@ def register_or_login_user(data):
     user = User.query.filter_by(facebook_id=data['facebook_id']).first()
     login_user(user)
     return jsonify({"user": user.to_dict()}), 201
+
 
 @api.route("/user", methods=['PUT'])
 @login_required
@@ -66,6 +70,7 @@ def update_user(user_id=None, data=None):
 def get_current_user():
     return current_user
 
+
 @api.route("/logout")
 @login_required
 def logout():
@@ -73,8 +78,11 @@ def logout():
     logout_user()
     return jsonify({"user": user.to_dict()}), 201
 
+
 @api.route('/users/<user_id>/work', methods=["POST"])
-def add_work():
+@login_required
+def add_work(user_id):
+    print(request.get_json())
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     input_data = request.get_json()
@@ -88,8 +96,9 @@ def add_work():
     return jsonify({"message": "Added work", "work": result.data}), 200
 
 
-@api.route('/users/<user_id>/vehicle')
-def add_vehicle():
+@api.route('/users/<user_id>/vehicle', methods=["POST"])
+@login_required
+def add_vehicle(user_id):
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     input_data = request.get_json()
@@ -99,5 +108,5 @@ def add_vehicle():
     vehicle = Vehicle(**input_data)
     db.session.add(vehicle)
     db.session.commit()
-    result = work_schema.dump(Vehicle.query.get(vehicle.id))
+    result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
