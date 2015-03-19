@@ -2,13 +2,14 @@
 import os
 from random import shuffle
 from faker import Faker
+from datetime import datetime
 from flask.ext.script import Manager, Shell, Server
 from flask.ext.migrate import MigrateCommand
 from flask.ext.script.commands import ShowUrls, Clean
 from seeder import user_generator, generate_location_json
 from carpool_app import create_app, db
-from carpool_app.views.angular_view import register_or_login_user, update_user, add_work
-from carpool_app.models import User
+from carpool_app.views.angular_view import register_or_login_user, update_user, add_work, add_calendar
+from carpool_app.models import User, Work
 
 app = create_app()
 manager = Manager(app)
@@ -26,19 +27,17 @@ def make_shell_context():
     """
     return dict(app=app, db=db)
 
-
 @manager.command
 def seed_all():
     seed_users()
     seed_addresses()
-
+    seed_work()
 
 @manager.command
 def seed_users():
     user_list = user_generator(20)
     for user in user_list:
         register_or_login_user(user)
-
 
 @manager.command
 def seed_addresses():
@@ -57,6 +56,21 @@ def seed_work():
         data = generate_location_json(key)
         data["name"] = fake.company()
         add_work(user.id, data)
+
+
+@manager.command
+def seed_calendar():
+    users = User.query.all()
+    data = {}
+    for user in users:
+        data["work_id"] = Work.query.filter(Work.user_id == user.id).first().id
+        data["date"] = str(datetime.today().date())
+        data["arrive_hour"] = 9
+        data["arrive_minutes"] = 0
+        data["depart_hour"] = 17
+        data["depart_minutes"] = 30
+        add_calendar(user.id, data)
+        print("Added to {}, {}".format(user.id, data["work_id"]))
 
 if __name__ == '__main__':
     manager.run()
