@@ -22,6 +22,26 @@ def user_generator(n):
     return user_list
 
 
+def generate_vehicle(user_id):
+    n = randint(0, 1)
+    plate = list(fake.address().replace(" ", "")[:5])
+    shuffle(plate)
+    plate = "".join(plate)
+    if n == 0:
+        car = {"id": user_id,
+               "year": 2015,
+               "make": "Smart Car",
+               "model": "Pure Coupe",
+               "plate_number": plate}
+    else:
+        car = {"id": user_id,
+               "year": 1987,
+               "make": "Lamborghini",
+               "model": "Countach",
+               "plate_number": plate}
+    return car
+
+
 def generate_location_json(key):
     cities = ['Raleigh', 'Durham']
     shuffle(cities)

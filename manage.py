@@ -6,9 +6,9 @@ from datetime import datetime
 from flask.ext.script import Manager, Shell, Server
 from flask.ext.migrate import MigrateCommand
 from flask.ext.script.commands import ShowUrls, Clean
-from seeder import user_generator, generate_location_json
+from seeder import user_generator, generate_location_json, generate_vehicle
 from carpool_app import create_app, db
-from carpool_app.views.angular_view import register_or_login_user, update_user, add_work, add_calendar
+from carpool_app.views.angular_view import register_or_login_user, update_user, add_work, add_calendar, add_vehicle
 from carpool_app.models import User, Work
 
 app = create_app()
@@ -40,8 +40,16 @@ def seed_users():
         register_or_login_user(user)
 
 @manager.command
+def seed_vehicles():
+    users = User.query.all()
+    for user in users:
+        data = generate_vehicle(user.id)
+        add_vehicle(user.id, data)
+
+
+@manager.command
 def seed_addresses():
-    users = db.session.query(User).all()
+    users = User.query.all()
     key = app.config.get("MAPQUESTAPI")
     for user in users:
         data = generate_location_json(key)
