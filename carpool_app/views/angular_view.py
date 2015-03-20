@@ -66,6 +66,7 @@ def update_user(user_id=None, data=None):
 
 
 @api.route('/me', methods=["GET"])
+@login_required
 def get_current_user():
     return jsonify({"user": current_user.to_dict()})
 
@@ -166,6 +167,39 @@ def get_vehicle():
     serializer = VehicleSchema(many=False)
     result = serializer.dump(vehicle)
     return jsonify({"vehicle": result.data}), 200
+
+
+@api.route('/user/calendar/<calendar_id>', methods=["DELETE"])
+@login_required
+def delete_calendar(calendar_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    calendar = Calendar.query.get(calendar_id)
+    db.session.delete(calendar)
+    db.session.commit()
+    return jsonify({"message": "Deleted calendar event"}), 200
+
+
+@api.route('/user/work/<work_id>', methods=["DELETE"])
+@login_required
+def delete_work(work_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    work = Work.query.get(work_id)
+    db.session.delete(work)
+    db.session.commit()
+    return jsonify({"message": "Deleted work object"}), 200
+
+
+@api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
+@login_required
+def delete_vehicle(vehicle_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    vehicle = Vehicle.query.get(vehicle_id)
+    db.session.delete(vehicle)
+    db.session.commit()
+    return jsonify({"message": "Deleted vehicle object"}), 200
 
 
 @api.route('/tests')
