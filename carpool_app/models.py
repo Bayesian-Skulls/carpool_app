@@ -115,11 +115,11 @@ class Vehicle(db.Model):
     model = db.Column(db.String(64))
     plate_number = db.Column(db.String(16))
 
-
     def to_dict(self):
         return {"year": self.year,
                 "make": self.make,
-                "model": self.model}
+                "model": self.model,
+                "plate_number": self.plate_number}
 
 
 class Feedback(db.Model):
