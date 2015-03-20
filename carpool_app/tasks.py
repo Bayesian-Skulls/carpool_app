@@ -1,9 +1,11 @@
 import json
 from datetime import datetime, timedelta
+import urllib.request as url
 from flask import jsonify
 from random import shuffle
 from .extensions import db
-from .models import User, Work, Calendar
+from .models import User, Work, Calendar, Vehicle, Carpool
+
 
 def get_events_by_time():
     start_time = timedelta(hours=-24)
@@ -30,10 +32,10 @@ def pair_users():
     data = prep_data(data)
     pairs = []
     shuffle(data)
-    for row in data:
+    for index, row in enumerate(data):
         current = []
         potential_pair = []
-        for row2 in data:
+        for row2 in data[index:]:
             if (not row["matched"] and not row2["matched"]) and row != row2:
                 home_dist = (((float(row["user"]["latitude"]) -
                                float(row2["user"]["latitude"]))**2 +
@@ -50,7 +52,7 @@ def pair_users():
         except ValueError:
             continue
         pairs.append(potential_pair[match])
-        for item in data:
+        for item in data[index:]:
             if (item["user"]["id"] == pairs[-1][0]["user"]["id"] or
                 item["user"]["id"] == pairs[-1][1]["user"]["id"]):
 
@@ -67,3 +69,24 @@ def prep_data(data):
 
 def build_carpools():
     pairs = pair_users()
+    for pair in pairs:
+        driver, passenger, directions = determine_driver(pair)
+        vehicle = Vehicle.query.filter(Vehicle.user_id ==
+            driver["user_id"]).first()
+        new_carpool = Carpool(accepted=False,
+                              driver_calendar_id=driver["event"]["id"],
+                              passenger_calendar_id=passenger["event"]["id"],
+                              vehicle_id=vehicle["id"])
+        db.session.add(new_carpool)
+    db.session.commit()
+
+
+def create_route(driver, passenger, driver_dest, passenger_dest):
+    return [(driver.latitude, driver.longitude),
+            (passenger.latitude, passenger.longitude),
+            (passenger_dest.latitude, driver_dest.longitude),
+            (driver_dest.latitude, driver_dest.longitude)]
+
+
+def determine_driver(user_pair):
+    pass
