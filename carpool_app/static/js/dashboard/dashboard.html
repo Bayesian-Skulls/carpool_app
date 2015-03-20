@@ -1,1 +1,17 @@
-<h1>C3 DEMO</h1>
+<div class="page-section dashboard-content">
+  <h5>Get Started</h5>
+  <div ng-if="!vm.currentUser.name" class="facebook">
+    <p><button class="dashboard-fbLogin">log in with facebook</button></p>
+  </div>
+  <div ng-if="!vm.currentUser.name">
+    <div class="dashboard-steps">
+      <p>Your Info</p>
+    </div>
+    <div class="dashboard-steps">
+      <p>Your Vehicle</p>
+    </div>
+    <div class="dashboard-steps">
+      <p>Your Work</p>
+    </div>
+  </div>
+</div>
