@@ -1,10 +1,11 @@
 import json
 from datetime import datetime, timedelta
-from flask import Blueprint, request, redirect, flash, jsonify
+from flask import Blueprint, request, redirect, flash, jsonify, current_app
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
 from ..models import User, Work, Vehicle, Calendar
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
+from ..tasks import build_carpools
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -130,7 +131,7 @@ def add_calendar(user_id=None, data=None):
     errors = calendar_schema.validate(data)
     if errors:
         return jsonify(errors), 400
-    arrive_dt, depart_dt = clean_date_inputs(data)
+    arrive_dt, depart_dt = data["arrival_datetime"], data["departure_datetime"]
     user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
         Calendar.work_id==data["work_id"]).all()
     for calendar in user_calendars:
@@ -148,17 +149,6 @@ def add_calendar(user_id=None, data=None):
     db.session.commit()
     return jsonify({"message": "Added calendar event",
                     "calendar": new_calendar.to_dict()})
-
-
-def clean_date_inputs(input_data):
-    arrive_date = datetime.strptime(input_data["date"], "%Y-%m-%d")
-    arrive_time = timedelta(hours=input_data["arrive_hour"],
-                            minutes=input_data["arrive_minutes"])
-    arrive_datetime = arrive_date + arrive_time
-    depart_time = timedelta(hours=input_data["depart_hour"],
-                            minutes=input_data["depart_minutes"])
-    depart_datetime = arrive_date + depart_time
-    return arrive_datetime, depart_datetime
 
 
 @api.route('/users/work', methods=["GET"])
@@ -210,3 +200,8 @@ def delete_vehicle(vehicle_id, user_id=None):
     db.session.delete(vehicle)
     db.session.commit()
     return jsonify({"message": "Deleted vehicle object"}), 200
+
+
+@api.route('/tests')
+def test_function():
+    return build_carpools()
