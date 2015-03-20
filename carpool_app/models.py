@@ -46,12 +46,13 @@ class User(db.Model, UserMixin):
                 "facebook_id": self.facebook_id,
                 "paypal_id": self.paypal_id,
                 "drivers_license": self.drivers_license,
-                "plate_number": self.plate_number,
                 "street_number": self.street_number,
                 "street": self.street,
                 "city": self.city,
                 "state": self.state,
-                "zip_code": self.zip_code}
+                "zip_code": self.zip_code,
+                "latitude": self.latitude,
+                "longitude": self.longitude}
 
 @login_manager.user_loader
 def load_user(id):
