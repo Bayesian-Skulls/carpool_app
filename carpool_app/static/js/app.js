@@ -23,11 +23,11 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
-      function($log, $location, currentUser, userService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService',
+      function($log, $location, current, userService){
 
   var self = this;
-  self.currentUser = currentUser;
+  self.current = current;
 
 }]);
 
@@ -52,26 +52,6 @@ app.factory('Schedule', [function(){
   };
 }]);
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/home/home.html',
-    controller: 'HomeCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/', routeOptions);
-
-}]).controller('HomeCtrl', ['$log', '$location', 'currentUser', 'Work', function($log, $location, currentUser, Work){
-  var self = this;
-
-  self.currentUser = currentUser;
-  self.newWork = Work();
-
-  self.register = function() {
-    self.currentUser.work = self.newWork;
-    $location.path('/register');
-  };
-}]);
-
 app.directive('googleplace', function() {
     return {
         require: 'ngModel',
@@ -90,11 +70,11 @@ app.directive('googleplace', function() {
                 scope.$apply(function() {
                     var addressObj = scope.gPlace.getPlace();
                     model.$setViewValue(element.val());
-                    scope.details.city = addressObj.address_components[3].long_name;
-                    scope.details.state = addressObj.address_components[6].long_name;
+                    scope.details.city = addressObj.address_components[2].long_name;
+                    scope.details.state = addressObj.address_components[5].long_name;
                     scope.details.street_number = addressObj.address_components[0].long_name;
                     scope.details.street = addressObj.address_components[1].long_name;
-                    scope.details.zip = addressObj.address_components[8].long_name;
+                    scope.details.zip_code = addressObj.address_components[7].long_name;
                     scope.details.lat = addressObj.geometry.location.k;
                     scope.details.long = addressObj.geometry.location.D;
                 });
@@ -124,6 +104,26 @@ app.directive('picker', function() {
   // {{vm.user.schedule.slice(0,5).trim()}}
 });
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/home/home.html',
+    controller: 'HomeCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/', routeOptions);
+
+}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', function($log, $location, current, Work){
+  var self = this;
+
+  self.current = current;
+  self.newWork = Work();
+
+  self.register = function() {
+    self.current.work = self.newWork;
+    $location.path('/facebook/login');
+  };
+}]);
+
 app.directive('mainNav', function() {
 
   return {
@@ -136,9 +136,10 @@ app.directive('mainNav', function() {
 
     templateUrl: '/static/js/nav/main-nav.html',
 
-    controller: ['$location', 'StringUtil', '$log', 'currentUser', '$scope', '$rootScope',
-    function($location, StringUtil, $log, currentUser, $scope, $rootScope) {
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope',
+    function($location, StringUtil, $log, current, $scope, $rootScope) {
       var self = this;
+      self.current = current;
 
       self.isActive = function (path) {
 
@@ -148,12 +149,10 @@ app.directive('mainNav', function() {
         return StringUtil.startsWith($location.path(), path);
       };
 
-      self.currentUser = currentUser;
 
       self.goTo = function(elem) {
         $location.hash(elem);
-
-        $anchorScroll();
+        $anchorScroll();s
       };
 
     }],
@@ -168,7 +167,6 @@ app.directive('mainNav', function() {
           e.preventDefault();
         });
       });
-
 
     }
   };
@@ -185,14 +183,23 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'Schedule', 'userService',
-      function($log, $location, currentUser, Work, Schedule, userService){
+}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService',
+                        function($log, $location, current, Work, Schedule, userService, workService){
 
   var self = this;
-  self.currentUser = currentUser;
+  self.current = current;
   self.newWork = Work();
   self.schedule = Schedule();
-  console.log(self.schedule);
+
+  self.editUser = function() {
+    userService.editUser(self.current.user);
+  };
+
+  self.addWork = function() {
+    workService.addWork(self.newWork, current.user).then(function(data) {
+      console.log(data);
+    });
+  };
 
   self.signup = function() {
     userService.addUser().then(function() {
@@ -206,22 +213,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
-app.factory('currentUser', ['User', 'userService', function(User, userService) {
-
-  // userService.getCurrent(function(data){
-  //   console.log(data);
-  // });
-
-  return User();
-
-}]);
-
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
     call: function(p) {
       return p.then(function (result) {
-        return result.data;
+        return result;
       })
       .catch(function (error) {
         $log.log(error);
@@ -281,14 +278,14 @@ app.factory('User', [function(){
     return {
       name: spec.name || '',
       email: spec.email || '',
-      paypal: spec.paypal || '',
+      paypal_id: spec.paypal || '',
       id: spec.id || '',
       address: spec.address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || '',
+      zip_code: spec.zip || '',
       lat: spec.lat || '',
       long: spec.long || ''
     };
@@ -328,16 +325,36 @@ app.factory('Work', [function(){
 
 }]);
 
+app.factory('current', ['User', 'userService','$log', function(User, userService, $log) {
+  // create basic object
+  var currentSpec = {};
+
+  currentSpec.user = User();
+  userService.getCurrent().then(function(result) {
+    if (result.status === 200){
+      $log.log('logged in');
+      $log.log(result.data.user);
+      currentSpec.user = result.data.user;
+      currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
+    } else {
+      $log.log('sorry bra, no user');
+    }
+  });
+
+  return currentSpec;
+
+}]);
+
 app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
 
   return {
 
     addUser: function(user) {
-        return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
+        return ajaxService.call($http.post('/api/v1/user', user));
     },
 
-    editUser: function() {
-      return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
+    editUser: function(user) {
+      return ajaxService.call($http.put('/api/v1/user', user));
     },
 
     getCurrent: function() {
@@ -350,5 +367,18 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
 }]);
 
+app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http) {
+
+  return {
+
+    addWork: function(work, user) {
+        return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
+    },
+    editWork: function(work, userId) {
+        return ajaxService.call($http.put('/api/v1/user/' + userId, work));
+    }
+  };
+
+}]);
 
 //# sourceMappingURL=app.js.map

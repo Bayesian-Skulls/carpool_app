@@ -3,11 +3,11 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
   return {
 
     addUser: function(user) {
-        return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
+        return ajaxService.call($http.post('/api/v1/user', user));
     },
 
-    editUser: function() {
-      return ajaxService.call($http.post('/api/v1/user/' + user.user_id, user));
+    editUser: function(user) {
+      return ajaxService.call($http.put('/api/v1/user', user));
     },
 
     getCurrent: function() {

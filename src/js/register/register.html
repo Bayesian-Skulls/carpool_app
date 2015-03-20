@@ -1,39 +1,52 @@
 <div class="register-form">
   <form class="signup-form" ng-submit="vm.register()">
+
+
     <div class="user-info page-section">
       <h5>Tell Us About You</h5><br>
-      <label class="user-input-label" for="user-name">name:</label><br>
-        <input class="register-input" type="text" name="user-name" ng-model="vm.currentUser.name" placeholder="Enter your name" required><br>
+      <label class="user-input-label" for="user-name">Hi my name is:</label>
+        <input class="register-input" type="text" name="user-name" ng-model="vm.current.user.name" placeholder="Enter your name" required>
 
-      <label class="user-input-label" for="user-email">email:</label><br>
-        <input class="register-input" type="email" name="user-email" ng-model="vm.currentUser.email" placeholder="Enter your email" required><br>
+      <label class="user-input-label" for="user-email">The best email to reach me at is</label>
+        <input class="register-input" type="email" name="user-email" ng-model="vm.current.user.email" placeholder="Enter your email" required>
 
-      <label class="user-input-label" for="user-address">street address:</label><br>
-        <input googleplace name="user-address" details="vm.currentUser" class="register-input" type="text" autocomplete="off" ng-model="vm.currentUser.address" required>
-        <br>
-      <label class="register-input-label" for="user-paypal">paypal:</label><br>
-        <input class="register-input" type="email" name="user-paypal" ng-model="vm.currentUser.paypal" placeholder="Enter your paypal email" required><br>
-      <div class="" ng-show="vm.currentUser.work.name === '' || !vm.currentUser.work.name">
-        <h5 for="work-name">Your Work</h5><br>
-        <label for="work-name">where are you headed?</label><br>
-        <input class="register-input" type="text" name="workName" ng-model="vm.currentUser.work.name" placeholder="Business Name" required>
-        <br>
-        <label class="user-input-label" for="work-address">street address:</label><br>
-          <input googleplace name="work-address" details="vm.newWork" class="register-input" type="text" ng-model="vm.currentUser.work.address" autcomplete="false">
+      <label class="user-input-label" for="user-address">street address:</label>
+        <input googleplace name="user-address" details="vm.current.user" class="register-input" type="text" autocomplete="off" ng-model="vm.current.user.address" required>
+
+      <label class="register-input-label" for="user-paypal">paypal:</label>
+        <input class="register-input" type="email" name="user-paypal" ng-model="vm.current.user.paypal_id" placeholder="Enter your paypal email" required>
+      <button ng-click="vm.editUser()">edit user</button>
+
+
+      <div class="">
+        <h5 for="work-name">Your Work</h5>
+        <label for="work-name">where are you headed?</label>
+        <input class="register-input" type="text" name="workName" ng-model="vm.current.user.work.name" placeholder="Business Name" required>
+
+        <label class="user-input-label" for="work-address">street address:</label>
+          <input googleplace name="work-address" details="vm.newWork" class="register-input" type="text" ng-model="vm.current.user.work.address" autcomplete="false">
+          <button ng-click="vm.addWork()">add workplace</button>
       </div>
+
     </div>
+
+
     <div class="schedule-form page-section">
       <p>
         Your Schedule
       </p>
       <div class="schedule-week">
-        <label class="schedule-day" ng-repeat="date in vm.schedule">
-          {{ date.day }}
-        </label>
+        <ul>
+          <li class="schedule-day" ng-repeat="date in vm.schedule">
+            <p>
+              {{ date.day }}
+            </p>
+          </li>
+        </ul>
       </div>
 
       <label for="schedule-departing">DEPART</label>
-      <input name="schedule-departing" ng-model="vm.user.schedule.departing" picker picker-type="'time'"><br>
+      <input name="schedule-departing" ng-model="vm.work.schedule.departing" picker picker-type="'time'"><br>
       <label for="schedule-returning">RETURN</label>
       <input name="schedule-returning" ng-model="vm.user.schedule.arriving" picker picker-type="'time'">
     </div>

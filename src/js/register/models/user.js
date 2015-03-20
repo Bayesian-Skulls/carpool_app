@@ -5,14 +5,14 @@ app.factory('User', [function(){
     return {
       name: spec.name || '',
       email: spec.email || '',
-      paypal: spec.paypal || '',
+      paypal_id: spec.paypal || '',
       id: spec.id || '',
       address: spec.address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || '',
+      zip_code: spec.zip || '',
       lat: spec.lat || '',
       long: spec.long || ''
     };
