@@ -3,7 +3,7 @@
   <div ng-if="!vm.currentUser.name" class="facebook">
     <p><button class="dashboard-fbLogin">log in with facebook</button></p>
   </div>
-  <div ng-if="!vm.currentUser.name">
+  <div class="dashboard-steps-container" ng-if="!vm.currentUser.name">
     <div class="dashboard-steps">
       <p>Your Info</p>
     </div>
@@ -13,5 +13,14 @@
     <div class="dashboard-steps">
       <p>Your Work</p>
     </div>
+  </div>
+  <div class="page-section">
+    <p>
+      this your passenger <br>
+      you leave at this time <br>
+      you’ll be paid X amount | | you will pay X amount <br>
+      You would have paid X <br>
+      You saved X
+    </p>
   </div>
 </div>

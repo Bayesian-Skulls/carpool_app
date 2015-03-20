@@ -15,43 +15,6 @@ app.controller('Error404Ctrl', ['$location', function ($location) {
   this.message = 'Could not find: ' + $location.url();
 }]);
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/dashboard/dashboard.html',
-    controller: 'dashCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/dashboard', routeOptions);
-
-}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
-      function($log, $location, currentUser, userService){
-
-  var self = this;
-  self.currentUser = currentUser;
-
-}]);
-
-app.factory('Schedule', [function(){
-
-  return function (spec) {
-    spec = spec || {};
-    return {
-      name: spec.name || '',
-      email: spec.email || '',
-      paypal: spec.paypal || '',
-      id: spec.id || '',
-      address: spec.address || '',
-      street_number: spec.street_number || '',
-      street: spec.street || '',
-      city: spec.city || '',
-      state: spec.state || '',
-      zip: spec.zip || '',
-      lat: spec.lat || '',
-      long: spec.long || ''
-    };
-  };
-}]);
-
 app.directive('googleplace', function() {
     return {
         require: 'ngModel',
@@ -103,6 +66,43 @@ app.directive('picker', function() {
   };
   // {{vm.user.schedule.slice(0,5).trim()}}
 });
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/dashboard/dashboard.html',
+    controller: 'dashCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/dashboard', routeOptions);
+
+}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
+      function($log, $location, currentUser, userService){
+
+  var self = this;
+  self.currentUser = currentUser;
+
+}]);
+
+app.factory('Schedule', [function(){
+
+  return function (spec) {
+    spec = spec || {};
+    return {
+      name: spec.name || '',
+      email: spec.email || '',
+      paypal: spec.paypal || '',
+      id: spec.id || '',
+      address: spec.address || '',
+      street_number: spec.street_number || '',
+      street: spec.street || '',
+      city: spec.city || '',
+      state: spec.state || '',
+      zip: spec.zip || '',
+      lat: spec.lat || '',
+      long: spec.long || ''
+    };
+  };
+}]);
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
@@ -185,12 +185,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'userService',
-      function($log, $location, currentUser, Work, userService){
+}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'Schedule', 'userService',
+      function($log, $location, currentUser, Work, Schedule, userService){
 
   var self = this;
   self.currentUser = currentUser;
   self.newWork = Work();
+  self.schedule = Schedule();
+  console.log(self.schedule);
 
   self.signup = function() {
     userService.addUser().then(function() {
@@ -202,6 +204,74 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $location.path('/facebook/login');
   };
 
+}]);
+
+app.factory('currentUser', ['User', 'userService', function(User, userService) {
+
+  // userService.getCurrent(function(data){
+  //   console.log(data);
+  // });
+
+  return User();
+
+}]);
+
+app.factory('ajaxService', ['$log', function($log) {
+
+  return {
+    call: function(p) {
+      return p.then(function (result) {
+        return result.data;
+      })
+      .catch(function (error) {
+        $log.log(error);
+      });
+    }
+  };
+
+}]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
+
+app.factory('workDate', [function(){
+
+  return function (spec) {
+    spec = spec || {};
+    return {
+      user_id: spec.user_id || undefined,
+      work_id: spec.work_id || undefined,
+      arrival_datetime: spec.arrival_datetime || undefined,
+      departure_datetime: spec.departure_datetime || undefined
+    };
+  };
+}]);
+
+app.factory('Schedule', ['workDate','$log', function(workDate, $log){
+
+  return function (spec) {
+    spec = spec || {};
+    var today = new Date();
+    var dateOffset = 7 - today.getDay();
+    var week = [];
+    var weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+    weekdays.forEach(function(day, index) {
+      var weekDate = today.getDate() + dateOffset + index;
+      var isoDate = new Date();
+      isoDate.setDate(weekDate);
+      week.push(workDate());
+      week[index].day = day;
+      week[index].iso = isoDate.toISOString();
+    });
+    return week;
+  };
 }]);
 
 app.factory('User', [function(){
@@ -257,41 +327,6 @@ app.factory('Work', [function(){
   };
 
 }]);
-
-app.factory('currentUser', ['User', 'userService', function(User, userService) {
-
-  userService.getCurrent(function(data){
-    console.log(data);
-  });
-
-  return User();
-
-}]);
-
-app.factory('ajaxService', ['$log', function($log) {
-
-  return {
-    call: function(p) {
-      return p.then(function (result) {
-        return result.data;
-      })
-      .catch(function (error) {
-        $log.log(error);
-      });
-    }
-  };
-
-}]);
-
-// A little string utility... no biggie
-app.factory('StringUtil', function() {
-  return {
-    startsWith: function (str, subStr) {
-      str = str || '';
-      return str.slice(0, subStr.length) === subStr;
-    }
-  };
-});
 
 app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
 

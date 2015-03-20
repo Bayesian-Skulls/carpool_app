@@ -6,12 +6,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'userService',
-      function($log, $location, currentUser, Work, userService){
+}]).controller('registerCtrl', ['$log', '$location', 'currentUser', 'Work', 'Schedule', 'userService',
+      function($log, $location, currentUser, Work, Schedule, userService){
 
   var self = this;
   self.currentUser = currentUser;
   self.newWork = Work();
+  self.schedule = Schedule();
+  console.log(self.schedule);
 
   self.signup = function() {
     userService.addUser().then(function() {

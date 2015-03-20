@@ -2,3 +2,13 @@
   margin: .2em 0;
   width: 100%;
 }
+
+.schedule-week {
+  display: block;
+  @include span-columns(12);
+}
+.schedule-day {
+  width: 20%;
+  float: left;
+  display: inline-block;
+}
