@@ -22,3 +22,11 @@ nav li {
   margin: 0 auto;
   margin: 0 .5em;
 }
+
+.root-content {
+  @include outer-container(100%);
+}
+
+.page-section {
+  margin: 1em;
+}

@@ -6,10 +6,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
-      function($log, $location, currentUser, userService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService',
+      function($log, $location, current, userService){
 
   var self = this;
-  self.currentUser = currentUser;
+  self.current = current;
 
 }]);

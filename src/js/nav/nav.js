@@ -10,9 +10,10 @@ app.directive('mainNav', function() {
 
     templateUrl: '/static/js/nav/main-nav.html',
 
-    controller: ['$location', 'StringUtil', '$log', 'currentUser', '$scope', '$rootScope',
-    function($location, StringUtil, $log, currentUser, $scope, $rootScope) {
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope',
+    function($location, StringUtil, $log, current, $scope, $rootScope) {
       var self = this;
+      self.current = current;
 
       self.isActive = function (path) {
 
@@ -22,12 +23,10 @@ app.directive('mainNav', function() {
         return StringUtil.startsWith($location.path(), path);
       };
 
-      self.currentUser = currentUser;
 
       self.goTo = function(elem) {
         $location.hash(elem);
-
-        $anchorScroll();
+        $anchorScroll();s
       };
 
     }],
@@ -42,7 +41,6 @@ app.directive('mainNav', function() {
           e.preventDefault();
         });
       });
-
 
     }
   };
