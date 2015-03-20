@@ -130,7 +130,7 @@ def add_calendar(user_id=None, data=None):
     errors = calendar_schema.validate(data)
     if errors:
         return jsonify(errors), 400
-    arrive_dt, depart_dt = clean_date_inputs(data)
+    arrive_dt, depart_dt = data["arrival_datetime"], data["departure_datetime"]
     user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
         Calendar.work_id==data["work_id"]).all()
     for calendar in user_calendars:
@@ -148,17 +148,6 @@ def add_calendar(user_id=None, data=None):
     db.session.commit()
     return jsonify({"message": "Added calendar event",
                     "calendar": new_calendar.to_dict()})
-
-
-def clean_date_inputs(input_data):
-    arrive_date = datetime.strptime(input_data["date"], "%Y-%m-%d")
-    arrive_time = timedelta(hours=input_data["arrive_hour"],
-                            minutes=input_data["arrive_minutes"])
-    arrive_datetime = arrive_date + arrive_time
-    depart_time = timedelta(hours=input_data["depart_hour"],
-                            minutes=input_data["depart_minutes"])
-    depart_datetime = arrive_date + depart_time
-    return arrive_datetime, depart_datetime
 
 
 @api.route('/users/work', methods=["GET"])

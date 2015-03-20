@@ -2,7 +2,7 @@
 import os
 from random import shuffle
 from faker import Faker
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask.ext.script import Manager, Shell, Server
 from flask.ext.migrate import MigrateCommand
 from flask.ext.script.commands import ShowUrls, Clean
@@ -72,13 +72,13 @@ def seed_calendar():
     data = {}
     for user in users:
         data["work_id"] = Work.query.filter(Work.user_id == user.id).first().id
-        data["date"] = str(datetime.today().date())
-        data["arrive_hour"] = 9
-        data["arrive_minutes"] = 0
-        data["depart_hour"] = 17
-        data["depart_minutes"] = 30
+        delta = timedelta(hours=9)
+        delta2 = timedelta(hours=17)
+        data["arrival_datetime"] = datetime.today().date() + delta
+        data["departure_datetime"] = datetime.today().date() + delta2
         add_calendar(user.id, data)
         print("Added to {}, {}".format(user.id, data["work_id"]))
+
 
 if __name__ == '__main__':
     manager.run()
