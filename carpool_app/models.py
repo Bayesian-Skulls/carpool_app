@@ -117,7 +117,7 @@ class Vehicle(db.Model):
         return {"year": self.year,
                 "make": self.make,
                 "model": self.model,
-                "plate_number" : self.plate_number}
+                "plate_number": self.plate_number}
 
 
 class Feedback(db.Model):

@@ -97,23 +97,27 @@ def add_work(user_id=None, data=None):
     return jsonify({"message": "Added work", "work": result.data}), 200
 
 
-@api.route('/users/<user_id>/vehicle', methods=["POST"])
-@login_required
-def add_vehicle(user_id):
-    if not request.get_json():
-        return jsonify({"message": "No input data provided"}), 400
-    input_data = request.get_json()
-    errors = vehicle_schema.validate(input_data)
-    if errors:
-        return jsonify(errors), 400
-    vehicle = Vehicle(**input_data)
+@api.route('/user/vehicle', methods=["POST"])
+#@login_required
+def add_vehicle(user_id=None, data=None):
+    if not user_id:
+        user_id = current_user.id
+    if not data:
+        if not request.get_json():
+            return jsonify({"message": "No input data provided"}), 400
+        data = request.get_json()
+        errors = vehicle_schema.validate(data)
+        if errors:
+            return jsonify(errors), 400
+    data["user_id"] = user_id
+    vehicle = Vehicle(**data)
     db.session.add(vehicle)
     db.session.commit()
     result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
 
-@api.route('/users/calendar', methods=["POST"])
+@api.route('/user/calendar', methods=["POST"])
 #@login_required
 def add_calendar(user_id=None, data=None):
     if not user_id:
@@ -156,18 +160,18 @@ def clean_date_inputs(input_data):
     return arrive_datetime, depart_datetime
 
 
-@api.route('/users/<user_id>/work', methods=["GET"])
+@api.route('/users/work', methods=["GET"])
 @login_required
-def get_work(user_id):
+def get_work():
     work = Work.query.filter_by(user_id=current_user.id)
     serializer = WorkSchema(many=True)
     result = serializer.dump(work)
     return jsonify({"work": result.data}), 200
 
 
-@api.route('/users/<user_id>/vehicle', methods=["GET"])
+@api.route('/user/vehicle', methods=["GET"])
 @login_required
-def get_vehicle(user_id):
+def get_vehicle():
     vehicle = Vehicle.query.filter_by(user_id=current_user.id)
     serializer = VehicleSchema(many=False)
     result = serializer.dump(vehicle)
