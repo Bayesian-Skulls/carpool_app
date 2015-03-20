@@ -1,11 +1,11 @@
 import json
 from datetime import datetime, timedelta
-from flask import Blueprint, request, redirect, flash, jsonify
+from flask import Blueprint, request, redirect, flash, jsonify, current_app
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
 from ..models import User, Work, Vehicle, Calendar
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import pair_users
+from ..tasks import build_carpools
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -170,4 +170,4 @@ def get_vehicle():
 
 @api.route('/tests')
 def test_function():
-    return pair_users()
+    return build_carpools()

@@ -1,9 +1,11 @@
 import json
+import re
 from datetime import datetime, timedelta
+from flask import current_app
 import urllib.request as url
 from flask import jsonify
 from random import shuffle
-from .extensions import db
+from .extensions import db, config
 from .models import User, Work, Calendar, Vehicle, Carpool
 
 
@@ -11,7 +13,7 @@ def get_events_by_time():
     start_time = timedelta(hours=-24)
     end_time = timedelta(hours=24)
     events = Calendar.query.filter((Calendar.arrival_datetime -
-        datetime.now()) <= end_time).filter((Calendar.arrival_datetime -
+        datetime.now()) < end_time).filter((Calendar.arrival_datetime -
         datetime.now()) >= start_time).all()
     events = [event.to_dict() for event in events]
     return events
@@ -58,7 +60,7 @@ def pair_users():
 
                 item["matched"] = True
 
-    return jsonify({"pairs": pairs})
+    return pairs
 
 
 def prep_data(data):
@@ -68,25 +70,81 @@ def prep_data(data):
 
 
 def build_carpools():
+    new_carpools = []
     pairs = pair_users()
     for pair in pairs:
-        driver, passenger, directions = determine_driver(pair)
+        driver, passenger, directions = determine_best_route(pair)
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
-            driver["user_id"]).first()
+            driver["user"]["id"]).first()
         new_carpool = Carpool(accepted=False,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
-                              vehicle_id=vehicle["id"])
+                              vehicle_id=vehicle.id)
         db.session.add(new_carpool)
+        new_carpools.append(new_carpool.to_dict())
     db.session.commit()
+    return jsonify({"carpools": new_carpools})
 
 
-def create_route(driver, passenger, driver_dest, passenger_dest):
-    return [(driver.latitude, driver.longitude),
-            (passenger.latitude, passenger.longitude),
-            (passenger_dest.latitude, driver_dest.longitude),
-            (driver_dest.latitude, driver_dest.longitude)]
+def create_route(driver_home, passenger_home, driver_dest, passenger_dest):
+    return [(driver_home), (passenger_home), (passenger_dest), (driver_dest)]
 
 
-def determine_driver(user_pair):
-    pass
+def determine_best_route(user_pair):
+    user1, user2 = user_pair
+    route_candidate_1 = create_route((user1["user"]["latitude"],
+                                      user1["user"]["longitude"]),
+                                     (user2["user"]["latitude"],
+                                      user2["user"]["longitude"]),
+                                     (user1["work"]["latitude"],
+                                      user1["work"]["longitude"]),
+                                     (user2["work"]["latitude"],
+                                      user2["work"]["longitude"]))
+    route_candidate_2 = create_route((user2["user"]["latitude"],
+                                      user2["user"]["longitude"]),
+                                     (user1["user"]["latitude"],
+                                      user1["user"]["longitude"]),
+                                     (user2["work"]["latitude"],
+                                      user2["work"]["longitude"]),
+                                     (user1["work"]["latitude"],
+                                      user1["work"]["longitude"]))
+
+    driver, directions = select_driver(route_candidate_1, route_candidate_2)
+
+    if not driver:
+        return user1, user2, directions
+    else:
+        return user2, user1, directions
+
+
+def select_driver(route_1, route_2):
+    route_1_directions = get_directions(route_1)
+    route_2_directions = get_directions(route_2)
+
+    if (route_1_directions["route"]["time"] <
+            route_2_directions["route"]["time"]):
+        return 0, route_1_directions
+    else:
+        return 1, route_2_directions
+
+
+def get_directions(points):
+    base_url = "http://open.mapquestapi.com/directions/v2/route?key={}"\
+                "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
+                "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
+                "&generalize=0&locale=en_US&unit=m".format(
+                    current_app.config["MAPQUESTAPI"])
+
+    base_url + "&from={},{}".format(points[0][0], points[0][1])
+
+    for index, point in enumerate(points):
+        if not index:
+            base_url += "&from={},{}".format(point[0], point[1])
+        else:
+            base_url += "&to={},{}".format(point[0], point[1])
+
+    base_url += "&drivingStyle=2"
+
+    request = url.urlopen(base_url)
+    request = str(request.read(), encoding="utf-8")
+    return json.loads(re.findall(r"\((.+)\);", request)[0])

@@ -106,6 +106,14 @@ class Carpool(db.Model):
     passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
     vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
 
+    def to_dict(self):
+        return {"id": self.id,
+                "accepted": self.accepted,
+                "driver_calendar_id": self.driver_calendar_id,
+                "passenger_calendar_id": self.passenger_calendar_id,
+                "vehicle_id": self.vehicle_id
+               }
+
 
 class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
