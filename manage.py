@@ -75,7 +75,11 @@ def seed_calendar():
         delta = timedelta(hours=9)
         delta2 = timedelta(hours=17)
         data["arrival_datetime"] = datetime.today().date() + delta
+        data["arrival_datetime"] = datetime.strftime(data["arrival_datetime"],
+                                                     "%Y-%m-%dT%H:%M:%S.%fZ")
         data["departure_datetime"] = datetime.today().date() + delta2
+        data["departure_datetime"] = datetime.strftime(
+            data["departure_datetime"], "%Y-%m-%dT%H:%M:%S.%fZ")
         add_calendar(user.id, data)
         print("Added to {}, {}".format(user.id, data["work_id"]))
 
