@@ -182,10 +182,9 @@ def get_work():
 @api.route('/user/vehicle', methods=["GET"])
 @login_required
 def get_vehicle():
-    vehicle = Vehicle.query.filter_by(user_id=current_user.id)
-    serializer = VehicleSchema(many=False)
-    result = serializer.dump(vehicle)
-    return jsonify({"vehicle": result.data}), 200
+    vehicle = Vehicle.query.filter_by(user_id=current_user.id).all()
+    result = vehicle.to_dict()
+    return jsonify({"vehicle": result}), 200
 
 
 @api.route('/user/calendar/<calendar_id>', methods=["DELETE"])
