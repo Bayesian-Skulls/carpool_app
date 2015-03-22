@@ -13,8 +13,9 @@ def get_events_by_time():
     start_time = timedelta(hours=-24)
     end_time = timedelta(hours=24)
     events = Calendar.query.filter((Calendar.arrival_datetime -
-        datetime.now()) < end_time).filter((Calendar.arrival_datetime -
-        datetime.now()) >= start_time).all()
+                                    datetime.now()) < end_time).\
+        filter((Calendar.arrival_datetime -
+                datetime.now()) >= start_time).all()
     events = [event.to_dict() for event in events]
     return events
 
@@ -25,7 +26,7 @@ def pair_event_and_driver():
     for event in events:
         user = User.query.filter(User.id == event["user_id"]).first().to_dict()
         work = Work.query.filter(Work.id == event["work_id"]).first().to_dict()
-        event_by_user.append({"user":user, "work":work, "event":event})
+        event_by_user.append({"user": user, "work": work, "event": event})
     return event_by_user
 
 
@@ -56,7 +57,7 @@ def pair_users():
         pairs.append(potential_pair[match])
         for item in data[index:]:
             if (item["user"]["id"] == pairs[-1][0]["user"]["id"] or
-                item["user"]["id"] == pairs[-1][1]["user"]["id"]):
+                    item["user"]["id"] == pairs[-1][1]["user"]["id"]):
 
                 item["matched"] = True
 
@@ -75,7 +76,7 @@ def build_carpools():
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
-            driver["user"]["id"]).first()
+                                       driver["user"]["id"]).first()
         new_carpool = Carpool(accepted=False,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
@@ -130,10 +131,10 @@ def select_driver(route_1, route_2):
 
 def get_directions(points):
     base_url = "http://open.mapquestapi.com/directions/v2/route?key={}"\
-                "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
-                "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
-                "&generalize=0&locale=en_US&unit=m".format(
-                    current_app.config["MAPQUESTAPI"])
+               "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
+               "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
+               "&generalize=0&locale=en_US&unit=m".\
+               format(current_app.config["MAPQUESTAPI"])
 
     base_url + "&from={},{}".format(points[0][0], points[0][1])
 

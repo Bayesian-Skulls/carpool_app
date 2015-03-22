@@ -54,6 +54,7 @@ class User(db.Model, UserMixin):
                 "latitude": self.latitude,
                 "longitude": self.longitude}
 
+
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(id)
@@ -102,8 +103,11 @@ class Calendar(db.Model):
 class Carpool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     accepted = db.Column(db.Boolean, nullable=False)
-    driver_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
-    passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
+    driver_calendar_id = db.Column(db.Integer,
+                                   db.ForeignKey('calendar.id'),
+                                   nullable=False)
+    passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'),
+                                      nullable=False)
     vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
 
     def to_dict(self):
@@ -112,7 +116,7 @@ class Carpool(db.Model):
                 "driver_calendar_id": self.driver_calendar_id,
                 "passenger_calendar_id": self.passenger_calendar_id,
                 "vehicle_id": self.vehicle_id
-               }
+                }
 
 
 class Vehicle(db.Model):
@@ -132,9 +136,13 @@ class Vehicle(db.Model):
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    commenter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    carpool_id = db.Column(db.Integer, db.ForeignKey('carpool.id'))  # If feedback refers to specific ride
-    timestamp = db.Column(db.DateTime, nullable=False)  # Timestamp of Comment
+    commenter_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                             nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                             nullable=False)
+    # If feedback refers to specific ride
+    carpool_id = db.Column(db.Integer, db.ForeignKey('carpool.id'))
+    # Timestamp of Comment
+    timestamp = db.Column(db.DateTime, nullable=False)
     rating = db.Column(db.Integer)
     comments = db.Column(db.String(255))
