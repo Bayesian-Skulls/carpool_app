@@ -2,10 +2,10 @@ import json
 from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, flash, jsonify, current_app
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
-from ..models import User, Work, Vehicle, Calendar
+from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools
+from ..tasks import build_carpools, get_rider_phone_numbers
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -223,3 +223,8 @@ def delete_vehicle(vehicle_id, user_id=None):
 @api.route('/tests')
 def test_function():
     return build_carpools()
+
+
+@api.route('/<carpool_id>/phones', methods=["GET"])
+def get_phone_numbers(carpool_id):
+    return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
