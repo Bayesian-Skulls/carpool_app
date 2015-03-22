@@ -133,7 +133,7 @@ def add_calendar(user_id=None, data=None):
         return jsonify(errors), 400
     arrive_dt = datetime.strptime(data["arrival_datetime"],
                                   "%Y-%m-%dT%H:%M:%S.%fZ")
-    depart_dt = datetime.strptime(data["departure_datetime"], 
+    depart_dt = datetime.strptime(data["departure_datetime"],
                                   "%Y-%m-%dT%H:%M:%S.%fZ")
     user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
         Calendar.work_id==data["work_id"]).all()
@@ -152,6 +152,19 @@ def add_calendar(user_id=None, data=None):
     db.session.commit()
     return jsonify({"message": "Added calendar event",
                     "calendar": new_calendar.to_dict()})
+
+
+@api.route('/user/calendar/<user_id>', methods=["GET"])
+#@login_required
+def view_calendars(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    user_calendars = Calendar.query.filter(Calendar.user_id ==
+                                           user_id).\
+                                    filter(Calendar.arrival_datetime >=
+                                           datetime.now()).all()
+    user_calendars = [calendar.to_dict() for calendar in user_calendars]
+    return jsonify({"calendars": user_calendars})
 
 
 @api.route('/users/work', methods=["GET"])
