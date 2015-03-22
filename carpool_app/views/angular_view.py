@@ -154,7 +154,7 @@ def add_calendar(user_id=None, data=None):
                     "calendar": new_calendar.to_dict()})
 
 
-@api.route('/user/calendar/<user_id>', methods=["GET"])
+@api.route('/user/calendar', methods=["GET"])
 #@login_required
 def view_calendars(user_id=None):
     if not user_id:
