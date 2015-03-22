@@ -110,6 +110,15 @@ class Carpool(db.Model):
                                       nullable=False)
     vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
 
+    @property
+    def users(self):
+        user1 = Calendar.query.filter(
+            Calendar.id == self.driver_calendar_id).first().user_id
+        user2 = Calendar.query.filter(
+            Calendar.id == self.passenger_calendar_id).first().user_id
+        return [user1, user2]
+
+
     def to_dict(self):
         return {"id": self.id,
                 "accepted": self.accepted,
