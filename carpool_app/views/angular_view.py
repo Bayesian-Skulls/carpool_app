@@ -36,7 +36,10 @@ def register_or_login_user(data):
         return jsonify(errors), 400
     else:
         user = User(**data)
-        if not User.query.filter_by(facebook_id=data['facebook_id']).first():
+        if User.query.filter_by(facebook_id=data['facebook_id']).first():
+            login_user(user)
+            redirect("/#/dashboard", 302)
+        else:
             db.session.add(user)
             db.session.commit()
     user = User.query.filter_by(facebook_id=data['facebook_id']).first()
