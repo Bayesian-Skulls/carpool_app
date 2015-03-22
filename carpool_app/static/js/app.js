@@ -66,17 +66,37 @@ app.directive('googleplace', function() {
             };
             scope.gPlace = new google.maps.places.Autocomplete(element[0], options);
 
+            var addressValues = {
+              'street_number': 'street_number',
+              'route': 'street',
+              'locality': 'city',
+              'administrative_area_level_1': 'state',
+              'postal_code': 'zip_code'
+            };
+
             google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
                 scope.$apply(function() {
+
                     var addressObj = scope.gPlace.getPlace();
                     model.$setViewValue(element.val());
-                    scope.details.city = addressObj.address_components[2].long_name;
-                    scope.details.state = addressObj.address_components[5].long_name;
-                    scope.details.street_number = addressObj.address_components[0].long_name;
-                    scope.details.street = addressObj.address_components[1].long_name;
-                    scope.details.zip_code = addressObj.address_components[7].long_name;
-                    scope.details.lat = addressObj.geometry.location.k;
-                    scope.details.long = addressObj.geometry.location.D;
+
+                    addressObj.address_components.forEach(function(address_comp){
+                      var type = address_comp.types[0];
+                      if (addressValues[type]) {
+                        var add_field = addressValues[type];
+                        scope.details[add_field] = address_comp.long_name;
+                        console.log(scope.details[add_field]);
+                      }
+                    });
+
+                    // scope.details.city = addressObj.address_components[2].long_name;
+                    // scope.details.state = addressObj.address_components[5].long_name;
+                    // scope.details.street_number = addressObj.address_components[0].long_name;
+                    // scope.details.street = addressObj.address_components[1].long_name;
+                    // scope.details.zip_code = addressObj.address_components[7].long_name;
+                    scope.details.latitude = addressObj.geometry.location.k;
+                    scope.details.longitude = addressObj.geometry.location.D;
+                    console.log(addressObj);
                 });
             });
         }
@@ -108,13 +128,13 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
-    controllerAs: 'vm'
+    controllerAs: 'vm',
   };
   $routeProvider.when('/', routeOptions);
 
 }]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', function($log, $location, current, Work){
   var self = this;
-
+  current.page = '/';
   self.current = current;
   self.newWork = Work();
 
@@ -124,57 +144,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 }]);
 
-app.directive('mainNav', function() {
-
-  return {
-
-    replace: true,
-
-    scope: {
-      onclose: '='
-    },
-
-    templateUrl: '/static/js/nav/main-nav.html',
-
-    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope',
-    function($location, StringUtil, $log, current, $scope, $rootScope) {
-      var self = this;
-      self.current = current;
-
-      self.isActive = function (path) {
-
-        if (path === '/') {
-          return $location.path() === '/';
-        }
-        return StringUtil.startsWith($location.path(), path);
-      };
-
-
-      self.goTo = function(elem) {
-        $location.hash(elem);
-        $anchorScroll();s
-      };
-
-    }],
-
-    controllerAs: 'vm',
-
-    link: function ($scope, element, attrs, ctrl) {
-
-      $(document).ready(function(){
-        $('.js-menu-trigger, .js-menu-screen').on('click touchstart', function (e) {
-          $('.js-menu,.js-menu-screen').toggleClass('is-visible');
-          e.preventDefault();
-        });
-      });
-
-    }
-  };
-
-
-
-});
-
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/register/register.html',
@@ -183,20 +152,40 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService',
-                        function($log, $location, current, Work, Schedule, userService, workService){
+}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService',
+                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService){
 
   var self = this;
+  current.page = $location.path();
   self.current = current;
   self.newWork = Work();
-  self.schedule = Schedule();
+  self.vehicle = Vehicle();
+  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
 
   self.editUser = function() {
     userService.editUser(self.current.user);
   };
 
   self.addWork = function() {
+    self.newWork.user_id = self.current.user.id;
+    delete self.newWork.address;
     workService.addWork(self.newWork, current.user).then(function(data) {
+      console.log(data);
+    });
+  };
+
+  self.addSchedule = function() {
+    self.schedule.work_id = current.work[0].id;
+    var scheduleToSubmit = Schedule(self.schedule);
+    try {
+      scheduleService.addDates(scheduleToSubmit);
+    } catch(e) {
+      console.log(e);
+    }
+  };
+
+  self.addVehicle = function() {
+    vehicleService.addVehicle(self.vehicle).then(function(data) {
       console.log(data);
     });
   };
@@ -212,6 +201,63 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 
 }]);
+
+app.directive('mainNav', function() {
+
+  return {
+
+    replace: true,
+
+    scope: {
+      onclose: '='
+    },
+
+    templateUrl: '/static/js/nav/main-nav.html',
+
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope', 'userService',
+    function($location, StringUtil, $log, current, $scope, $rootScope, userService) {
+      var self = this;
+      self.current = current;
+
+      self.logout = function() {
+        userService.logout();
+      };
+
+      $rootScope.$on('$routeChangeSuccess', function() {
+        self.page = $location.path();
+      });
+
+      self.isActive = function (path) {
+        // The default route is a special case.
+        if (path === '/') {
+          return $location.path() === '/';
+        }
+        return StringUtil.startsWith($location.path(), path);
+      };
+
+      self.goTo = function(elem) {
+        $location.hash(elem);
+        $anchorScroll();
+      };
+
+    }],
+
+    controllerAs: 'vm',
+
+    link: function ($scope, element, attrs, ctrl) {
+
+      $(document).ready(function(){
+        $('.js-menu-trigger, .js-menu-screen').on('click touchstart', function (e) {
+          $('.js-menu,.js-menu-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+    }
+  };
+
+
+
+});
 
 app.factory('ajaxService', ['$log', function($log) {
 
@@ -241,7 +287,6 @@ app.factory('StringUtil', function() {
 app.factory('workDate', [function(){
 
   return function (spec) {
-    spec = spec || {};
     return {
       user_id: spec.user_id || undefined,
       work_id: spec.work_id || undefined,
@@ -251,22 +296,36 @@ app.factory('workDate', [function(){
   };
 }]);
 
-app.factory('Schedule', ['workDate','$log', function(workDate, $log){
+app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, current){
 
   return function (spec) {
-    spec = spec || {};
     var today = new Date();
     var dateOffset = 7 - today.getDay();
     var week = [];
     var weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+
+    var fromIndex = weekdays.indexOf(spec.from) || 0;
+    var toIndex = weekdays.indexOf(spec.to) || weekdays.length - 1;
+
+    weekdays = weekdays.slice(fromIndex, toIndex + 1);
     weekdays.forEach(function(day, index) {
       var weekDate = today.getDate() + dateOffset + index;
-      var isoDate = new Date();
-      isoDate.setDate(weekDate);
-      week.push(workDate());
-      week[index].day = day;
-      week[index].iso = isoDate.toISOString();
+      var departDate = new Date();
+      var arriveDate = new Date();
+      var depart = spec.departing.split(':');
+      var arrive = spec.arriving.split(':');
+      departDate.setDate(weekDate);
+      arriveDate.setDate(weekDate);
+      departDate.setHours(depart[0], depart[1].slice(0,3), 0, 0);
+      arriveDate.setHours(arrive[0], arrive[1].slice(0,3), 0, 0);
+      week.push(workDate({
+        user_id: current.user.id,
+        work_id: spec.work_id,
+        arrival_datetime: departDate.toISOString(),
+        departure_datetime: arriveDate.toISOString()
+      }));
     });
+
     return week;
   };
 }]);
@@ -286,8 +345,8 @@ app.factory('User', [function(){
       city: spec.city || '',
       state: spec.state || '',
       zip_code: spec.zip || '',
-      lat: spec.lat || '',
-      long: spec.long || ''
+      latitude: spec.lat || '',
+      longitude: spec.long || ''
     };
   };
 }]);
@@ -297,7 +356,6 @@ app.factory('Vehicle', [function(){
   return function (spec) {
     spec = spec || {};
     return {
-      id: spec.id || '',
       make: spec.make || '',
       model: spec.model || '',
       year: spec.year || ''
@@ -312,36 +370,78 @@ app.factory('Work', [function(){
     return {
       name: spec.name || '',
       user_id: spec.user_id || '',
-      street_address: spec.street_address || '',
+      // address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || undefined,
-      lat: spec.lat || '',
-      long: spec.long || ''
+      zip_code: spec.zip || undefined,
+      latitude: spec.lat || '',
+      longitude: spec.long || ''
     };
   };
 
 }]);
 
-app.factory('current', ['User', 'userService','$log', function(User, userService, $log) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService',
+                        function(User, userService, $log, Work, workService, vehicleService) {
   // create basic object
-  var currentSpec = {};
+  var currentSpec = {
+    getWork: function() {
+      workService.getWork(currentSpec.user.id).then(function(result) {
+        $log.log(result.data.work);
+        currentSpec.work = result.data.work;
+      });
+    },
+    getVehicles: function() {
+      vehicleService.getVehicles().then(function(result) {
+        $log.log(result);
+        currentSpec.vehicle = result;
+      });
+    }
+
+  };
 
   currentSpec.user = User();
+  // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
       $log.log('logged in');
       $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
+      currentSpec.getWork();
+      currentSpec.getVehicles();
     } else {
       $log.log('sorry bra, no user');
     }
   });
 
   return currentSpec;
+
+}]);
+
+app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $http) {
+
+  return {
+
+    // addDate: function(work, user) {
+    //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
+    // },
+    addDates: function(dates) {
+        console.log(dates);
+        dates.forEach(function(date) {
+          console.log(date);
+          return ajaxService.call($http.post('/api/v1/user/calendar', date));
+        });
+    },
+    // editDate: function(work, userId) {
+    //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
+    // },
+    getSchedule: function(userId) {
+        return ajaxService.call($http.get('api/v1/users/schedule'));
+    }
+  };
 
 }]);
 
@@ -359,6 +459,28 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
     getCurrent: function() {
       return ajaxService.call($http.get('/api/v1/me'));
+    },
+
+    logout: function() {
+      return ajaxService.call($http.get('/api/v1/logout'));
+    }
+
+  };
+
+
+
+}]);
+
+app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $http) {
+
+  return {
+
+    addVehicle: function(car) {
+        return ajaxService.call($http.post('/api/v1/user/vehicle', car));
+    },
+
+    getVehicles: function() {
+        return ajaxService.call($http.get('/api/v1/user/vehicle'));
     }
 
   };
@@ -376,6 +498,9 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
     },
     editWork: function(work, userId) {
         return ajaxService.call($http.put('/api/v1/user/' + userId, work));
+    },
+    getWork: function(userId) {
+        return ajaxService.call($http.get('api/v1/users/work'));
     }
   };
 

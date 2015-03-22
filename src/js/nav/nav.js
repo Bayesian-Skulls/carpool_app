@@ -10,23 +10,30 @@ app.directive('mainNav', function() {
 
     templateUrl: '/static/js/nav/main-nav.html',
 
-    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope',
-    function($location, StringUtil, $log, current, $scope, $rootScope) {
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope', 'userService',
+    function($location, StringUtil, $log, current, $scope, $rootScope, userService) {
       var self = this;
       self.current = current;
 
-      self.isActive = function (path) {
+      self.logout = function() {
+        userService.logout();
+      };
 
+      $rootScope.$on('$routeChangeSuccess', function() {
+        self.page = $location.path();
+      });
+
+      self.isActive = function (path) {
+        // The default route is a special case.
         if (path === '/') {
           return $location.path() === '/';
         }
         return StringUtil.startsWith($location.path(), path);
       };
 
-
       self.goTo = function(elem) {
         $location.hash(elem);
-        $anchorScroll();s
+        $anchorScroll();
       };
 
     }],
@@ -41,7 +48,6 @@ app.directive('mainNav', function() {
           e.preventDefault();
         });
       });
-
     }
   };
 

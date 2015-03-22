@@ -13,8 +13,8 @@ app.factory('User', [function(){
       city: spec.city || '',
       state: spec.state || '',
       zip_code: spec.zip || '',
-      lat: spec.lat || '',
-      long: spec.long || ''
+      latitude: spec.lat || '',
+      longitude: spec.long || ''
     };
   };
 }]);

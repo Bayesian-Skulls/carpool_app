@@ -34,7 +34,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  li a {
+  .mobile-li {
     border-bottom: $sliding-menu-border;
     color: $sliding-menu-color;
     display: block;
@@ -70,20 +70,40 @@
   }
 }
 
-.sliding-menu-button {
-  @include button(flat, #aaa);
+.menu-button {
   padding: 10px 16px;
-  display: inline-block;
   cursor: pointer;
-  position: relative;
   outline: none;
-  float: right;
-
-  img {
-    height: 1.3em;
+  background-color: $primary-color;
+  border: 3px solid #fff;
+  border-radius: .5em;
+  position: absolute;
+  right: 1em;
+  &:after,
+  &:before {
+    content: ' ';
+    width: 0;
+    height: 0;
+    border-right: 1em solid transparent;
+    border-left: 1em solid transparent;
+    border-top: 1em solid #fff;
+    position: absolute;
+    left: 1em;
+  }
+  &:after {
+    bottom: -.5em;
+    border-top: 1em solid $primary-color;;
+  }
+  &:before {
+    bottom: -1em;
   }
 }
 
 .page-nav {
   margin: 1em 1em 2em;
+  text-align: center;
+}
+
+.page-nav-logo {
+  height: 3em;
 }

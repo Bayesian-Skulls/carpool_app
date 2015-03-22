@@ -10,10 +10,11 @@
 @import 'neat/neat';
 
 /*  RIDEO CSS  */
+@import 'colors';
 @import 'defaults';
 @import 'fonts';
-@import 'colors';
 @import 'common-layout';
+@import 'animations';
 
 /* Home Page */
 @import 'home/hero-content';

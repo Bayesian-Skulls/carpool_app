@@ -1,14 +1,32 @@
-app.factory('current', ['User', 'userService','$log', function(User, userService, $log) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService',
+                        function(User, userService, $log, Work, workService, vehicleService) {
   // create basic object
-  var currentSpec = {};
+  var currentSpec = {
+    getWork: function() {
+      workService.getWork(currentSpec.user.id).then(function(result) {
+        $log.log(result.data.work);
+        currentSpec.work = result.data.work;
+      });
+    },
+    getVehicles: function() {
+      vehicleService.getVehicles().then(function(result) {
+        $log.log(result);
+        currentSpec.vehicle = result;
+      });
+    }
+
+  };
 
   currentSpec.user = User();
+  // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
       $log.log('logged in');
       $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
+      currentSpec.getWork();
+      currentSpec.getVehicles();
     } else {
       $log.log('sorry bra, no user');
     }
