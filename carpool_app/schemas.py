@@ -55,4 +55,3 @@ class Feedback(Schema):
 class CalendarSchema(Schema):
     arrival_datetime = fields.DateTime()
     departure_datetime = fields.DateTime()
-    
