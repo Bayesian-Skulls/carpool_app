@@ -58,5 +58,5 @@ def facebook_authorized():
             "email": me.data['email'],
             "facebook_id": me.data['id']}
     flash('You were signed in as {}'.format(me.data['email']))
-    register_or_login_user(user)
-    return redirect("/#/register", 302)
+    return register_or_login_user(user)
+
