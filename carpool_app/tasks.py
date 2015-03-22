@@ -151,7 +151,7 @@ def get_directions(points):
     return json.loads(re.findall(r"\((.+)\);", request)[0])
 
 
-def get_riders_phone_numbers(carpool):
+def get_rider_phone_numbers(carpool):
     for driver_id, passenger_id in carpool.users():
         driver = User.query.filter_by(user_id=driver_id).first()
         passenger = User.query.get(user_id=passenger_id).first()
