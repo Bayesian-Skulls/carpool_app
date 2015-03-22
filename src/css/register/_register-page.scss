@@ -1,14 +1,17 @@
 .register-input {
   margin: .2em 0;
-  width: 100%;
+  border: none;
+  border-bottom: 1px dashed #aaa;
+  background-color: transparent;
+  color: #fff;
 }
 
 .schedule-week {
   display: block;
   @include span-columns(12);
 }
-.schedule-day {
-  width: 20%;
-  float: left;
-  display: inline-block;
+
+select {
+  padding: 1em;
+
 }

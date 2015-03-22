@@ -5,14 +5,14 @@ app.factory('Work', [function(){
     return {
       name: spec.name || '',
       user_id: spec.user_id || '',
-      street_address: spec.street_address || '',
+      // address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || undefined,
-      lat: spec.lat || '',
-      long: spec.long || ''
+      zip_code: spec.zip || undefined,
+      latitude: spec.lat || '',
+      longitude: spec.long || ''
     };
   };
 

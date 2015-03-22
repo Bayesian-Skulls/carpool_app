@@ -1,17 +1,56 @@
-.signup-form {
-  padding: 1em;
-  display: block;
-  button {
-    margin-left: 1em;
+.page-info {
+  @include span-columns(12);
+  color: #fff;
+  @media only screen and (min-width: 768px) {
+    @include span-columns(4);
   }
 }
 
-.user-address-label {
-  display: block;
+.page-info-text {
+  font-weight: 200;
+  line-height: 1.4em;
+  padding: 1em;
+  max-width: 333px;
+  margin: 0 auto;
+  animation: pullDown 1s ease-in forwards;
 }
 
-.user-input {
-  margin: .2em 0;
-  width: 75%;
+.page-info-heading {
+  margin-top: 2em;
+  box-sizing: padding-box;
+  position: relative;
+  background-color: #fff;
+  border-radius: 50%;
+  height: 11em;
+  width: 11em;
+  display: inline-block;
+  box-shadow: $cardShadow;
+  p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    font-weight: bold;
+    color: $primary-color;
+  }
+  &:after {
+    content: ' ';
+    padding-top: 100%;
+  }
+  &:hover {
+    background-color: rgba(255, 255, 255, .3);
+    p {
+      color: #fff;
+      opacity: 1;
+    }
+  }
+  @media only screen and (min-width: 768px) {
+    margin-top: 0;
+  }
+}
 
+.home-page-content {
+  text-align: center;
+  max-width: $container-width;
+  margin: 0 auto;
 }

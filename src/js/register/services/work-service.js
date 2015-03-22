@@ -7,6 +7,9 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
     },
     editWork: function(work, userId) {
         return ajaxService.call($http.put('/api/v1/user/' + userId, work));
+    },
+    getWork: function(userId) {
+        return ajaxService.call($http.get('api/v1/users/work'));
     }
   };
 

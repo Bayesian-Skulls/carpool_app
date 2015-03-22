@@ -9,24 +9,22 @@
   $hero-background-bottom: #20392B;
   $hero-color: white;
   $gradient-angle: 10deg;
-  $hero-image: '/';
 
-  @include background(url($hero-image), linear-gradient($gradient-angle, $hero-background-bottom, $hero-background-top), no-repeat $hero-background-top scroll);
-  background-color: #324766;
+  max-width: $container-width;
+  margin: 0 auto;
   background-position: top;
   background-repeat: no-repeat;
   background-size: cover;
   padding-bottom: 3em;
 
-  .hero-logo img {
-    height: 4em;
+  .hero-logo {
+    max-width: 500px;
     margin-bottom: 1em;
   }
 
   .hero-inner {
     @include outer-container;
     @include clearfix;
-    color: $hero-color;
     margin: auto;
     padding: 3.5em;
     text-align: center;
@@ -43,10 +41,9 @@
         }
       }
 
-      p {
+      .p {
         font-weight: 200;
         line-height: 1.4em;
-        margin: 0 auto 3em auto;
 
         @include media($large-screen) {
           font-size: 1.1em;
@@ -54,10 +51,13 @@
         }
       }
     }
-
-    button {
-      @include button(flat, $base-accent-color);
-      padding: 0.7em 1em;
-    }
   }
+}
+.hero-text {
+  margin-top: 1em;
+  color: #fff;
+}
+
+.hero-button {
+  font-size: 1.2em;
 }

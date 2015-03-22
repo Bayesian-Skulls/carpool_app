@@ -12,6 +12,10 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
     getCurrent: function() {
       return ajaxService.call($http.get('/api/v1/me'));
+    },
+
+    logout: function() {
+      return ajaxService.call($http.get('/api/v1/logout'));
     }
 
   };
