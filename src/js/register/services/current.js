@@ -1,5 +1,5 @@
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService',
-                        function(User, userService, $log, Work, workService, vehicleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
   // create basic object
   var currentSpec = {
     getWork: function() {
@@ -8,13 +8,17 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
       });
     },
-    getVehicles: function() {
-      vehicleService.getVehicles().then(function(result) {
-        $log.log(result);
-        currentSpec.vehicle = result;
+    // getVehicles: function() {
+    //   vehicleService.getVehicles().then(function(result) {
+    //     $log.log(result);
+    //     currentSpec.vehicle = result;
+    //   });
+    // },
+    getSchedule: function() {
+      scheduleService.getSchedule().then(function(result) {
+        $log.log(result.data);
       });
     }
-
   };
 
   currentSpec.user = User();
@@ -26,7 +30,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       currentSpec.getWork();
-      currentSpec.getVehicles();
+      // currentSpec.getVehicles();
+      currentSpec.getSchedule();
     } else {
       $log.log('sorry bra, no user');
     }

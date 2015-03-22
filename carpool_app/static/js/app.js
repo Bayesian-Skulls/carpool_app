@@ -144,64 +144,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 }]);
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/register/register.html',
-    controller: 'registerCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/register', routeOptions);
-
-}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService',
-                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService){
-
-  var self = this;
-  current.page = $location.path();
-  self.current = current;
-  self.newWork = Work();
-  self.vehicle = Vehicle();
-  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
-
-  self.editUser = function() {
-    userService.editUser(self.current.user);
-  };
-
-  self.addWork = function() {
-    self.newWork.user_id = self.current.user.id;
-    delete self.newWork.address;
-    workService.addWork(self.newWork, current.user).then(function(data) {
-      console.log(data);
-    });
-  };
-
-  self.addSchedule = function() {
-    self.schedule.work_id = current.work[0].id;
-    var scheduleToSubmit = Schedule(self.schedule);
-    try {
-      scheduleService.addDates(scheduleToSubmit);
-    } catch(e) {
-      console.log(e);
-    }
-  };
-
-  self.addVehicle = function() {
-    vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
-    });
-  };
-
-  self.signup = function() {
-    userService.addUser().then(function() {
-
-    });
-  };
-
-  self.fbRegister = function() {
-    $location.path('/facebook/login');
-  };
-
-}]);
-
 app.directive('mainNav', function() {
 
   return {
@@ -225,6 +167,13 @@ app.directive('mainNav', function() {
 
       $rootScope.$on('$routeChangeSuccess', function() {
         self.page = $location.path();
+        // if (self.page === '/register') {
+        //   $('body').css('background-color', '#8C3A37');
+        // } else if(self.page === '/dashboard') {
+        //   $('body').css('background-color', '#83A9AE');
+        // } else if(self.page === '/') {
+        //   $('body').css('background-color', '#627F83');
+        // }
       });
 
       self.isActive = function (path) {
@@ -258,6 +207,79 @@ app.directive('mainNav', function() {
 
 
 });
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/register/register.html',
+    controller: 'registerCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/register', routeOptions);
+
+}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
+                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
+
+  var self = this;
+  current.page = $location.path();
+  self.current = current;
+  self.newWork = Work();
+  self.vehicle = Vehicle();
+  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+  self.show = 'register';
+
+  self.editUser = function() {
+    userService.editUser(self.current.user).then(function(data) {
+      self.show = 'work';
+      console.log(self.newWork);
+    });
+  };
+
+  self.addWorkFields = function() {
+    self.addWork()
+    $timeout(function() {
+      self.addSchedule();
+    }, 50);
+  };
+
+  self.addWork = function() {
+    self.newWork.user_id = self.current.user.id;
+    delete self.newWork.address;
+    workService.addWork(self.newWork, current.user).then(function(results) {
+      self.show = 'vehicle';
+      self.newWork = results.data.work;
+      console.log(self.newWork);
+    });
+    return self.newWork;
+  };
+
+  self.addSchedule = function() {
+    self.schedule.work_id = self.newWork.id;
+    var scheduleToSubmit = Schedule(self.schedule);
+    try {
+      scheduleService.addDates(scheduleToSubmit);
+    } catch(e) {
+      $log.log(e);
+    }
+  };
+
+  self.addVehicle = function() {
+    vehicleService.addVehicle(self.vehicle).then(function(data) {
+      console.log(data);
+      $location.path('/dashboard');
+    });
+  };
+
+  self.signup = function() {
+    userService.addUser().then(function() {
+
+    });
+  };
+
+  self.fbRegister = function() {
+    $location.path('/facebook/login');
+  };
+
+}]);
 
 app.factory('ajaxService', ['$log', function($log) {
 
@@ -383,8 +405,8 @@ app.factory('Work', [function(){
 
 }]);
 
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService',
-                        function(User, userService, $log, Work, workService, vehicleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
   // create basic object
   var currentSpec = {
     getWork: function() {
@@ -393,13 +415,17 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
       });
     },
-    getVehicles: function() {
-      vehicleService.getVehicles().then(function(result) {
-        $log.log(result);
-        currentSpec.vehicle = result;
+    // getVehicles: function() {
+    //   vehicleService.getVehicles().then(function(result) {
+    //     $log.log(result);
+    //     currentSpec.vehicle = result;
+    //   });
+    // },
+    getSchedule: function() {
+      scheduleService.getSchedule().then(function(result) {
+        $log.log(result.data);
       });
     }
-
   };
 
   currentSpec.user = User();
@@ -411,7 +437,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       currentSpec.getWork();
-      currentSpec.getVehicles();
+      // currentSpec.getVehicles();
+      currentSpec.getSchedule();
     } else {
       $log.log('sorry bra, no user');
     }
@@ -439,7 +466,7 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
     // },
     getSchedule: function(userId) {
-        return ajaxService.call($http.get('api/v1/users/schedule'));
+        return ajaxService.call($http.get('api/v1/user/calendar'));
     }
   };
 

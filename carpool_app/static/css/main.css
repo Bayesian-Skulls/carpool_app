@@ -758,7 +758,7 @@ input {
   vertical-align: middle; }
 
 h1, h2, h3, h4, h5, p, span, a, input, label {
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
   line-height: 1.2em; }
 
 h1 {
@@ -783,6 +783,23 @@ p {
 label {
   font-size: .75em;
   color: #aaa; }
+
+.register-form h5 {
+  font-family: lobster, cursive;
+  font-size: 2em;
+  color: #364649;
+  padding: .75em;
+  display: block;
+  background-color: #eee; }
+.register-form p {
+  color: #627F83;
+  font-family: lobster, cursive;
+  font-size: 1.2em;
+  line-height: 1.6em;
+  margin-bottom: .5em; }
+
+.picker__list-item {
+  font-family: 'Open Sans', sans-serif; }
 
 * {
   box-sizing: border-box; }
@@ -824,7 +841,8 @@ nav li {
   border: 3px solid white; }
 
 .body-default {
-  background-color: #627F83; }
+  background: #627F83;
+  padding-bottom: 4em; }
 
 @-webkit-keyframes pullDown {
   0% {
@@ -893,8 +911,6 @@ nav li {
   max-width: 768px;
   margin: 0 auto;
   background-position: top;
-  background-repeat: no-repeat;
-  background-size: cover;
   padding-bottom: 3em; }
   .hero .hero-logo {
     max-width: 500px;
@@ -998,13 +1014,33 @@ nav li {
   max-width: 68.62761em;
   margin: 0 auto; }
 
+body.body-default {
+  overflow: auto;
+  background: linear-gradient(rgba(98, 127, 131, 0.7), #627f83), url('../img/homepageimg.jpg');
+  background-attachment: fixed; }
+
 /* Register Page */
+.register-form {
+  max-width: 668px;
+  margin: 0 auto;
+  padding: 1em 2em 2em;
+  background-color: #fff;
+  background-image: url('../img/lightpaperfibers.png');
+  box-shadow: .15em .15em .5em #222;
+  text-align: center; }
+  .register-form p {
+    margin-top: .75em;
+    text-align: left; }
+
 .register-input {
   margin: .2em 0;
   border: none;
   border-bottom: 1px dashed #aaa;
   background-color: transparent;
-  color: #fff; }
+  width: 16em; }
+
+.address-input {
+  min-width: 33em; }
 
 .schedule-week {
   display: block;
@@ -1017,6 +1053,9 @@ nav li {
 
 select {
   padding: 1em; }
+
+.register-button {
+  float: right; }
 
 /* Navigation */
 .sliding-menu-content {
