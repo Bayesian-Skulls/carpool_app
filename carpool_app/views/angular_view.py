@@ -131,7 +131,10 @@ def add_calendar(user_id=None, data=None):
     errors = calendar_schema.validate(data)
     if errors:
         return jsonify(errors), 400
-    arrive_dt, depart_dt = data["arrival_datetime"], data["departure_datetime"]
+    arrive_dt = datetime.strptime(data["arrival_datetime"],
+                                  "%Y-%m-%dT%H:%M:%S.%fZ")
+    depart_dt = datetime.strptime(data["departure_datetime"], 
+                                  "%Y-%m-%dT%H:%M:%S.%fZ")
     user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
         Calendar.work_id==data["work_id"]).all()
     for calendar in user_calendars:
