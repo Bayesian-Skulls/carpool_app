@@ -172,6 +172,25 @@ def view_calendars(user_id=None):
     return jsonify({"calendars": user_calendars})
 
 
+@api.route('/user/calendar/previous/', methods=["GET"])
+@login_required
+def get_last_week_schedule(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    today = datetime.today()
+    start_td = timedelta(days=today.weekday()+7)
+    end_td = timedelta(days=today.weekday())
+    previous_calendars = Calendar.query.filter(Calendar.user_id == user_id).\
+                                        filter(Calendar.arrival_datetime >=
+                                               (today-start_td)).\
+                                        filter(Calendar.arrival_datetime <=
+                                               (today-end_td)).all()
+    previous_calendars = [calendar.to_dict() for calendar
+                          in previous_calendars]
+
+    return jsonify({"calendars": previous_calendars})
+
+
 @api.route('/users/work', methods=["GET"])
 @login_required
 def get_work():
