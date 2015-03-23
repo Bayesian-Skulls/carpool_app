@@ -78,8 +78,8 @@ def seed_calendar():
     data = {}
     for user in users:
         data["work_id"] = Work.query.filter(Work.user_id == user.id).first().id
-        delta = timedelta(hours=33)
-        delta2 = timedelta(hours=41)
+        delta = timedelta(hours=18)
+        delta2 = timedelta(hours=24)
         data["arrival_datetime"] = datetime.today() + delta
         data["arrival_datetime"] = datetime.strftime(data["arrival_datetime"],
                                                      "%Y-%m-%dT%H:%M:%S.%fZ")
