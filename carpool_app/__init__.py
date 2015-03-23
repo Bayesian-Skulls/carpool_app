@@ -6,7 +6,6 @@ from .views.angular_view import angular_view, api
 from .views.users import users, facebook
 
 
-
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('config.cfg')

@@ -118,7 +118,6 @@ class Carpool(db.Model):
             Calendar.id == self.passenger_calendar_id).first().user_id
         return [user1, user2]
 
-
     def to_dict(self):
         return {"id": self.id,
                 "accepted": self.accepted,
