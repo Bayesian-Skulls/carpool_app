@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timedelta
 from flask import current_app
 import urllib.request as url
+import mandrill
 from flask import jsonify
 from random import shuffle
 from .extensions import db, config
@@ -152,92 +153,99 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
-    base_url = "https://mandrillapp.com/api/1.0/messages/send.json"
-    email_html = <p>TEST<p>
+    response = []
+    base_url = "http://mandrillapp.com/api/1.0/messages/send.json"
+    email_html = "<p>TEST<p>"
     email_text = "This is only a test."
+    mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for user in carpool_users:
         current_user = User.query.get(user)
         data = {
-                "key": current_app.config["MANDRILL_KEY"],
-                "message": {
-                    "html": email_html,
-                    "text": email_text,
-                    "subject": "Carpool Confimation from Rideo",
-                    "from_email": "no-reply@rideo.wrong-question.com",
-                    "from_name": "Rideo Confirmations",
-                    "to": [
-                            {
-                            "email": current_user.email,
-                            "name": current_user.name,
-                            "type": "to"
-                            }
-                           ],
-                    "headers": {
-                    "Reply-To": "no-reply@rideo.wrong-question.com"
-                    },
-                    "important": false,
-                    "track_opens": null,
-                    "track_clicks": null,
-                    "auto_text": null,
-                    "auto_html": null,
-                    "inline_css": null,
-                    "url_strip_qs": null,
-                    "preserve_recipients": null,
-                    "view_content_link": null,
-                    "bcc_address": null,
-                    "tracking_domain": null,
-                    "signing_domain": null,
-                    "return_path_domain": null,
-                    "merge": false,
-                    "merge_language": "mailchimp",
-                    "global_merge_vars": [
-                    {
-                        "name": "merge1",
-                        "content": "merge1 content"
-                    }
-                    ],
-                    "merge_vars": [
+                "html": email_html,
+                "text": email_text,
+                "subject": "Carpool Confimation from Rideo",
+                "from_email": "no-reply@rideo.wrong-question.com",
+                "from_name": "Rideo Confirmations",
+                "to": [
                         {
-                            "rcpt": user,
-                            "vars": [
-                            {
-                                "name": "merge2",
-                                "content": "merge2 content"
-                            }
-                        ]
+                        "email": current_user.email,
+                        "name": current_user.name,
+                        "type": "to"
                         }
-                    ],
-                    "tags": [
-                    "password-resets"
-                    ],
-                    "subaccount": null,
-                    "google_analytics_domains": [
-                        null
-                    ],
-                    "google_analytics_campaign": null,
-                    "metadata": {
-                        "website": "rideo.wrong-question.com"
-                    },
-                "recipient_metadata": [
+                       ],
+                "headers": {
+                "Reply-To": "no-reply@rideo.wrong-question.com"
+                },
+                "important": False,
+                "track_opens": None,
+                "track_clicks": None,
+                "auto_text": None,
+                "auto_html": None,
+                "inline_css": None,
+                "url_strip_qs": None,
+                "preserve_recipients": None,
+                "view_content_link": None,
+                "bcc_address": None,
+                "tracking_domain": None,
+                "signing_domain": None,
+                "return_path_domain": None,
+                "merge": False,
+                "merge_language": "mailchimp",
+                "global_merge_vars": [
                 {
-                    "rcpt": current_user.email,
-                    "values": {
-                        "user_id": current_user.id
-                    }
+                    "name": "merge1",
+                    "content": "merge1 content"
                 }
                 ],
-                # "images": [
-                #     {
-                #         "type": "image/png",
-                #         "name": "IMAGECID",
-                #         "content": "ZXhhbXBsZSBmaWxl"
-                #     }
-                # ]
+                "merge_vars": [
+                    {
+                        "rcpt": user,
+                        "vars": [
+                        {
+                            "name": "merge2",
+                            "content": "merge2 content"
+                        }
+                    ]
+                    }
+                ],
+                "tags": [
+                "password-resets"
+                ],
+                "subaccount": None,
+                "google_analytics_domains": [
+                    None
+                ],
+                "google_analytics_campaign": None,
+                "metadata": {
+                    "website": "rideo.wrong-question.com"
                 },
-                "async": false,
-                "ip_pool": "Main Pool",
-                "send_at": "now"
+            "recipient_metadata": [
+            {
+                "rcpt": current_user.email,
+                "values": {
+                    "user_id": current_user.id
+                }
             }
+            ],
+            # "images": [
+            #     {
+            #         "type": "image/png",
+            #         "name": "IMAGECID",
+            #         "content": "ZXhhbXBsZSBmaWxl"
+            #     }
+            # ]
+            }
+
+        # header = {"Content-Type:": "application/json",
+        #           "Content-Length": len(data)}
+        result = mandrill_client.messages.send(message=data, async=False,
+            ip_pool='Main Pool')
+        # data = json.dumps(data).encode('utf-8')
+        # new_request = url.Request(base_url, data, header)
+        # server_response = url.urlopen(new_request)
+        #response.append(str(server_response.read(), encoding="utf-8"))
+        print(result)
+    return "Success", 200
 
 
 def get_rider_phone_numbers(carpool):
