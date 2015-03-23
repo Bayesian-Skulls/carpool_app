@@ -254,5 +254,4 @@ def test_function():
 
 @api.route('/test2')
 def test_email():
-    send_confirm_email([22])
-    return jsonify({}), 200
+    return send_confirm_email([22])    
