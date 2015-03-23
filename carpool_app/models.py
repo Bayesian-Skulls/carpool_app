@@ -102,8 +102,8 @@ class Calendar(db.Model):
 
 class Carpool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    driver_accepted = db.Column(db.Boolean, nullable=False, default=False)
-    passenger_accepted = db.Column(db.Boolean, nullable=False, default=False)
+    driver_accepted = db.Column(db.Boolean)
+    passenger_accepted = db.Column(db.Boolean)
     driver_calendar_id = db.Column(db.Integer,
                                    db.ForeignKey('calendar.id'),
                                    nullable=False)
