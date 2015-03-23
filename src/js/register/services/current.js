@@ -8,15 +8,19 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
       });
     },
-    // getVehicles: function() {
-    //   vehicleService.getVehicles().then(function(result) {
-    //     $log.log(result);
-    //     currentSpec.vehicle = result;
-    //   });
-    // },
+    getVehicles: function() {
+      try {
+        vehicleService.getVehicles().then(function(result) {
+          currentSpec.vehicles = result.data.vehicles;
+        });
+      } catch(e) {
+        $log.log(e);
+      }
+    },
     getSchedule: function() {
       scheduleService.getSchedule().then(function(result) {
-        $log.log(result.data);
+        currentSpec.schedule = result.data.calendars;
+        $log.log(currentSpec.schedule);
       });
     }
   };
@@ -30,7 +34,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       currentSpec.getWork();
-      // currentSpec.getVehicles();
+      currentSpec.getVehicles();
       currentSpec.getSchedule();
     } else {
       $log.log('sorry bra, no user');

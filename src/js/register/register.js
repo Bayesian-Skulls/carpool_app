@@ -25,7 +25,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 
   self.addWorkFields = function() {
-    self.addWork()
+    self.addWork();
     $timeout(function() {
       self.addSchedule();
     }, 50);

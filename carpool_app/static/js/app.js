@@ -23,33 +23,35 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService',
-      function($log, $location, current, userService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService){
 
   var self = this;
   self.current = current;
 
-}]);
-
-app.factory('Schedule', [function(){
-
-  return function (spec) {
-    spec = spec || {};
-    return {
-      name: spec.name || '',
-      email: spec.email || '',
-      paypal: spec.paypal || '',
-      id: spec.id || '',
-      address: spec.address || '',
-      street_number: spec.street_number || '',
-      street: spec.street || '',
-      city: spec.city || '',
-      state: spec.state || '',
-      zip: spec.zip || '',
-      lat: spec.lat || '',
-      long: spec.long || ''
-    };
+  self.deleteWork = function(workItem, index) {
+    workService.deleteWork(workItem).then(function(result) {
+      if (result) {
+        self.current.work.splice(index, 1);
+      }
+    });
   };
+  self.deleteDate = function(dateItem, index) {
+    $log.log(index);
+    scheduleService.deleteDate(dateItem).then(function(result) {
+      if (result) {
+        self.current.schedule.splice(index, 1);
+      }
+    });
+  };
+  self.deleteVehicle = function(carItem, index) {
+    vehicleService.deleteVehicle(carItem).then(function(result) {
+      if (result) {
+        self.current.vehicles.splice(index, 1);
+      }
+    });
+  };
+
 }]);
 
 app.directive('googleplace', function() {
@@ -144,6 +146,79 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 }]);
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/register/register.html',
+    controller: 'registerCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/register', routeOptions);
+
+}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
+                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
+
+  var self = this;
+  current.page = $location.path();
+  self.current = current;
+  self.newWork = Work();
+  self.vehicle = Vehicle();
+  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+  self.show = 'register';
+
+  self.editUser = function() {
+    userService.editUser(self.current.user).then(function(data) {
+      self.show = 'work';
+      console.log(self.newWork);
+    });
+  };
+
+  self.addWorkFields = function() {
+    self.addWork();
+    $timeout(function() {
+      self.addSchedule();
+    }, 50);
+  };
+
+  self.addWork = function() {
+    self.newWork.user_id = self.current.user.id;
+    delete self.newWork.address;
+    workService.addWork(self.newWork, current.user).then(function(results) {
+      self.show = 'vehicle';
+      self.newWork = results.data.work;
+      console.log(self.newWork);
+    });
+    return self.newWork;
+  };
+
+  self.addSchedule = function() {
+    self.schedule.work_id = self.newWork.id;
+    var scheduleToSubmit = Schedule(self.schedule);
+    try {
+      scheduleService.addDates(scheduleToSubmit);
+    } catch(e) {
+      $log.log(e);
+    }
+  };
+
+  self.addVehicle = function() {
+    vehicleService.addVehicle(self.vehicle).then(function(data) {
+      console.log(data);
+      $location.path('/dashboard');
+    });
+  };
+
+  self.signup = function() {
+    userService.addUser().then(function() {
+
+    });
+  };
+
+  self.fbRegister = function() {
+    $location.path('/facebook/login');
+  };
+
+}]);
+
 app.directive('mainNav', function() {
 
   return {
@@ -207,79 +282,6 @@ app.directive('mainNav', function() {
 
 
 });
-
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/register/register.html',
-    controller: 'registerCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/register', routeOptions);
-
-}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
-                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
-
-  var self = this;
-  current.page = $location.path();
-  self.current = current;
-  self.newWork = Work();
-  self.vehicle = Vehicle();
-  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
-  self.show = 'register';
-
-  self.editUser = function() {
-    userService.editUser(self.current.user).then(function(data) {
-      self.show = 'work';
-      console.log(self.newWork);
-    });
-  };
-
-  self.addWorkFields = function() {
-    self.addWork()
-    $timeout(function() {
-      self.addSchedule();
-    }, 50);
-  };
-
-  self.addWork = function() {
-    self.newWork.user_id = self.current.user.id;
-    delete self.newWork.address;
-    workService.addWork(self.newWork, current.user).then(function(results) {
-      self.show = 'vehicle';
-      self.newWork = results.data.work;
-      console.log(self.newWork);
-    });
-    return self.newWork;
-  };
-
-  self.addSchedule = function() {
-    self.schedule.work_id = self.newWork.id;
-    var scheduleToSubmit = Schedule(self.schedule);
-    try {
-      scheduleService.addDates(scheduleToSubmit);
-    } catch(e) {
-      $log.log(e);
-    }
-  };
-
-  self.addVehicle = function() {
-    vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
-      $location.path('/dashboard');
-    });
-  };
-
-  self.signup = function() {
-    userService.addUser().then(function() {
-
-    });
-  };
-
-  self.fbRegister = function() {
-    $location.path('/facebook/login');
-  };
-
-}]);
 
 app.factory('ajaxService', ['$log', function($log) {
 
@@ -415,15 +417,19 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
       });
     },
-    // getVehicles: function() {
-    //   vehicleService.getVehicles().then(function(result) {
-    //     $log.log(result);
-    //     currentSpec.vehicle = result;
-    //   });
-    // },
+    getVehicles: function() {
+      try {
+        vehicleService.getVehicles().then(function(result) {
+          currentSpec.vehicles = result.data.vehicles;
+        });
+      } catch(e) {
+        $log.log(e);
+      }
+    },
     getSchedule: function() {
       scheduleService.getSchedule().then(function(result) {
-        $log.log(result.data);
+        currentSpec.schedule = result.data.calendars;
+        $log.log(currentSpec.schedule);
       });
     }
   };
@@ -437,7 +443,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       currentSpec.getWork();
-      // currentSpec.getVehicles();
+      currentSpec.getVehicles();
       currentSpec.getSchedule();
     } else {
       $log.log('sorry bra, no user');
@@ -467,7 +473,11 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     // },
     getSchedule: function(userId) {
         return ajaxService.call($http.get('api/v1/user/calendar'));
+    },
+    deleteDate: function(date) {
+        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id))
     }
+
   };
 
 }]);
@@ -508,6 +518,9 @@ app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $ht
 
     getVehicles: function() {
         return ajaxService.call($http.get('/api/v1/user/vehicle'));
+    },
+    deleteVehicle: function(car) {
+        return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id))
     }
 
   };
@@ -528,6 +541,9 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
     },
     getWork: function(userId) {
         return ajaxService.call($http.get('api/v1/users/work'));
+    },
+    deleteWork: function(work) {
+        return ajaxService.call($http.delete('api/v1/user/work/' + work.id))
     }
   };
 
