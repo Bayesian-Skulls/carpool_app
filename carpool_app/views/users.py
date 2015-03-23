@@ -1,6 +1,6 @@
 from functools import wraps
-
 from flask import session, Blueprint, url_for, request, redirect, flash
+from flask.ext.login import login_required
 from .angular_view import register_or_login_user
 from ..extensions import oauth
 
@@ -60,3 +60,8 @@ def facebook_authorized():
     flash('You were signed in as {}'.format(me.data['email']))
     return register_or_login_user(user)
 
+@users.route('/facebook/photo')
+@login_required
+def facebook_photo():
+    photo = facebook.get('/me/picture?redirect=false&height=250&width=250')
+    return photo.data['data']['url']
