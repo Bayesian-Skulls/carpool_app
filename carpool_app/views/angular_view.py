@@ -5,7 +5,11 @@ from flask.ext.login import current_user, abort, login_user, logout_user, login_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
+<<<<<<< HEAD
 from ..tasks import build_carpools, get_rider_phone_numbers
+=======
+from ..tasks import build_carpools, send_confirm_email
+>>>>>>> 93e2be7beb3d09a5bf512954a9315331d25c4e95
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -44,7 +48,6 @@ def register_or_login_user(data):
             db.session.add(user)
             db.session.commit()
             user = User.query.filter_by(facebook_id=data['facebook_id']).first()
-            print("success ", user.id)
             login_user(user)
             return redirect("/#/register", 302)
 
@@ -85,7 +88,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-@login_required
+# @login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -105,7 +108,7 @@ def add_work(user_id=None, data=None):
 
 
 @api.route('/user/vehicle', methods=["POST"])
-#@login_required
+# @login_required
 def add_vehicle(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -125,7 +128,7 @@ def add_vehicle(user_id=None, data=None):
 
 
 @api.route('/user/calendar', methods=["POST"])
-#@login_required
+# @login_required
 def add_calendar(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -160,7 +163,7 @@ def add_calendar(user_id=None, data=None):
 
 
 @api.route('/user/calendar', methods=["GET"])
-#@login_required
+# @login_required
 def view_calendars(user_id=None):
     if not user_id:
         user_id = current_user.id
@@ -170,6 +173,25 @@ def view_calendars(user_id=None):
                                            datetime.now()).all()
     user_calendars = [calendar.to_dict() for calendar in user_calendars]
     return jsonify({"calendars": user_calendars})
+
+
+@api.route('/user/calendar/previous', methods=["GET"])
+@login_required
+def get_last_week_schedule(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    today = datetime.today()
+    start_td = timedelta(days=today.weekday()+7)
+    end_td = timedelta(days=today.weekday())
+    previous_calendars = Calendar.query.filter(Calendar.user_id == user_id).\
+                                        filter(Calendar.arrival_datetime >=
+                                               (today-start_td)).\
+                                        filter(Calendar.arrival_datetime <=
+                                               (today-end_td)).all()
+    previous_calendars = [calendar.to_dict() for calendar
+                          in previous_calendars]
+
+    return jsonify({"calendars": previous_calendars})
 
 
 @api.route('/users/work', methods=["GET"])
@@ -202,15 +224,22 @@ def delete_calendar(calendar_id, user_id=None):
     return jsonify({"message": "Deleted calendar event"}), 200
 
 
+# Delete work should delete all associated calendars
 @api.route('/user/work/<work_id>', methods=["DELETE"])
 @login_required
 def delete_work(work_id, user_id=None):
     if not user_id:
         user_id = current_user.id
+    calendars = Calendar.query.filter_by(user_id=user_id, work_id=work_id).all()
+    for calendar in calendars:
+        db.session.delete(calendar)
     work = Work.query.get(work_id)
-    db.session.delete(work)
-    db.session.commit()
-    return jsonify({"message": "Deleted work object"}), 200
+    if work:
+        db.session.delete(work)
+        db.session.commit()
+        return jsonify({"message": "Deleted work object"}), 200
+    else:
+        return jsonify({"message": "Work Object Not Found"})
 
 
 @api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
@@ -228,7 +257,13 @@ def delete_vehicle(vehicle_id, user_id=None):
 def test_function():
     return build_carpools()
 
+<<<<<<< HEAD
 
 @api.route('/<carpool_id>/phones', methods=["GET"])
 def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
+=======
+@api.route('/test2')
+def test_email():
+    return send_confirm_email([22])
+>>>>>>> 93e2be7beb3d09a5bf512954a9315331d25c4e95
