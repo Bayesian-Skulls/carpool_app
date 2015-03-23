@@ -76,6 +76,7 @@ def build_carpools():
     pairs = pair_users()
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
+        send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
         new_carpool = Carpool(accepted=False,
