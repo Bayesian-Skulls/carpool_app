@@ -1,5 +1,5 @@
 h1, h2, h3, h4, h5, p, span, a, input, label {
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
   line-height: 1.2em;
 }
 
@@ -31,4 +31,26 @@ p {
 label {
   font-size: .75em;
   color: #aaa;
+}
+
+.register-form {
+  h5 {
+    font-family: lobster, cursive;
+    font-size: 2em;
+    color: darken($primary-color, 20%);
+    padding: .75em;
+    display: block;
+    background-color: #eee;
+  }
+  p {
+    color: $primary-color;
+    font-family: lobster, cursive;
+    font-size: 1.2em;
+    line-height: 1.6em;
+    margin-bottom: .5em;
+  }
+}
+
+.picker__list-item {
+  font-family: 'Open Sans', sans-serif
 }
