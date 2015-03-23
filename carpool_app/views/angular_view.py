@@ -35,16 +35,18 @@ def register_or_login_user(data):
     if errors:
         return jsonify(errors), 400
     else:
-        user = User(**data)
-        if User.query.filter_by(facebook_id=data['facebook_id']).first():
+        user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+        if user:
             login_user(user)
             return redirect("/#/dashboard", 302)
         else:
+            user = User(**data)
             db.session.add(user)
             db.session.commit()
-        user = User.query.filter_by(facebook_id=data['facebook_id']).first()
-        login_user(user)
-        return redirect("/#/register", 302)
+            user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+            print("success ", user.id)
+            login_user(user)
+            return redirect("/#/register", 302)
 
 
 @api.route("/user", methods=['PUT'])
