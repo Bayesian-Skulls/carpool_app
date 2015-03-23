@@ -102,7 +102,8 @@ class Calendar(db.Model):
 
 class Carpool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    accepted = db.Column(db.Boolean, nullable=False)
+    driver_accepted = db.Column(db.Boolean, nullable=False, default=False)
+    passenger_accepted = db.Column(db.Boolean, nullable=False, default=False)
     driver_calendar_id = db.Column(db.Integer,
                                    db.ForeignKey('calendar.id'),
                                    nullable=False)
@@ -120,7 +121,8 @@ class Carpool(db.Model):
 
     def to_dict(self):
         return {"id": self.id,
-                "accepted": self.accepted,
+                "driver_accepted": self.driver_accepted,
+                "passenger_accepted": self.passenger_accepted,
                 "driver_calendar_id": self.driver_calendar_id,
                 "passenger_calendar_id": self.passenger_calendar_id,
                 "vehicle_id": self.vehicle_id

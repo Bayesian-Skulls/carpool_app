@@ -220,6 +220,7 @@ def delete_calendar(calendar_id, user_id=None):
     db.session.commit()
     return jsonify({"message": "Deleted calendar event"}), 200
 
+
 # Delete work should delete all associated calendars
 @api.route('/user/work/<work_id>', methods=["DELETE"])
 @login_required
@@ -255,4 +256,4 @@ def test_function():
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([22])    
+    return send_confirm_email([22])
