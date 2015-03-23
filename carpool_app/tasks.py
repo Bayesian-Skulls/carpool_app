@@ -149,3 +149,92 @@ def get_directions(points):
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
     return json.loads(re.findall(r"\((.+)\);", request)[0])
+
+
+def send_confirm_email(carpool_users):
+    base_url = "https://mandrillapp.com/api/1.0/messages/send.json"
+    email_html = <p>TEST<p>
+    email_text = "This is only a test."
+    for user in carpool_users:
+        current_user = User.query.get(user)
+        data = {
+                "key": current_app.config["MANDRILL_KEY"],
+                "message": {
+                    "html": email_html,
+                    "text": email_text,
+                    "subject": "Carpool Confimation from Rideo",
+                    "from_email": "no-reply@rideo.wrong-question.com",
+                    "from_name": "Rideo Confirmations",
+                    "to": [
+                            {
+                            "email": current_user.email,
+                            "name": current_user.name,
+                            "type": "to"
+                            }
+                           ],
+                    "headers": {
+                    "Reply-To": "no-reply@rideo.wrong-question.com"
+                    },
+                    "important": false,
+                    "track_opens": null,
+                    "track_clicks": null,
+                    "auto_text": null,
+                    "auto_html": null,
+                    "inline_css": null,
+                    "url_strip_qs": null,
+                    "preserve_recipients": null,
+                    "view_content_link": null,
+                    "bcc_address": null,
+                    "tracking_domain": null,
+                    "signing_domain": null,
+                    "return_path_domain": null,
+                    "merge": false,
+                    "merge_language": "mailchimp",
+                    "global_merge_vars": [
+                    {
+                        "name": "merge1",
+                        "content": "merge1 content"
+                    }
+                    ],
+                    "merge_vars": [
+                        {
+                            "rcpt": user,
+                            "vars": [
+                            {
+                                "name": "merge2",
+                                "content": "merge2 content"
+                            }
+                        ]
+                        }
+                    ],
+                    "tags": [
+                    "password-resets"
+                    ],
+                    "subaccount": null,
+                    "google_analytics_domains": [
+                        null
+                    ],
+                    "google_analytics_campaign": null,
+                    "metadata": {
+                        "website": "rideo.wrong-question.com"
+                    },
+                "recipient_metadata": [
+                {
+                    "rcpt": current_user.email,
+                    "values": {
+                        "user_id": current_user.id
+                    }
+                }
+                ],
+                # "images": [
+                #     {
+                #         "type": "image/png",
+                #         "name": "IMAGECID",
+                #         "content": "ZXhhbXBsZSBmaWxl"
+                #     }
+                # ]
+                },
+                "async": false,
+                "ip_pool": "Main Pool",
+                "send_at": "now"
+            }
