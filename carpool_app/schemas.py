@@ -53,8 +53,5 @@ class Feedback(Schema):
 
 
 class CalendarSchema(Schema):
-    date = fields.String()
-    arrive_hour = fields.Integer()
-    arrive_minutes = fields.Integer()
-    depart_hour = fields.Integer()
-    depart_minutes = fields.Integer()
+    arrival_datetime = fields.DateTime()
+    departure_datetime = fields.DateTime()

@@ -2,18 +2,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   var routeOptions = {
     templateUrl: '/static/js/home/home.html',
     controller: 'HomeCtrl',
-    controllerAs: 'vm'
+    controllerAs: 'vm',
   };
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', '$location', 'currentUser', 'Work', function($log, $location, currentUser, Work){
+}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', function($log, $location, current, Work){
   var self = this;
-
-  self.currentUser = currentUser;
+  current.page = '/';
+  self.current = current;
   self.newWork = Work();
 
   self.register = function() {
-    self.currentUser.work = self.newWork;
-    $location.path('/register');
+    self.current.work = self.newWork;
+    $location.path('/facebook/login');
   };
 }]);

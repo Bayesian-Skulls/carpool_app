@@ -1,19 +1,38 @@
 <div class="page-content">
+  <main-nav page-header></main-nav>
   <div class="hero">
   	<div class="hero-inner">
       <!-- <a href="" class="hero-logo"><img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/placeholder_logo_1.png" alt="Logo Image"></a> -->
+      <img class="hero-logo" src="static/img/rideo.svg" alt="RIDEO ridshare service" />
   		<div class="hero-copy">
-  			<h1>GET TO WORK</h1>
-  			<p>Crowded Roadways need a hero. You can help.</p>
+  			<h1 class="page-title hidden">RIDEO</h1>
   		</div>
-      <button>Learn More</button>
+      <a href="/facebook/login">
+        <button class="clear-button hero-button">REGISTER!</button>
+      </a>
+			<p class="hero-text">Crowded Roadways need a hero. Register with Facebook to begin</p>
   	</div>
   </div>
-  <form name="signup" class="signup-form" ng-submit="vm.register()">
-    <label for="work-name">where are you headed?</label><br>
-    <input class="user-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name" required><br>
-    <label class="user-input-label" for="work-address">street address:</label><br>
-      <input googleplace name="work-address" details="vm.newWork" class="user-input" type="text" ng-model="vm.newWork.address" autcomplete="false">
-      <button>Try It</button>
-  </form>
+  <div class="page-section home-page-content">
+    <div class="page-info">
+      <header class="page-info-heading">
+        <p>SIGN UP</p>
+      </header>
+      <p class="page-info-text">Signing up only takes a few minutes. Grab a cup of coffee or your favorite beer and let’s get started.</p>
+    </div>
+    <div class="page-info">
+      <header class="page-info-heading">
+        <p>FIND A RIDE</p>
+      </header>
+      <p class="page-info-text">We’ll pair you with a cohort of similar minded folk and you can choose to accept.</p>
+    </div>
+    <div class="page-info">
+      <header class="page-info-heading">
+        <p>GET TO WORK</p>
+      </header>
+      <p class="page-info-text">Start saving the world. We’re not kidding, less cars on the road means cleaner air for everyone.</p>
+
+    </div>
+
+  </div>
 </div>

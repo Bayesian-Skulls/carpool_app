@@ -1,3 +1,5 @@
+$container-width: 768px;
+
 * {
   box-sizing: border-box;
 }
@@ -22,3 +24,34 @@ nav li {
   margin: 0 auto;
   margin: 0 .5em;
 }
+
+.root-content {
+  @include outer-container(100%);
+}
+
+.page-section {
+  margin: 1em;
+}
+
+.hidden {
+  display: none;
+}
+
+.clear-button {
+  background-color: transparent;
+  border: 3px solid white;
+}
+
+// Conditional body colors
+.body-default {
+  background: $primary-color;
+  padding-bottom: 4em;
+}
+
+// .page-footer {
+//   height: 10em;
+//   overflow: auto;
+//   @include background(url('/static/img/homepageimg.jpg'), linear-gradient(10deg, $primary-color, darken($primary-color, 20%)), no-repeat $primary-color scroll);
+//   background-attachment: fixed;
+//   background-size: cover;
+// }

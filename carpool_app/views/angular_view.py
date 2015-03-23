@@ -1,10 +1,11 @@
 import json
 from datetime import datetime, timedelta
-from flask import Blueprint, request, redirect, flash, jsonify
+from flask import Blueprint, request, redirect, flash, jsonify, current_app
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
 from ..models import User, Work, Vehicle, Calendar
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
+from ..tasks import build_carpools, send_confirm_email
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -34,13 +35,17 @@ def register_or_login_user(data):
     if errors:
         return jsonify(errors), 400
     else:
-        user = User(**data)
-        if not User.query.filter_by(facebook_id=data['facebook_id']).first():
+        user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+        if user:
+            login_user(user)
+            return redirect("/#/dashboard", 302)
+        else:
+            user = User(**data)
             db.session.add(user)
             db.session.commit()
-    user = User.query.filter_by(facebook_id=data['facebook_id']).first()
-    login_user(user)
-    return jsonify({"user": user.to_dict()}), 201
+            user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+            login_user(user)
+            return redirect("/#/register", 302)
 
 
 @api.route("/user", methods=['PUT'])
@@ -65,6 +70,7 @@ def update_user(user_id=None, data=None):
 
 
 @api.route('/me', methods=["GET"])
+@login_required
 def get_current_user():
     return jsonify({"user": current_user.to_dict()})
 
@@ -78,7 +84,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-#@login_required
+# @login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -98,7 +104,7 @@ def add_work(user_id=None, data=None):
 
 
 @api.route('/user/vehicle', methods=["POST"])
-#@login_required
+# @login_required
 def add_vehicle(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -118,7 +124,7 @@ def add_vehicle(user_id=None, data=None):
 
 
 @api.route('/user/calendar', methods=["POST"])
-#@login_required
+# @login_required
 def add_calendar(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -129,7 +135,10 @@ def add_calendar(user_id=None, data=None):
     errors = calendar_schema.validate(data)
     if errors:
         return jsonify(errors), 400
-    arrive_dt, depart_dt = clean_date_inputs(data)
+    arrive_dt = datetime.strptime(data["arrival_datetime"],
+                                  "%Y-%m-%dT%H:%M:%S.%fZ")
+    depart_dt = datetime.strptime(data["departure_datetime"],
+                                  "%Y-%m-%dT%H:%M:%S.%fZ")
     user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
         Calendar.work_id==data["work_id"]).all()
     for calendar in user_calendars:
@@ -149,15 +158,36 @@ def add_calendar(user_id=None, data=None):
                     "calendar": new_calendar.to_dict()})
 
 
-def clean_date_inputs(input_data):
-    arrive_date = datetime.strptime(input_data["date"], "%Y-%m-%d")
-    arrive_time = timedelta(hours=input_data["arrive_hour"],
-                            minutes=input_data["arrive_minutes"])
-    arrive_datetime = arrive_date + arrive_time
-    depart_time = timedelta(hours=input_data["depart_hour"],
-                            minutes=input_data["depart_minutes"])
-    depart_datetime = arrive_date + depart_time
-    return arrive_datetime, depart_datetime
+@api.route('/user/calendar', methods=["GET"])
+# @login_required
+def view_calendars(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    user_calendars = Calendar.query.filter(Calendar.user_id ==
+                                           user_id).\
+                                    filter(Calendar.arrival_datetime >=
+                                           datetime.now()).all()
+    user_calendars = [calendar.to_dict() for calendar in user_calendars]
+    return jsonify({"calendars": user_calendars})
+
+
+@api.route('/user/calendar/previous', methods=["GET"])
+@login_required
+def get_last_week_schedule(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    today = datetime.today()
+    start_td = timedelta(days=today.weekday()+7)
+    end_td = timedelta(days=today.weekday())
+    previous_calendars = Calendar.query.filter(Calendar.user_id == user_id).\
+                                        filter(Calendar.arrival_datetime >=
+                                               (today-start_td)).\
+                                        filter(Calendar.arrival_datetime <=
+                                               (today-end_td)).all()
+    previous_calendars = [calendar.to_dict() for calendar
+                          in previous_calendars]
+
+    return jsonify({"calendars": previous_calendars})
 
 
 @api.route('/users/work', methods=["GET"])
@@ -172,7 +202,57 @@ def get_work():
 @api.route('/user/vehicle', methods=["GET"])
 @login_required
 def get_vehicle():
-    vehicle = Vehicle.query.filter_by(user_id=current_user.id)
-    serializer = VehicleSchema(many=False)
-    result = serializer.dump(vehicle)
-    return jsonify({"vehicle": result.data}), 200
+    vehicle_list = []
+    vehicles = Vehicle.query.filter_by(user_id=current_user.id).all()
+    for vehicle in vehicles:
+        vehicle_list.append(vehicle.to_dict())
+    return jsonify({"vehicles": vehicle_list}), 200
+
+
+@api.route('/user/calendar/<calendar_id>', methods=["DELETE"])
+@login_required
+def delete_calendar(calendar_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    calendar = Calendar.query.get(calendar_id)
+    db.session.delete(calendar)
+    db.session.commit()
+    return jsonify({"message": "Deleted calendar event"}), 200
+
+
+# Delete work should delete all associated calendars
+@api.route('/user/work/<work_id>', methods=["DELETE"])
+@login_required
+def delete_work(work_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    calendars = Calendar.query.filter_by(user_id=user_id, work_id=work_id).all()
+    for calendar in calendars:
+        db.session.delete(calendar)
+    work = Work.query.get(work_id)
+    if work:
+        db.session.delete(work)
+        db.session.commit()
+        return jsonify({"message": "Deleted work object"}), 200
+    else:
+        return jsonify({"message": "Work Object Not Found"})
+
+
+@api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
+@login_required
+def delete_vehicle(vehicle_id, user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    vehicle = Vehicle.query.get(vehicle_id)
+    db.session.delete(vehicle)
+    db.session.commit()
+    return jsonify({"message": "Deleted vehicle object"}), 200
+
+
+@api.route('/tests')
+def test_function():
+    return build_carpools()
+
+@api.route('/test2')
+def test_email():
+    return send_confirm_email([22])

@@ -1,18 +1,21 @@
 <div class="page-nav">
   <nav>
-    <button type="button" class="js-menu-trigger sliding-menu-button">
-      <img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/menu-white.png" alt="Menu Icon">
+    <button type="button" class="js-menu-trigger menu-button">
+      MENU
     </button>
-    <a class="page-logo-link" href="/">
-      <h5 class="page-logo">RIDEO</h5>
+    <a ng-show="!vm.isActive('/')" class="page-logo-link" href="#/">
+      <img ng-show="!vm.isActive('/')" class="page-nav-logo" src="static/img/rideo.svg" alt="RIDEO ridshare service" />
     </a>
 
     <nav class="js-menu sliding-menu-content">
       <ul>
-        <li><a href="#/">Home</a></li>
-        <li><a href="javascript:void(0)">Why Carpool?</a></li>
-        <li><a href="javascript:void(0)">How It Works</a></li>
-        <li><a href="/facebook/login">Login</a></li>
+        <li class="mobile-li"><a href="#/">Home</a></li>
+        <li class="mobile-li"><a href="#/register">Register</a></li>
+        <li class="mobile-li"><a href="#/">Why Carpool?</a></li>
+        <li class="mobile-li"><a href="#/">How It Works</a></li>
+        <li class="mobile-li" ng-show="!vm.current.user.name"><a href="/facebook/login">Login</a></li>
+        <li ng-show="vm.current.user.name"><a class="mobile-li" href="#/dashboard">Dashboard</a></li>
+        <li class="mobile-li" ng-show="vm.current.user.name" ng-click="vm.logout()"><a href="#">Logout</a></li>
       </ul>
     </nav>
     <div class="js-menu-screen sliding-menu-fade-screen"></div>

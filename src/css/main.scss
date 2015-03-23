@@ -1,15 +1,31 @@
+/* Reset */
 @import 'reset';
-@import 'defaults';
+
+/*  Vendor CSS  */
 @import 'c3/c3';
-@import 'pickadate/default.css';
-@import 'pickadate/default.date.css';
-@import 'pickadate/default.time.css';
+@import 'pickadate/default';
+@import 'pickadate/default.date';
+@import 'pickadate/default.time';
 @import 'bourbon/bourbon';
 @import 'neat/neat';
-@import 'common-layout';
+
+/*  RIDEO CSS  */
+@import 'colors';
+@import 'defaults';
 @import 'fonts';
+@import 'common-layout';
+@import 'animations';
+
+/* Home Page */
 @import 'home/hero-content';
 @import 'home/hero-refill';
 @import 'home/home-page';
+
+/* Register Page */
 @import 'register/register-page';
+
+/* Navigation */
 @import 'main-nav';
+
+/* Dashboard */
+@import 'dashboard/dashboard';

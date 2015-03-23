@@ -6,10 +6,33 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'currentUser', 'userService',
-      function($log, $location, currentUser, userService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService){
 
   var self = this;
-  self.currentUser = currentUser;
+  self.current = current;
+
+  self.deleteWork = function(workItem, index) {
+    workService.deleteWork(workItem).then(function(result) {
+      if (result) {
+        self.current.work.splice(index, 1);
+      }
+    });
+  };
+  self.deleteDate = function(dateItem, index) {
+    $log.log(index);
+    scheduleService.deleteDate(dateItem).then(function(result) {
+      if (result) {
+        self.current.schedule.splice(index, 1);
+      }
+    });
+  };
+  self.deleteVehicle = function(carItem, index) {
+    vehicleService.deleteVehicle(carItem).then(function(result) {
+      if (result) {
+        self.current.vehicles.splice(index, 1);
+      }
+    });
+  };
 
 }]);

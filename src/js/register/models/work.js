@@ -1,20 +1,19 @@
-app.factory('User', [function(){
+app.factory('Work', [function(){
 
   return function (spec) {
     spec = spec || {};
     return {
       name: spec.name || '',
-      email: spec.email || '',
-      paypal: spec.paypal || '',
-      id: spec.id || '',
-      address: spec.address || '',
+      user_id: spec.user_id || '',
+      // address: spec.street_address || '',
       street_number: spec.street_number || '',
       street: spec.street || '',
       city: spec.city || '',
       state: spec.state || '',
-      zip: spec.zip || '',
-      lat: spec.lat || '',
-      long: spec.long || ''
+      zip_code: spec.zip || undefined,
+      latitude: spec.lat || '',
+      longitude: spec.long || ''
     };
   };
+
 }]);

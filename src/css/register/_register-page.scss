@@ -1,4 +1,38 @@
+.register-form {
+  max-width: 668px;
+  margin: 0 auto;
+  padding: 1em 2em 2em;
+  background-color: #fff;
+  background-image: url('../img/lightpaperfibers.png');
+  box-shadow: $boxShadow;
+  text-align: center;
+  p {
+    margin-top: .75em;
+    text-align: left;
+  }
+}
+
 .register-input {
   margin: .2em 0;
-  width: 100%;
+  border: none;
+  border-bottom: 1px dashed #aaa;
+  background-color: transparent;
+  width: 16em;
+}
+
+.address-input {
+  min-width: 33em;
+}
+
+.schedule-week {
+  display: block;
+  @include span-columns(12);
+}
+
+select {
+  padding: 1em;
+}
+
+.register-button {
+  float: right;
 }

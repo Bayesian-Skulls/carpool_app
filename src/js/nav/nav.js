@@ -10,23 +10,36 @@ app.directive('mainNav', function() {
 
     templateUrl: '/static/js/nav/main-nav.html',
 
-    controller: ['$location', 'StringUtil', '$log', 'currentUser', '$scope', '$rootScope',
-    function($location, StringUtil, $log, currentUser, $scope, $rootScope) {
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope', 'userService',
+    function($location, StringUtil, $log, current, $scope, $rootScope, userService) {
       var self = this;
+      self.current = current;
+
+      self.logout = function() {
+        userService.logout();
+      };
+
+      $rootScope.$on('$routeChangeSuccess', function() {
+        self.page = $location.path();
+        // if (self.page === '/register') {
+        //   $('body').css('background-color', '#8C3A37');
+        // } else if(self.page === '/dashboard') {
+        //   $('body').css('background-color', '#83A9AE');
+        // } else if(self.page === '/') {
+        //   $('body').css('background-color', '#627F83');
+        // }
+      });
 
       self.isActive = function (path) {
-
+        // The default route is a special case.
         if (path === '/') {
           return $location.path() === '/';
         }
         return StringUtil.startsWith($location.path(), path);
       };
 
-      self.currentUser = currentUser;
-
       self.goTo = function(elem) {
         $location.hash(elem);
-
         $anchorScroll();
       };
 
@@ -42,8 +55,6 @@ app.directive('mainNav', function() {
           e.preventDefault();
         });
       });
-
-
     }
   };
 
