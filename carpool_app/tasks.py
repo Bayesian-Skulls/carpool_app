@@ -236,15 +236,8 @@ def send_confirm_email(carpool_users):
             # ]
             }
 
-        # header = {"Content-Type:": "application/json",
-        #           "Content-Length": len(data)}
         result = mandrill_client.messages.send(message=data, async=False,
-            ip_pool='Main Pool')
-        # data = json.dumps(data).encode('utf-8')
-        # new_request = url.Request(base_url, data, header)
-        # server_response = url.urlopen(new_request)
-        #response.append(str(server_response.read(), encoding="utf-8"))
-        print(result)
+                                               ip_pool='Main Pool')
     return "Success", 200
 
 
