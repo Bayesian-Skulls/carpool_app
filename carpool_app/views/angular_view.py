@@ -5,7 +5,7 @@ from flask.ext.login import current_user, abort, login_user, logout_user, login_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers
+from ..tasks import build_carpools, get_rider_phone_numbers, get_gas_prices
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -232,3 +232,7 @@ def test_function():
 @api.route('/<carpool_id>/phones', methods=["GET"])
 def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
+
+@api.route('/test_gas')
+def test_gas_prices():
+    return get_gas_prices(59)

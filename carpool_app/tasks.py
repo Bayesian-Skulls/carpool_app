@@ -1,5 +1,7 @@
 import json
 import re
+import statistics as st
+from decimal import Decimal
 from datetime import datetime, timedelta
 from flask import current_app
 import urllib.request as url
@@ -158,3 +160,20 @@ def get_rider_phone_numbers(carpool):
         driver_phone = driver.phone_number
         pass_phone = passenger.phone_number
     return driver_phone, pass_phone
+
+
+def get_gas_prices(driver_id):
+    driver = User.query.filter_by(id=driver_id).first()
+    driver_lat = driver.latitude
+    driver_lon = driver.longitude
+    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+               "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
+    request = url.urlopen(api_call_url).read().decode("utf-8")
+    request = json.loads(request)
+    '''request is now a dictionary'''
+    stations = request["stations"]
+    '''stations is a list of dicts'''
+    prices = [station["reg_price"] for station in stations]
+    prices = [i for i in prices if i !="N/A"]
+    average_price = round(st.mean([float(price) for price in prices]), 2)
+    return average_price
