@@ -5,7 +5,7 @@ from flask.ext.login import current_user, abort, login_user, logout_user, login_
 from ..models import User, Work, Vehicle, Calendar
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools
+from ..tasks import build_carpools, send_confirm_email
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -225,3 +225,8 @@ def delete_vehicle(vehicle_id, user_id=None):
 @api.route('/tests')
 def test_function():
     return build_carpools()
+
+@api.route('/test2')
+def test_email():
+    send_confirm_email([22])
+    return jsonify({}), 200
