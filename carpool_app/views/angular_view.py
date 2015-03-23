@@ -5,7 +5,7 @@ from flask.ext.login import current_user, abort, login_user, logout_user, login_
 from ..models import User, Work, Vehicle, Calendar
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools
+from ..tasks import build_carpools, send_confirm_email
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -171,6 +171,25 @@ def view_calendars(user_id=None):
     return jsonify({"calendars": user_calendars})
 
 
+@api.route('/user/calendar/previous/', methods=["GET"])
+@login_required
+def get_last_week_schedule(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    today = datetime.today()
+    start_td = timedelta(days=today.weekday()+7)
+    end_td = timedelta(days=today.weekday())
+    previous_calendars = Calendar.query.filter(Calendar.user_id == user_id).\
+                                        filter(Calendar.arrival_datetime >=
+                                               (today-start_td)).\
+                                        filter(Calendar.arrival_datetime <=
+                                               (today-end_td)).all()
+    previous_calendars = [calendar.to_dict() for calendar
+                          in previous_calendars]
+
+    return jsonify({"calendars": previous_calendars})
+
+
 @api.route('/users/work', methods=["GET"])
 @login_required
 def get_work():
@@ -232,3 +251,8 @@ def delete_vehicle(vehicle_id, user_id=None):
 @api.route('/tests')
 def test_function():
     return build_carpools()
+
+@api.route('/test2')
+def test_email():
+    send_confirm_email([22])
+    return jsonify({}), 200
