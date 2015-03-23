@@ -171,7 +171,7 @@ def view_calendars(user_id=None):
     return jsonify({"calendars": user_calendars})
 
 
-@api.route('/user/calendar/previous/', methods=["GET"])
+@api.route('/user/calendar/previous', methods=["GET"])
 @login_required
 def get_last_week_schedule(user_id=None):
     if not user_id:
