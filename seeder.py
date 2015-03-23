@@ -12,13 +12,17 @@ def user_generator(n):
     for i in range(n//2):
         mname = fake.name_male()
         email = mname.replace(" ", "").lower()
-        user_list.append({"name": mname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
-                          "gender": "male"})
+        user_list.append({"name": mname, "email": email + "@carpool.com",
+                          "facebook_id": str(randint(100, 10000)),
+                          "gender": "male"
+                          })
     for i in range(n//2):
         fname = fake.name_female()
         email = fname.replace(" ", "").lower()
-        user_list.append({"name": fname, "email": email + "@carpool.com", "facebook_id": str(randint(100, 10000)),
-                          "gender": "female"})
+        user_list.append({"name": fname, "email": email + "@carpool.com",
+                          "facebook_id": str(randint(100, 10000)),
+                          "gender": "female"
+                          })
     return user_list
 
 
@@ -69,7 +73,7 @@ def lat_long_to_address(key, latitude, longitude):
                        "city": location["adminArea5"],
                        "state": location["adminArea3"],
                        "zip_code": location["postalCode"]
-                      }
+                       }
     return address
 
 
@@ -92,11 +96,14 @@ def generate_coordinate(city):
 
 def build_seed(k):
     file = open("seed.data", "w+")
-    file.write("id,start,start_lat,start_long,dest,dest_lat,dest_long,dest_time\n")
+    file.write("id,start,start_lat,start_long,dest,dest_lat,"
+               "dest_long,dest_time\n")
     csv = ""
     for n in range(k):
         latR, longR = generate_coordinate("Raleigh")
         latD, longD = generate_coordinate("Durham")
-        csv = csv + "{},{},{},{},{},{},{},{}".format(n, "Raleigh", latR, longR, "Durham", latD, longD, "9:00\n")
+        csv = csv + "{},{},{},{},{},{},{},{}".format(n, "Raleigh", latR,
+                                                     longR, "Durham", latD,
+                                                     longD, "9:00\n")
     file.write(csv)
     file.close()

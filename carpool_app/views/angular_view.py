@@ -36,12 +36,15 @@ def register_or_login_user(data):
         return jsonify(errors), 400
     else:
         user = User(**data)
-        if not User.query.filter_by(facebook_id=data['facebook_id']).first():
+        if User.query.filter_by(facebook_id=data['facebook_id']).first():
+            login_user(user)
+            return redirect("/#/dashboard", 302)
+        else:
             db.session.add(user)
             db.session.commit()
-    user = User.query.filter_by(facebook_id=data['facebook_id']).first()
-    login_user(user)
-    return jsonify({"user": user.to_dict()}), 201
+        user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+        login_user(user)
+        return redirect("/#/register", 302)
 
 
 @api.route("/user", methods=['PUT'])
@@ -179,10 +182,11 @@ def get_work():
 @api.route('/user/vehicle', methods=["GET"])
 @login_required
 def get_vehicle():
-    vehicle = Vehicle.query.filter_by(user_id=current_user.id)
-    serializer = VehicleSchema(many=False)
-    result = serializer.dump(vehicle)
-    return jsonify({"vehicle": result.data}), 200
+    vehicle_list = []
+    vehicles = Vehicle.query.filter_by(user_id=current_user.id).all()
+    for vehicle in vehicles:
+        vehicle_list.append(vehicle.to_dict())
+    return jsonify({"vehicles": vehicle_list}), 200
 
 
 @api.route('/user/calendar/<calendar_id>', methods=["DELETE"])
