@@ -79,7 +79,8 @@ def build_carpools():
         send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
-        new_carpool = Carpool(accepted=False,
+        new_carpool = Carpool(driver_accepted=False,
+                              passenger_accepted=False,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
                               vehicle_id=vehicle.id)
