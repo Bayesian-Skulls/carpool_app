@@ -21,6 +21,13 @@ app.directive('mainNav', function() {
 
       $rootScope.$on('$routeChangeSuccess', function() {
         self.page = $location.path();
+        // if (self.page === '/register') {
+        //   $('body').css('background-color', '#8C3A37');
+        // } else if(self.page === '/dashboard') {
+        //   $('body').css('background-color', '#83A9AE');
+        // } else if(self.page === '/') {
+        //   $('body').css('background-color', '#627F83');
+        // }
       });
 
       self.isActive = function (path) {

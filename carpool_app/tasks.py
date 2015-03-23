@@ -238,3 +238,12 @@ def send_confirm_email(carpool_users):
                 "ip_pool": "Main Pool",
                 "send_at": "now"
             }
+
+
+def get_rider_phone_numbers(carpool):
+    for driver_id, passenger_id in carpool.users():
+        driver = User.query.filter_by(user_id=driver_id).first()
+        passenger = User.query.get(user_id=passenger_id).first()
+        driver_phone = driver.phone_number
+        pass_phone = passenger.phone_number
+    return driver_phone, pass_phone
