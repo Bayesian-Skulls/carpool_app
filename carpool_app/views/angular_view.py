@@ -44,7 +44,7 @@ def register_or_login_user(data):
 
 
 @api.route("/user", methods=['PUT'])
-#@login_required
+@login_required
 def update_user(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -78,7 +78,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-@login_required
+#@login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
