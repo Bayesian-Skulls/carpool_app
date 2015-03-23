@@ -163,7 +163,7 @@ def send_confirm_email(carpool_users):
         data = {
                 "html": email_html,
                 "text": email_text,
-                "subject": "Carpool Confimation from Rideo",
+                "subject": "Carpool Confimation from RIDEO",
                 "from_email": "no-reply@rideo.wrong-question.com",
                 "from_name": "Rideo Confirmations",
                 "to": [
@@ -238,7 +238,8 @@ def send_confirm_email(carpool_users):
 
         result = mandrill_client.messages.send(message=data, async=False,
                                                ip_pool='Main Pool')
-    return "Success", 200
+    print(result)
+    return jsonify({"results": result}), 200
 
 
 def get_rider_phone_numbers(carpool):
