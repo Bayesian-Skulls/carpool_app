@@ -16,8 +16,12 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
     // },
     getSchedule: function(userId) {
-        return ajaxService.call($http.get('api/v1/users/schedule'));
+        return ajaxService.call($http.get('api/v1/user/calendar'));
+    },
+    deleteDate: function(date) {
+        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id))
     }
+
   };
 
 }]);

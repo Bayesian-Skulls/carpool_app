@@ -6,8 +6,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/register', routeOptions);
 
-}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService',
-                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService){
+}]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
+                        function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
 
   var self = this;
   current.page = $location.path();
@@ -15,32 +15,47 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.newWork = Work();
   self.vehicle = Vehicle();
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+  self.show = 'register';
 
   self.editUser = function() {
-    userService.editUser(self.current.user);
+    userService.editUser(self.current.user).then(function(data) {
+      self.show = 'work';
+      console.log(self.newWork);
+    });
+  };
+
+  self.addWorkFields = function() {
+    self.addWork();
+    $timeout(function() {
+      self.addSchedule();
+    }, 50);
   };
 
   self.addWork = function() {
     self.newWork.user_id = self.current.user.id;
     delete self.newWork.address;
-    workService.addWork(self.newWork, current.user).then(function(data) {
-      console.log(data);
+    workService.addWork(self.newWork, current.user).then(function(results) {
+      self.show = 'vehicle';
+      self.newWork = results.data.work;
+      console.log(self.newWork);
     });
+    return self.newWork;
   };
 
   self.addSchedule = function() {
-    self.schedule.work_id = current.work[0].id;
+    self.schedule.work_id = self.newWork.id;
     var scheduleToSubmit = Schedule(self.schedule);
     try {
       scheduleService.addDates(scheduleToSubmit);
     } catch(e) {
-      console.log(e);
+      $log.log(e);
     }
   };
 
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
       console.log(data);
+      $location.path('/dashboard');
     });
   };
 

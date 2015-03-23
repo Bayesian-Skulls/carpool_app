@@ -45,4 +45,6 @@ fake-factory==0.5.0
 #Twilio SMS
 twilio==3.7.3
 
+#Mandrill
+mandrill==1.0.57
 

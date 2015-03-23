@@ -44,7 +44,8 @@ nav li {
 
 // Conditional body colors
 .body-default {
-  background-color: $primary-color;
+  background: $primary-color;
+  padding-bottom: 4em;
 }
 
 // .page-footer {
