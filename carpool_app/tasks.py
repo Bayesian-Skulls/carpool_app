@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timedelta
 from flask import current_app
 import urllib.request as url
+import mandrill
 from flask import jsonify
 from random import shuffle
 from .extensions import db, config
@@ -75,9 +76,11 @@ def build_carpools():
     pairs = pair_users()
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
+        send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
-        new_carpool = Carpool(accepted=False,
+        new_carpool = Carpool(driver_accepted=False,
+                              passenger_accepted=False,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
                               vehicle_id=vehicle.id)
@@ -149,6 +152,96 @@ def get_directions(points):
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
     return json.loads(re.findall(r"\((.+)\);", request)[0])
+
+
+def send_confirm_email(carpool_users):
+    response = []
+    base_url = "http://mandrillapp.com/api/1.0/messages/send.json"
+    email_html = "<p>TEST<p>"
+    email_text = "This is only a test."
+    mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
+    for user in carpool_users:
+        current_user = User.query.get(user)
+        data = {
+                "html": email_html,
+                "text": email_text,
+                "subject": "Carpool Confimation from RIDEO",
+                "from_email": "no-reply@rideo.wrong-question.com",
+                "from_name": "Rideo Confirmations",
+                "to": [
+                        {
+                        "email": current_user.email,
+                        "name": current_user.name,
+                        "type": "to"
+                        }
+                       ],
+                "headers": {
+                "Reply-To": "no-reply@rideo.wrong-question.com"
+                },
+                "important": False,
+                "track_opens": None,
+                "track_clicks": None,
+                "auto_text": None,
+                "auto_html": None,
+                "inline_css": None,
+                "url_strip_qs": None,
+                "preserve_recipients": None,
+                "view_content_link": None,
+                "bcc_address": None,
+                "tracking_domain": None,
+                "signing_domain": None,
+                "return_path_domain": None,
+                "merge": False,
+                "merge_language": "mailchimp",
+                "global_merge_vars": [
+                {
+                    "name": "merge1",
+                    "content": "merge1 content"
+                }
+                ],
+                "merge_vars": [
+                    {
+                        "rcpt": user,
+                        "vars": [
+                        {
+                            "name": "merge2",
+                            "content": "merge2 content"
+                        }
+                    ]
+                    }
+                ],
+                "tags": [
+                "password-resets"
+                ],
+                "subaccount": None,
+                "google_analytics_domains": [
+                    None
+                ],
+                "google_analytics_campaign": None,
+                "metadata": {
+                    "website": "rideo.wrong-question.com"
+                },
+            "recipient_metadata": [
+            {
+                "rcpt": current_user.email,
+                "values": {
+                    "user_id": current_user.id
+                }
+            }
+            ],
+            # "images": [
+            #     {
+            #         "type": "image/png",
+            #         "name": "IMAGECID",
+            #         "content": "ZXhhbXBsZSBmaWxl"
+            #     }
+            # ]
+            }
+
+        result = mandrill_client.messages.send(message=data, async=False,
+                                               ip_pool='Main Pool')
+    print(result)
+    return jsonify({"results": result}), 200
 
 
 def get_rider_phone_numbers(carpool):
