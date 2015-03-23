@@ -44,7 +44,6 @@ def register_or_login_user(data):
             db.session.add(user)
             db.session.commit()
             user = User.query.filter_by(facebook_id=data['facebook_id']).first()
-            print("success ", user.id)
             login_user(user)
             return redirect("/#/register", 302)
 
@@ -85,7 +84,7 @@ def logout():
 
 
 @api.route('/users/<user_id>/work', methods=["POST"])
-@login_required
+# @login_required
 def add_work(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -105,7 +104,7 @@ def add_work(user_id=None, data=None):
 
 
 @api.route('/user/vehicle', methods=["POST"])
-#@login_required
+# @login_required
 def add_vehicle(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -125,7 +124,7 @@ def add_vehicle(user_id=None, data=None):
 
 
 @api.route('/user/calendar', methods=["POST"])
-#@login_required
+# @login_required
 def add_calendar(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -160,7 +159,7 @@ def add_calendar(user_id=None, data=None):
 
 
 @api.route('/user/calendar', methods=["GET"])
-#@login_required
+# @login_required
 def view_calendars(user_id=None):
     if not user_id:
         user_id = current_user.id
@@ -201,16 +200,22 @@ def delete_calendar(calendar_id, user_id=None):
     db.session.commit()
     return jsonify({"message": "Deleted calendar event"}), 200
 
-
+# Delete work should delete all associated calendars
 @api.route('/user/work/<work_id>', methods=["DELETE"])
 @login_required
 def delete_work(work_id, user_id=None):
     if not user_id:
         user_id = current_user.id
+    calendars = Calendar.query.filter_by(user_id=user_id, work_id=work_id).all()
+    for calendar in calendars:
+        db.session.delete(calendar)
     work = Work.query.get(work_id)
-    db.session.delete(work)
-    db.session.commit()
-    return jsonify({"message": "Deleted work object"}), 200
+    if work:
+        db.session.delete(work)
+        db.session.commit()
+        return jsonify({"message": "Deleted work object"}), 200
+    else:
+        return jsonify({"message": "Work Object Not Found"})
 
 
 @api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
