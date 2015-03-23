@@ -3,20 +3,27 @@
   height: 4em;
 }
 
-.dashboard-steps-container {
-  overflow: auto;
+.dashboard-content {
+  color: #fff;
+  background-color: $accent-color;
 }
 
 .dashboard-steps {
   margin-top: 2.35765%;
   position: relative;
   display: inline-block;
-  @include span-columns(4);
-  padding-top: 31.765175%;
-  background-color: $accent-color;
-  &:active {
-    background-color: darken($accent-color, 10%);
+  padding-top: 100%;
+  @include span-columns(12);
+  @media only screen and (min-width: 500px) {
+    @include span-columns(6);
+    padding-top: 50%;
   }
+  @media only screen and (min-width: 768px) {
+    @include span-columns(4);
+    padding-top: 31.765175%;
+  }
+  background-color: $accent-color;
+  box-shadow: $cardShadow;
   p {
     position: absolute;
     top: 50%;
@@ -25,6 +32,20 @@
   }
 }
 
+.dashboard-steps__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 .dashboard-content {
   text-align: center;
+}
+
+//CONDITIONAL STYLES
+
+.incomplete {
+  background-color: $secondary-color;
 }

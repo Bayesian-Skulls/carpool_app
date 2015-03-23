@@ -11,10 +11,6 @@ app.config(['$routeProvider', function ($routeProvider) {
   });
 }]);
 
-app.controller('Error404Ctrl', ['$location', function ($location) {
-  this.message = 'Could not find: ' + $location.url();
-}]);
-
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/dashboard/dashboard.html',
@@ -28,12 +24,17 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   var self = this;
   self.current = current;
-
+  if (current.name) {
+    $locaton.path('/');
+  };
   self.deleteWork = function(workItem, index) {
+    // IMPLEMENT 'are you sure?' if there are dates associated with this job
+
     workService.deleteWork(workItem).then(function(result) {
       if (result) {
         self.current.work.splice(index, 1);
       }
+      current.getSchedule();
     });
   };
   self.deleteDate = function(dateItem, index) {
@@ -123,7 +124,30 @@ app.directive('picker', function() {
         }
       }
   };
-  // {{vm.user.schedule.slice(0,5).trim()}}
+});
+
+app.directive('upcoming', function() {
+  return {
+      require: 'ngModel',
+      replace: true,
+
+      scope: {
+          ngModel: '=',
+          details: '=?'
+      },
+      controller: ['$scope', 'current', function($scope, current) {
+        var self = this;
+      }],
+      link: function(scope, element, model, ctrl) {
+        if(scope.pickerType==='date'){
+          $(element).pickadate({
+            formatSubmit: 'yyyy/mm/dd'
+          });
+        } else if (scope.pickerType==='time') {
+          $(element[0]).pickatime();
+        }
+      }
+  };
 });
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
@@ -259,6 +283,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var scheduleToSubmit = Schedule(self.schedule);
     try {
       scheduleService.addDates(scheduleToSubmit);
+      current.getSchedule();
     } catch(e) {
       $log.log(e);
     }
@@ -266,7 +291,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
+      self.current.vehicles.push(self.vehicle);
+      self.current.getStatus();
       $location.path('/dashboard');
     });
   };
@@ -307,6 +333,10 @@ app.factory('StringUtil', function() {
     }
   };
 });
+
+app.controller('Error404Ctrl', ['$location', function ($location) {
+  this.message = 'Could not find: ' + $location.url();
+}]);
 
 app.factory('workDate', [function(){
 
@@ -410,17 +440,23 @@ app.factory('Work', [function(){
 app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
                         function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
   // create basic object
-  var currentSpec = {
+  currentSpec = {
     getWork: function() {
       workService.getWork(currentSpec.user.id).then(function(result) {
         $log.log(result.data.work);
         currentSpec.work = result.data.work;
+        if(currentSpec.work <= 0) {
+          currentSpec.incomplete = true;
+        }
       });
     },
     getVehicles: function() {
       try {
         vehicleService.getVehicles().then(function(result) {
           currentSpec.vehicles = result.data.vehicles;
+          if(currentSpec.vehicles <= 0) {
+            currentSpec.incomplete = true;
+          }
         });
       } catch(e) {
         $log.log(e);
@@ -429,9 +465,21 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     getSchedule: function() {
       scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
+        if(currentSpec.schedule <= 0) {
+          currentSpec.incomplete = true;
+        }
+
         $log.log(currentSpec.schedule);
       });
-    }
+    },
+    getStatus: function() {
+      currentSpec.getWork();
+      currentSpec.getVehicles();
+      currentSpec.getSchedule();
+    },
+    vehicles: [],
+    work: [],
+    schedule: []
   };
 
   currentSpec.user = User();
@@ -442,9 +490,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
-      currentSpec.getWork();
-      currentSpec.getVehicles();
-      currentSpec.getSchedule();
+      currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
     }
@@ -462,10 +508,8 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
     // },
     addDates: function(dates) {
-        console.log(dates);
         dates.forEach(function(date) {
-          console.log(date);
-          return ajaxService.call($http.post('/api/v1/user/calendar', date));
+          ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
     // editDate: function(work, userId) {
@@ -475,7 +519,7 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
         return ajaxService.call($http.get('api/v1/user/calendar'));
     },
     deleteDate: function(date) {
-        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id))
+        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id));
     }
 
   };
@@ -520,7 +564,7 @@ app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $ht
         return ajaxService.call($http.get('/api/v1/user/vehicle'));
     },
     deleteVehicle: function(car) {
-        return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id))
+        return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id));
     }
 
   };
@@ -543,7 +587,7 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
         return ajaxService.call($http.get('api/v1/users/work'));
     },
     deleteWork: function(work) {
-        return ajaxService.call($http.delete('api/v1/user/work/' + work.id))
+        return ajaxService.call($http.delete('api/v1/user/work/' + work.id));
     }
   };
 

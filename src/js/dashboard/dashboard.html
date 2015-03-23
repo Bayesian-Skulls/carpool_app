@@ -1,15 +1,26 @@
-<div class="page-section dashboard-content">
+<div class="page-wrapper dashboard-content">
   <main-nav page-header></main-nav>
   <h5>Get Started</h5>
   <div class="dashboard-steps-container" ng-if="!vm.current.name">
     <div class="dashboard-steps">
-      <p>Your Info</p>
+      <div class="dashboard-steps__content">
+        <h5>YOUR NEXT RIDESHARE</h5>
+        <iframe style="height: 270px; width: 450px;" src="http://www.mapquest.com/embed?hk=13NPqT5" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+      </div>
     </div>
     <div class="dashboard-steps">
-      <p>Your Vehicle</p>
+      <div class="dashboard-steps__content">
+        <h5>ENCOURAGING WORDS</h5>
+      </div>
     </div>
-    <div class="dashboard-steps">
-      <p>Your Work</p>
+    <div class="dashboard-steps" ng-class="{ incomplete: vm.current.incomplete }">
+        <div class="dashboard-steps__content">
+        <h5>REGISTRATION STATUS</h5>
+        <a ng-if="vm.current.incomplete" href="#/register">
+          <h5>COMPLETE YOUR REGISTRATION</h5>
+            <button class="clear-button"><h5>Complete Your Registration</h5></button>
+        </a>
+        </div>
     </div>
   </div>
   <div class="page-section">

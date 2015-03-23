@@ -11,12 +11,17 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   var self = this;
   self.current = current;
-
+  if (current.name) {
+    $locaton.path('/');
+  };
   self.deleteWork = function(workItem, index) {
+    // IMPLEMENT 'are you sure?' if there are dates associated with this job
+
     workService.deleteWork(workItem).then(function(result) {
       if (result) {
         self.current.work.splice(index, 1);
       }
+      current.getSchedule();
     });
   };
   self.deleteDate = function(dateItem, index) {

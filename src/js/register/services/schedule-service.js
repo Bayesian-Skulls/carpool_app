@@ -6,10 +6,8 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
     // },
     addDates: function(dates) {
-        console.log(dates);
         dates.forEach(function(date) {
-          console.log(date);
-          return ajaxService.call($http.post('/api/v1/user/calendar', date));
+          ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
     // editDate: function(work, userId) {
@@ -19,7 +17,7 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
         return ajaxService.call($http.get('api/v1/user/calendar'));
     },
     deleteDate: function(date) {
-        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id))
+        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id));
     }
 
   };

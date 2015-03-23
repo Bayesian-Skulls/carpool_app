@@ -1,4 +1,4 @@
-<div class="register-page">
+<div class="register-page-wrapper page-wrapper">
   <main-nav page-header></main-nav>
   <div class="register-form">
     <form class="signup-form" ng-submit="vm.register()">
@@ -33,7 +33,6 @@
           from <input class="register-input" name="schedule-departing" ng-model="vm.schedule.departing" picker picker-type="'time'">
           to <input class="register-input" name="schedule-returning" ng-model="vm.schedule.arriving" picker picker-type="'time'">
         </p>
-        <button class="register-button" ng-click="vm.addSchedule()">add schedule</button>
         <button class="register-button" ng-click="vm.addWorkFields()">add workplace</button>
       </div>
       <div ng-show="vm.show === 'vehicle' || vm.show === 'all'" class="register-section page-section">
@@ -43,7 +42,7 @@
           <input class="register-input" ng-model="vm.vehicle.model" type="text" name="name" placeholder="Model">. My license plate number is
           <input class="register-input" ng-model="vm.vehicle.plate_number" type="text" name="name" placeholder="XXX-XXXX">
         </p>
-          <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button>
+        <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button>
       </div>
     </form>
   </div>

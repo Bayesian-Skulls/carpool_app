@@ -47,6 +47,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var scheduleToSubmit = Schedule(self.schedule);
     try {
       scheduleService.addDates(scheduleToSubmit);
+      current.getSchedule();
     } catch(e) {
       $log.log(e);
     }
@@ -54,7 +55,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
+      self.current.vehicles.push(self.vehicle);
+      self.current.getStatus();
       $location.path('/dashboard');
     });
   };
