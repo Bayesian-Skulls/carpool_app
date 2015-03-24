@@ -110,6 +110,8 @@ class Carpool(db.Model):
     passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'),
                                       nullable=False)
     vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
+    driver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     @property
     def users(self):
@@ -119,6 +121,33 @@ class Carpool(db.Model):
             Calendar.id == self.passenger_calendar_id).first().user_id
         return [user1, user2]
 
+    @property
+    def details(self):
+        driver_arrival_time = Calendar.query.filter(
+            Calendar.id == self.driver_calendar_id).first().arrival_datetime
+        driver_depart_time = Calendar.query.filter(
+            Calendar.id == self.driver_calendar_id).first().departure_datetime
+        passenger_arrival_time = Calendar.query.filter(
+            Calendar.id == self.passenger_calendar_id).first().arrival_datetime
+        passenger_depart_time = Calendar.query.filter(
+            Calendar.id == self.passenger_calendar_id).first().\
+                departure_datetime
+        driver = User.query.filter(User.id == self.driver_id).first().to_dict()
+        passenger = User.query.filter(User.id == self.passenger_id).\
+            first().to_dict()
+        return {"driver":
+                    {
+                    "info": driver,
+                    "arrival": driver_arrival_time,
+                    "departure": driver_depart_time
+                    },
+                "passenger":
+                    {
+                    "info": passenger,
+                    "arrival": passenger_arrival_time,
+                    "departure": passenger_depart_time
+                    }
+                }
 
     def to_dict(self):
         return {"id": self.id,
@@ -126,7 +155,9 @@ class Carpool(db.Model):
                 "passenger_accepted": self.passenger_accepted,
                 "driver_calendar_id": self.driver_calendar_id,
                 "passenger_calendar_id": self.passenger_calendar_id,
-                "vehicle_id": self.vehicle_id
+                "vehicle_id": self.vehicle_id,
+                "driver_id": self.driver_id,
+                "passenger_id": self.passenger_id
                 }
 
 
