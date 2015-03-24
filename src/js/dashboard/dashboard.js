@@ -13,6 +13,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.current = current;
   if (current.name) {
     $locaton.path('/');
+  }
+
+  self.editProfile = function() {
+    $location.path('/register');
   };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job

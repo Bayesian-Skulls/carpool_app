@@ -35,11 +35,6 @@ app.directive('googleplace', function() {
                       }
                     });
 
-                    // scope.details.city = addressObj.address_components[2].long_name;
-                    // scope.details.state = addressObj.address_components[5].long_name;
-                    // scope.details.street_number = addressObj.address_components[0].long_name;
-                    // scope.details.street = addressObj.address_components[1].long_name;
-                    // scope.details.zip_code = addressObj.address_components[7].long_name;
                     scope.details.latitude = addressObj.geometry.location.k;
                     scope.details.longitude = addressObj.geometry.location.D;
                     console.log(addressObj);

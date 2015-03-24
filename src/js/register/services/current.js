@@ -28,6 +28,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.schedule = result.data.calendars;
         if(currentSpec.schedule <= 0) {
           currentSpec.incomplete = true;
+        } else {
+          currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
 
         $log.log(currentSpec.schedule);
@@ -51,6 +53,10 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
+      userService.getPhoto().then(function(result){
+        console.log(result);
+        currentSpec.photo = result.data;
+      });
       currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');

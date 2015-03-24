@@ -11,6 +11,10 @@ app.config(['$routeProvider', function ($routeProvider) {
   });
 }]);
 
+app.controller('Error404Ctrl', ['$location', function ($location) {
+  this.message = 'Could not find: ' + $location.url();
+}]);
+
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/dashboard/dashboard.html',
@@ -26,6 +30,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.current = current;
   if (current.name) {
     $locaton.path('/');
+  }
+
+  self.editProfile = function() {
+    $location.path('/register');
   };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
@@ -92,11 +100,6 @@ app.directive('googleplace', function() {
                       }
                     });
 
-                    // scope.details.city = addressObj.address_components[2].long_name;
-                    // scope.details.state = addressObj.address_components[5].long_name;
-                    // scope.details.street_number = addressObj.address_components[0].long_name;
-                    // scope.details.street = addressObj.address_components[1].long_name;
-                    // scope.details.zip_code = addressObj.address_components[7].long_name;
                     scope.details.latitude = addressObj.geometry.location.k;
                     scope.details.longitude = addressObj.geometry.location.D;
                     console.log(addressObj);
@@ -104,6 +107,45 @@ app.directive('googleplace', function() {
             });
         }
     };
+});
+
+app.directive('mileageChart', function() {
+  return {
+      // require: 'ngModel',
+      replace: true,
+      templateUrl: '/static/js/directive/mileage-chart.html',
+      scope: {
+          // ngModel: '=',
+          // pickerType: '=?',
+          // details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        var chart = c3.generate({
+          bindto: element[0],
+          data: {
+            columns: [
+              ['MILES/WEEK', 259, 130],
+              // ['DOLLARS', 27, 13]
+            ],
+
+            type: 'bar'
+          },
+          axis: {
+            x: {
+              tick: {
+                format: function (d) {
+                  var labels = ['SOLO', 'RIDESHARE'];
+                  return labels[d % labels.length];
+                }
+              }
+            }
+          },
+          color: {
+            pattern: ['#FFF', '#aaa']
+          }
+        });
+      }
+  };
 });
 
 app.directive('picker', function() {
@@ -334,10 +376,6 @@ app.factory('StringUtil', function() {
   };
 });
 
-app.controller('Error404Ctrl', ['$location', function ($location) {
-  this.message = 'Could not find: ' + $location.url();
-}]);
-
 app.factory('workDate', [function(){
 
   return function (spec) {
@@ -467,6 +505,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.schedule = result.data.calendars;
         if(currentSpec.schedule <= 0) {
           currentSpec.incomplete = true;
+        } else {
+          currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
 
         $log.log(currentSpec.schedule);
@@ -490,6 +530,10 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
+      userService.getPhoto().then(function(result){
+        console.log(result);
+        currentSpec.photo = result.data;
+      });
       currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
@@ -520,6 +564,13 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     deleteDate: function(date) {
         return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id));
+    },
+    processDates: function(dates) {
+      dates.forEach(function(date){
+        date.depart = new Date(date.departure_datetime);
+        date.return = new Date(date.arrival_datetime);
+      });
+      return dates;
     }
 
   };
@@ -540,6 +591,10 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
     getCurrent: function() {
       return ajaxService.call($http.get('/api/v1/me'));
+    },
+
+    getPhoto: function() {
+      return ajaxService.call($http.get('/facebook/photo'));
     },
 
     logout: function() {

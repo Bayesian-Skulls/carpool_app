@@ -18,6 +18,13 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     deleteDate: function(date) {
         return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id));
+    },
+    processDates: function(dates) {
+      dates.forEach(function(date){
+        date.depart = new Date(date.departure_datetime);
+        date.return = new Date(date.arrival_datetime);
+      });
+      return dates;
     }
 
   };
