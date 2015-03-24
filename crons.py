@@ -1,3 +1,4 @@
+import os
 from faker import Faker
 from random import randint, choice
 from seeder import generate_location_json
@@ -66,9 +67,10 @@ def add_user():
     create_user(key)
 
 @manager.command
-def print_carpools():
+def create_carpools():
     json = build_carpools()
-    print(json)
+    with open("carpool.log","w") as f:
+        f.write(json)
     return "Success"
 
 if __name__ == '__main__':
