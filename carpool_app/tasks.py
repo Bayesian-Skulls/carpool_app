@@ -85,7 +85,9 @@ def build_carpools():
                               passenger_accepted=False,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
-                              vehicle_id=vehicle.id)
+                              vehicle_id=vehicle.id,
+                              driver_id = driver["user"]["id"],
+                              passenger_id = passenger["user"]["id"])
         db.session.add(new_carpool)
         new_carpools.append(new_carpool.to_dict())
     db.session.commit()
