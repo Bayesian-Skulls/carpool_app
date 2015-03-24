@@ -252,7 +252,7 @@ def delete_vehicle(vehicle_id, user_id=None):
     return jsonify({"message": "Deleted vehicle object"}), 200
 
 
-@api.route('/user/carpool/<user_id>', methods=["GET"])
+@api.route('/user/carpool', methods=["GET"])
 #@login_required
 def view_current_carpool(user_id=None):
     if not user_id:
