@@ -139,13 +139,15 @@ class Carpool(db.Model):
                     {
                     "info": driver,
                     "arrival": driver_arrival_time,
-                    "departure": driver_depart_time
+                    "departure": driver_depart_time,
+                    "accepted": self.driver_accepted
                     },
                 "passenger":
                     {
                     "info": passenger,
                     "arrival": passenger_arrival_time,
-                    "departure": passenger_depart_time
+                    "departure": passenger_depart_time,
+                    "accepted": self.passenger_accepted
                     }
                 }
 
