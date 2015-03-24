@@ -32,13 +32,13 @@ def generate_vehicle(user_id):
     shuffle(plate)
     plate = "".join(plate)
     if n == 0:
-        car = {"id": user_id,
+        car = {"user_id": user_id,
                "year": 2015,
                "make": "Smart Car",
                "model": "Pure Coupe",
                "plate_number": plate}
     else:
-        car = {"id": user_id,
+        car = {"user_id": user_id,
                "year": 1987,
                "make": "Lamborghini",
                "model": "Countach",
