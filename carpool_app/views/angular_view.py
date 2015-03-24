@@ -264,6 +264,24 @@ def view_current_carpool(user_id=None):
     return jsonify({"carpool": current_carpool.details})
 
 
+@api.route('/user/carpool', methods=["POST"])
+# @login_required
+def accept_decline_carpool(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    if not request.get_json():
+        return jsonify({"message": "No input data provided"}), 400
+    data = request.get_json()
+    current_carpool = Carpool.query.get(data["carpool_id"])
+    if user_id == current_carpool.driver_id:
+        current_carpool.driver_accepted = True if data["response"] else False
+    elif user_id == current_carpool.passenger_id:
+        current_carpool.passenger_accepted = True if\
+            data["response"] else False
+    db.session.commit()
+    return jsonify({"carpool": current_carpool.details})
+
+
 @api.route('/tests')
 def test_function():
     return build_carpools()
