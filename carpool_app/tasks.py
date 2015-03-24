@@ -81,11 +81,13 @@ def build_carpools():
         send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
-        new_carpool = Carpool(driver_accepted=False,
-                              passenger_accepted=False,
+        new_carpool = Carpool(driver_accepted=None,
+                              passenger_accepted=None,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
-                              vehicle_id=vehicle.id)
+                              vehicle_id=vehicle.id,
+                              driver_id = driver["user"]["id"],
+                              passenger_id = passenger["user"]["id"])
         db.session.add(new_carpool)
         new_carpools.append(new_carpool.to_dict())
     db.session.commit()
@@ -242,7 +244,7 @@ def send_confirm_email(carpool_users):
 
         result = mandrill_client.messages.send(message=data, async=False,
                                                ip_pool='Main Pool')
-    print(result)
+        print(result)
     return jsonify({"results": result}), 200
 
 
