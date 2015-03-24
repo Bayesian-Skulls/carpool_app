@@ -2,10 +2,12 @@ import json
 from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, flash, jsonify, current_app
 from flask.ext.login import current_user, abort, login_user, logout_user, login_required
-from ..models import User, Work, Vehicle, Calendar
+from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, send_confirm_email
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices
+
+
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -260,6 +262,17 @@ def test_function():
     return build_carpools()
 
 
+@api.route('/<carpool_id>/phones', methods=["GET"])
+def get_phone_numbers(carpool_id):
+    return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
+
+
+@api.route('/test_gas')
+def test_gas_prices():
+    return get_gas_prices(59)
+
+
 @api.route('/test2')
 def test_email():
     return send_confirm_email([22])
+
