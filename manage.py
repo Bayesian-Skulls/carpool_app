@@ -13,6 +13,7 @@ from carpool_app.views.angular_view import (register_or_login_user,
                                             add_calendar, add_vehicle)
 from carpool_app.models import User, Work
 
+
 app = create_app()
 manager = Manager(app)
 
@@ -20,6 +21,7 @@ manager.add_command('server', Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command('show-urls', ShowUrls())
 manager.add_command('clean', Clean())
+
 
 
 @manager.shell

@@ -52,7 +52,7 @@ def register_or_login_user(data):
 
 
 @api.route("/user", methods=['PUT'])
-#@login_required
+@login_required
 def update_user(user_id=None, data=None):
     if not user_id:
         user_id = current_user.id
@@ -70,6 +70,7 @@ def update_user(user_id=None, data=None):
             return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
     db.session.commit()
     return jsonify({"user": user.to_dict()}), 201
+
 
 
 @api.route('/me', methods=["GET"])
@@ -267,6 +268,25 @@ def view_current_carpool(user_id=None):
 @api.route('/vehicle/<driver_id>/mpg', methods=["GET"])
 def get_combined_mpg(driver_id):
     return get_mpg(get_vehicle_api_id(driver_id=driver_id))
+
+
+@api.route('/user/carpool', methods=["POST"])
+# @login_required
+def accept_decline_carpool(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    if not request.get_json():
+        return jsonify({"message": "No input data provided"}), 400
+    data = request.get_json()
+    current_carpool = Carpool.query.get(data["carpool_id"])
+    if user_id == current_carpool.driver_id:
+        current_carpool.driver_accepted = True if data["response"] else False
+    elif user_id == current_carpool.passenger_id:
+        current_carpool.passenger_accepted = True if\
+            data["response"] else False
+    db.session.commit()
+    return jsonify({"carpool": current_carpool.details})
+
 
 
 @api.route('/tests')

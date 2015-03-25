@@ -61,7 +61,11 @@ def facebook_authorized():
     return register_or_login_user(user)
 
 @users.route('/facebook/photo')
+@users.route('/facebook/photo/<facebook_id>')
 @login_required
-def facebook_photo():
-    photo = facebook.get('/me/picture?redirect=false&height=250&width=250')
+def facebook_photo(facebook_id=None):
+    if facebook_id:
+        photo = facebook.get('/{}/picture?redirect=false&height=250&width=250'.format(facebook_id))
+    else:
+        photo = facebook.get('/me/picture?redirect=false&height=250&width=250')
     return photo.data['data']['url']
