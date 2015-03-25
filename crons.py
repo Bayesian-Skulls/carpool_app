@@ -1,3 +1,4 @@
+import os
 from faker import Faker
 from random import randint, choice
 from seeder import generate_location_json
