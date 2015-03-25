@@ -96,8 +96,11 @@ class Calendar(db.Model):
         return {"id": self.id,
                 "user_id": self.user_id,
                 "work_id": self.work_id,
-                "arrival_datetime": self.arrival_datetime,
-                "departure_datetime": self.departure_datetime}
+                "arrival_datetime": self.arrival_datetime.strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ"),
+                "departure_datetime": self.departure_datetime.strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ")
+                }
 
 
 class Carpool(db.Model):
@@ -144,16 +147,20 @@ class Carpool(db.Model):
                     {
                     "info": driver,
                     "work": driver_work,
-                    "arrival": driver_arrival_time,
-                    "departure": driver_depart_time,
+                    "arrival": driver_arrival_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "departure": driver_depart_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
                     "accepted": self.driver_accepted
                     },
                 "passenger":
                     {
                     "info": passenger,
                     "work": passenger_work,
-                    "arrival": passenger_arrival_time,
-                    "departure": passenger_depart_time,
+                    "arrival": passenger_arrival_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "departure": passenger_depart_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
                     "accepted": self.passenger_accepted
                     }
                 }

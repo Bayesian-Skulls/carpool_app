@@ -23,7 +23,6 @@ def get_events_by_time():
     return events
 
 
-
 def pair_event_and_driver():
     events = get_events_by_time()
     event_by_user = []
