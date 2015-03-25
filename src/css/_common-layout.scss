@@ -26,11 +26,16 @@ nav li {
 }
 
 .root-content {
-  @include outer-container(100%);
+  // @include outer-container(100%);
+}
+
+.page-content {
+  @include outer-container(980px);
 }
 
 .page-section {
-  margin: 1em;
+  overflow: auto;
+  padding: 1em;
 }
 
 .hidden {
@@ -40,13 +45,23 @@ nav li {
 .clear-button {
   background-color: transparent;
   border: 3px solid white;
+  h5 {
+    margin-top: 0;
+  }
+}
+
+.page-wrapper {
+  height: 100%;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1em;
+  background-color: $primary-color;
 }
 
 // Conditional body colors
-.body-default {
-  background: $primary-color;
-  padding-bottom: 4em;
-}
 
 // .page-footer {
 //   height: 10em;

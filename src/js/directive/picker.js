@@ -16,5 +16,4 @@ app.directive('picker', function() {
         }
       }
   };
-  // {{vm.user.schedule.slice(0,5).trim()}}
 });

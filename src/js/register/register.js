@@ -4,7 +4,13 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     controller: 'registerCtrl',
     controllerAs: 'vm'
   };
+  var routeOptions2 = {
+    templateUrl: '/static/js/profile/profile.html',
+    controller: 'registerCtrl',
+    controllerAs: 'vm'
+  };
   $routeProvider.when('/register', routeOptions);
+  $routeProvider.when('/profile', routeOptions2);
 
 }]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
                         function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
@@ -47,6 +53,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var scheduleToSubmit = Schedule(self.schedule);
     try {
       scheduleService.addDates(scheduleToSubmit);
+      current.getSchedule();
     } catch(e) {
       $log.log(e);
     }
@@ -54,7 +61,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
+      self.current.vehicles.push(self.vehicle);
+      current.getStatus();
+      self.editUser();
       $location.path('/dashboard');
     });
   };

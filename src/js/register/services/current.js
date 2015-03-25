@@ -1,41 +1,72 @@
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
-                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService', '$q', 'rideShareService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService, $q, rideShareService) {
   // create basic object
-  var currentSpec = {
+  currentSpec = {
     getWork: function() {
-      workService.getWork(currentSpec.user.id).then(function(result) {
-        $log.log(result.data.work);
+      return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
+        if(currentSpec.work.length <= 0) {
+          currentSpec.incomplete = true;
+        }
       });
     },
     getVehicles: function() {
       try {
-        vehicleService.getVehicles().then(function(result) {
+        return vehicleService.getVehicles().then(function(result) {
           currentSpec.vehicles = result.data.vehicles;
+          if(currentSpec.vehicles.length <= 0) {
+            currentSpec.incomplete = true;
+          }
         });
       } catch(e) {
         $log.log(e);
       }
     },
     getSchedule: function() {
-      scheduleService.getSchedule().then(function(result) {
+      return scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
-        $log.log(currentSpec.schedule);
+        if(currentSpec.schedule.length <= 0) {
+          currentSpec.incomplete = true;
+        } else {
+          currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
+        }
       });
-    }
+    },
+    getRideShares: function() {
+      return rideShareService.getRideShares().then(function(result) {
+        if (result.data.carpool.driver.info.id = currentSpec.user.id){
+          currentSpec.role = 'driver';
+          currentSpec.rideo = result.data.carpool.passenger;
+        } else {
+          currentSpec.role = 'passenger';
+          currentSpec.rideo = result.data.carpool.driver;
+        }
+        console.log(currentSpec.rideo);
+        currentSpec.rideShares = result.data.carpool;
+      });
+    },
+    getStatus: function() {
+      return $q.all([
+        currentSpec.getWork(),
+        currentSpec.getVehicles(),
+        currentSpec.getSchedule(),
+        currentSpec.getRideShares()]);
+    },
+    vehicles: [],
+    work: [],
+    schedule: []
   };
 
   currentSpec.user = User();
   // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
-      $log.log('logged in');
-      $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
-      currentSpec.getWork();
-      currentSpec.getVehicles();
-      currentSpec.getSchedule();
+      userService.getPhoto().then(function(result){
+        currentSpec.photo = result.data;
+      });
+      currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
     }

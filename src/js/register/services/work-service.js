@@ -12,7 +12,7 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
         return ajaxService.call($http.get('api/v1/users/work'));
     },
     deleteWork: function(work) {
-        return ajaxService.call($http.delete('api/v1/user/work/' + work.id))
+        return ajaxService.call($http.delete('api/v1/user/work/' + work.id));
     }
   };
 

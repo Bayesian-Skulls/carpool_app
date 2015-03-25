@@ -28,12 +28,21 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   var self = this;
   self.current = current;
+  if (current.name) {
+    $locaton.path('/');
+  }
 
+  self.editProfile = function() {
+    $location.path('/profile');
+  };
   self.deleteWork = function(workItem, index) {
+    // IMPLEMENT 'are you sure?' if there are dates associated with this job
+
     workService.deleteWork(workItem).then(function(result) {
       if (result) {
         self.current.work.splice(index, 1);
       }
+      current.getSchedule();
     });
   };
   self.deleteDate = function(dateItem, index) {
@@ -91,11 +100,6 @@ app.directive('googleplace', function() {
                       }
                     });
 
-                    // scope.details.city = addressObj.address_components[2].long_name;
-                    // scope.details.state = addressObj.address_components[5].long_name;
-                    // scope.details.street_number = addressObj.address_components[0].long_name;
-                    // scope.details.street = addressObj.address_components[1].long_name;
-                    // scope.details.zip_code = addressObj.address_components[7].long_name;
                     scope.details.latitude = addressObj.geometry.location.k;
                     scope.details.longitude = addressObj.geometry.location.D;
                     console.log(addressObj);
@@ -103,6 +107,73 @@ app.directive('googleplace', function() {
             });
         }
     };
+});
+
+app.directive('maps', function() {
+  return {
+      // require: 'ngModel',
+      replace: true,
+      scope: {
+          // ngModel: '=',
+          // pickerType: '=?',
+          // details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        console.log('hey, i loaded the maps');
+
+         // create an object for options
+         var options = {
+           elt: document.getElementById('map'),           // ID of map element on page
+           zoom: 10,                                      // initial zoom level of the map
+           latLng: { lat: 39.743943, lng: -105.020089 },  // center of map in latitude/longitude
+           mtype: 'map',                                  // map type (map, sat, hyb); defaults to map
+           bestFitMargin: 0,                              // margin offset from map viewport when applying a bestfit on shapes
+           zoomOnDoubleClick: true                        // enable map to be zoomed in when double-clicking on map
+         };
+
+         // construct an instance of MQA.TileMap with the options object
+         element.map = new MQA.TileMap(options);
+      }
+  };
+});
+
+app.directive('mileageChart', function() {
+  return {
+      // require: 'ngModel',
+      replace: true,
+      templateUrl: '/static/js/directive/mileage-chart.html',
+      scope: {
+          // ngModel: '=',
+          // pickerType: '=?',
+          // details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        var chart = c3.generate({
+          bindto: element[0].querySelector('.chart'),
+          data: {
+            columns: [
+              ['MILES/WEEK', 259, 130],
+              ['DOLLARS', 27, 13]
+            ],
+
+            type: 'bar'
+          },
+          axis: {
+            x: {
+              tick: {
+                format: function (d) {
+                  var labels = ['SOLO', 'RIDESHARE'];
+                  return labels[d % labels.length];
+                }
+              }
+            }
+          },
+          color: {
+            pattern: ['#FFF', '#aaa']
+          }
+        });
+      }
+  };
 });
 
 app.directive('picker', function() {
@@ -123,7 +194,6 @@ app.directive('picker', function() {
         }
       }
   };
-  // {{vm.user.schedule.slice(0,5).trim()}}
 });
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
@@ -164,7 +234,9 @@ app.directive('mainNav', function() {
       self.current = current;
 
       self.logout = function() {
-        userService.logout();
+        userService.logout().then(function () {
+          $location.path('/');
+        });
       };
 
       $rootScope.$on('$routeChangeSuccess', function() {
@@ -216,7 +288,13 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     controller: 'registerCtrl',
     controllerAs: 'vm'
   };
+  var routeOptions2 = {
+    templateUrl: '/static/js/profile/profile.html',
+    controller: 'registerCtrl',
+    controllerAs: 'vm'
+  };
   $routeProvider.when('/register', routeOptions);
+  $routeProvider.when('/profile', routeOptions2);
 
 }]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
                         function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
@@ -259,6 +337,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var scheduleToSubmit = Schedule(self.schedule);
     try {
       scheduleService.addDates(scheduleToSubmit);
+      current.getSchedule();
     } catch(e) {
       $log.log(e);
     }
@@ -266,7 +345,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
-      console.log(data);
+      self.current.vehicles.push(self.vehicle);
+      current.getStatus();
+      self.editUser();
       $location.path('/dashboard');
     });
   };
@@ -280,6 +361,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.fbRegister = function() {
     $location.path('/facebook/login');
   };
+
+}]);
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
 
 }]);
 
@@ -407,44 +507,75 @@ app.factory('Work', [function(){
 
 }]);
 
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
-                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService', '$q', 'rideShareService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService, $q, rideShareService) {
   // create basic object
-  var currentSpec = {
+  currentSpec = {
     getWork: function() {
-      workService.getWork(currentSpec.user.id).then(function(result) {
-        $log.log(result.data.work);
+      return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
+        if(currentSpec.work.length <= 0) {
+          currentSpec.incomplete = true;
+        }
       });
     },
     getVehicles: function() {
       try {
-        vehicleService.getVehicles().then(function(result) {
+        return vehicleService.getVehicles().then(function(result) {
           currentSpec.vehicles = result.data.vehicles;
+          if(currentSpec.vehicles.length <= 0) {
+            currentSpec.incomplete = true;
+          }
         });
       } catch(e) {
         $log.log(e);
       }
     },
     getSchedule: function() {
-      scheduleService.getSchedule().then(function(result) {
+      return scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
-        $log.log(currentSpec.schedule);
+        if(currentSpec.schedule.length <= 0) {
+          currentSpec.incomplete = true;
+        } else {
+          currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
+        }
       });
-    }
+    },
+    getRideShares: function() {
+      return rideShareService.getRideShares().then(function(result) {
+        if (result.data.carpool.driver.info.id = currentSpec.user.id){
+          currentSpec.role = 'driver';
+          currentSpec.rideo = result.data.carpool.passenger;
+        } else {
+          currentSpec.role = 'passenger';
+          currentSpec.rideo = result.data.carpool.driver;
+        }
+        console.log(currentSpec.rideo);
+        currentSpec.rideShares = result.data.carpool;
+      });
+    },
+    getStatus: function() {
+      return $q.all([
+        currentSpec.getWork(),
+        currentSpec.getVehicles(),
+        currentSpec.getSchedule(),
+        currentSpec.getRideShares()]);
+    },
+    vehicles: [],
+    work: [],
+    schedule: []
   };
 
   currentSpec.user = User();
   // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
-      $log.log('logged in');
-      $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
-      currentSpec.getWork();
-      currentSpec.getVehicles();
-      currentSpec.getSchedule();
+      userService.getPhoto().then(function(result){
+        currentSpec.photo = result.data;
+      });
+      currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
     }
@@ -458,24 +589,31 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
 
   return {
 
-    // addDate: function(work, user) {
-    //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
-    // },
+    addDate: function(date) {
+      ajaxService.call($http.post('/api/v1/user/calendar', date));
+    },
     addDates: function(dates) {
-        console.log(dates);
         dates.forEach(function(date) {
           console.log(date);
-          return ajaxService.call($http.post('/api/v1/user/calendar', date));
+          ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
-    // editDate: function(work, userId) {
-    //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
-    // },
+    editDate: function(date) {
+      ajaxService.call($http.put('/api/v1/user/calendar', date));
+    },
+
     getSchedule: function(userId) {
         return ajaxService.call($http.get('api/v1/user/calendar'));
     },
     deleteDate: function(date) {
-        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id))
+        return ajaxService.call($http.delete('api/v1/user/calendar/' + date.id));
+    },
+    processDates: function(dates) {
+      dates.forEach(function(date){
+        date.arrive = new Date(date.arrival_datetime);
+        date.depart = new Date(date.departure_datetime);
+      });
+      return dates;
     }
 
   };
@@ -496,6 +634,10 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
     getCurrent: function() {
       return ajaxService.call($http.get('/api/v1/me'));
+    },
+
+    getPhoto: function() {
+      return ajaxService.call($http.get('/facebook/photo'));
     },
 
     logout: function() {
@@ -520,7 +662,7 @@ app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $ht
         return ajaxService.call($http.get('/api/v1/user/vehicle'));
     },
     deleteVehicle: function(car) {
-        return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id))
+        return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id));
     }
 
   };
@@ -543,10 +685,56 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
         return ajaxService.call($http.get('api/v1/users/work'));
     },
     deleteWork: function(work) {
-        return ajaxService.call($http.delete('api/v1/user/work/' + work.id))
+        return ajaxService.call($http.delete('api/v1/user/work/' + work.id));
     }
   };
 
 }]);
+
+app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
+
+  return {
+
+    getRideShares: function() {
+        return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
+          return $q(function(resolve, reject) {
+            results.data.carpool.driver.arrival = new Date(results.data.carpool.driver.arrival);
+            results.data.carpool.driver.departure = new Date(results.data.carpool.driver.departure);
+            results.data.carpool.passenger.arrival = new Date(results.data.carpool.passenger.arrival);
+            results.data.carpool.passenger.departure = new Date(results.data.carpool.passenger.departure);
+            resolve(results);
+          });
+        });
+    },
+    resRideSahre: function() {
+        return ajaxService.call($http.get('/api/v1/user/carpool'));
+    },
+    processDates: function(rideshare) {
+      // add date objects
+      rideshare.driver.arrival = new Date(rideshare.driver.arrival);
+      rideshare.driver.departure = new Date(rideshare.driver.departure);
+      rideshare.passenger.arrival = new Date(rideshare.passenger.arrival);
+      rideshare.passenger.departure = new Date(rideshare.passenger.departure);
+
+      // are we passenger or driver?
+      if (result.data.carpool.driver.info.id = currentSpec.user.id){
+        currentSpec.role = 'driver';
+        currentSpec.rideo = result.data.carpool.passenger;
+      } else {
+        currentSpec.role = 'passenger';
+        currentSpec.rideo = result.data.carpool.driver;
+      }
+      return rideshare;
+    },
+
+    getStatus: function(rideshare) {
+      // if( rideshare.driver.accepted === true && rideshare.passenger.accepted = ) {
+      //   // rideshare.status =
+      // }
+    }
+  };
+
+}]);
+
 
 //# sourceMappingURL=app.js.map
