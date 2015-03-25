@@ -13,14 +13,15 @@ from .models import User, Work, Calendar, Vehicle, Carpool
 
 
 def get_events_by_time():
-    start_time = timedelta(hours=-24)
-    end_time = timedelta(hours=24)
-    events = Calendar.query.filter((Calendar.arrival_datetime -
-                                    datetime.now()) < end_time).\
-        filter((Calendar.arrival_datetime -
-                datetime.now()) >= start_time).all()
+    start_time = timedelta(hours=18)
+    end_time = timedelta(hours=18, minutes=30)
+    start_time = datetime.now() + start_time
+    end_time = datetime.now() + end_time
+    events = Calendar.query.filter(Calendar.arrival_datetime < end_time).\
+        filter(Calendar.arrival_datetime >= start_time).all()
     events = [event.to_dict() for event in events]
     return events
+
 
 
 def pair_event_and_driver():
@@ -78,7 +79,11 @@ def build_carpools():
     pairs = pair_users()
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
-        send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
+        try:
+            send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
+        except:
+            print("DRIVER: ", driver["user"])
+            print("PASSENGER: ", passenger["user"])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
         new_carpool = Carpool(driver_accepted=None,
