@@ -294,3 +294,19 @@ def get_mpg(style_id):
     return combined_mpg
 
 
+def user_money(driver_id):
+    driver = User.query.get(driver_id)
+    home = (driver.latitude, driver.longitude)
+    work = Work.query.filter_by(user_id=driver_id).first()
+    workplace = (work.latitude, work.longitude)
+    points = [home, workplace]
+    # print(points)
+    mpg = float(get_mpg(get_vehicle_api_id(driver_id)))
+    gas_price = float(get_gas_prices(driver_id))
+    result = get_directions(points)
+    # print("result = " + result)
+    distance = float(result["route"]["distance"])
+    cost = str(round((distance * 2) * gas_price / mpg, 2))
+    return cost, 200
+
+
