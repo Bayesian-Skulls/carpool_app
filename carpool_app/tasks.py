@@ -13,12 +13,12 @@ from .models import User, Work, Calendar, Vehicle, Carpool
 
 
 def get_events_by_time():
-    start_time = timedelta(hours=-24)
-    end_time = timedelta(hours=24)
-    events = Calendar.query.filter((Calendar.arrival_datetime -
-                                    datetime.now()) < end_time).\
-        filter((Calendar.arrival_datetime -
-                datetime.now()) >= start_time).all()
+    start_time = timedelta(hours=18)
+    end_time = timedelta(hours=18, minutes=30)
+    start_time = datetime.now() + start_time
+    end_time = datetime.now() + end_time
+    events = Calendar.query.filter(Calendar.arrival_datetime < end_time).\
+        filter(Calendar.arrival_datetime >= start_time).all()
     events = [event.to_dict() for event in events]
     return events
 
@@ -272,3 +272,27 @@ def get_gas_prices(driver_id):
     prices = [i for i in prices if i !="N/A"]
     average_price = round(st.mean([float(price) for price in prices]), 2)
     return average_price
+
+
+def get_vehicle_api_id(driver_id):
+    vehicle = Vehicle.query.filter_by(user_id=driver_id).first()
+    make = vehicle.make
+    model = vehicle.model
+    year = vehicle.year
+    api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
+        (make, model, year, current_app.config["EDMUNDSAPIKEY"])
+    request = url.urlopen(api_call_for_ID).read().decode("utf-8")
+    request = json.loads(request)
+    style_id = request["styles"][0]["id"]
+    return style_id
+
+
+def get_mpg(style_id):
+    api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
+        "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
+    request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
+    request = json.loads(request)
+    combined_mpg = request["equipment"][6]["attributes"][0]["value"]
+    return combined_mpg
+
+

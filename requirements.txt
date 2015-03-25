@@ -48,3 +48,5 @@ twilio==3.7.3
 #Mandrill
 mandrill==1.0.57
 
+# Scheduling with Celery
+celery

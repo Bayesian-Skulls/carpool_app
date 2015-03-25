@@ -96,8 +96,11 @@ class Calendar(db.Model):
         return {"id": self.id,
                 "user_id": self.user_id,
                 "work_id": self.work_id,
-                "arrival_datetime": self.arrival_datetime,
-                "departure_datetime": self.departure_datetime}
+                "arrival_datetime": self.arrival_datetime.strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ"),
+                "departure_datetime": self.departure_datetime.strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ")
+                }
 
 
 class Carpool(db.Model):
@@ -133,20 +136,31 @@ class Carpool(db.Model):
             Calendar.id == self.passenger_calendar_id).first().\
                 departure_datetime
         driver = User.query.filter(User.id == self.driver_id).first().to_dict()
+        driver_work = Work.query.filter(Work.user_id == self.driver_id).\
+            first().to_dict()
         passenger = User.query.filter(User.id == self.passenger_id).\
             first().to_dict()
+        passenger_work = Work.query.filter(Work.user_id == self.passenger_id).\
+            first().to_dict()
+
         return {"driver":
                     {
                     "info": driver,
-                    "arrival": driver_arrival_time,
-                    "departure": driver_depart_time,
+                    "work": driver_work,
+                    "arrival": driver_arrival_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "departure": driver_depart_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
                     "accepted": self.driver_accepted
                     },
                 "passenger":
                     {
                     "info": passenger,
-                    "arrival": passenger_arrival_time,
-                    "departure": passenger_depart_time,
+                    "work": passenger_work,
+                    "arrival": passenger_arrival_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "departure": passenger_depart_time.strftime(
+                        "%Y-%m-%dT%H:%M:%S.%fZ"),
                     "accepted": self.passenger_accepted
                     }
                 }
