@@ -157,93 +157,100 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
-    response = []
-    base_url = "http://mandrillapp.com/api/1.0/messages/send.json"
-    email_html = "<p>TEST<p>"
-    email_text = "This is only a test."
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for user in carpool_users:
         current_user = User.query.get(user)
-        data = {
-                "html": email_html,
-                "text": email_text,
-                "subject": "Carpool Confimation from RIDEO",
-                "from_email": "no-reply@rideo.wrong-question.com",
-                "from_name": "Rideo Confirmations",
-                "to": [
-                        {
-                        "email": current_user.email,
-                        "name": current_user.name,
-                        "type": "to"
-                        }
-                       ],
-                "headers": {
-                "Reply-To": "no-reply@rideo.wrong-question.com"
-                },
-                "important": False,
-                "track_opens": None,
-                "track_clicks": None,
-                "auto_text": None,
-                "auto_html": None,
-                "inline_css": None,
-                "url_strip_qs": None,
-                "preserve_recipients": None,
-                "view_content_link": None,
-                "bcc_address": None,
-                "tracking_domain": None,
-                "signing_domain": None,
-                "return_path_domain": None,
-                "merge": False,
-                "merge_language": "mailchimp",
-                "global_merge_vars": [
-                {
-                    "name": "merge1",
-                    "content": "merge1 content"
-                }
-                ],
-                "merge_vars": [
-                    {
-                        "rcpt": user,
-                        "vars": [
-                        {
-                            "name": "merge2",
-                            "content": "merge2 content"
-                        }
-                    ]
-                    }
-                ],
-                "tags": [
-                "password-resets"
-                ],
-                "subaccount": None,
-                "google_analytics_domains": [
-                    None
-                ],
-                "google_analytics_campaign": None,
-                "metadata": {
-                    "website": "rideo.wrong-question.com"
-                },
-            "recipient_metadata": [
-            {
-                "rcpt": current_user.email,
-                "values": {
-                    "user_id": current_user.id
-                }
-            }
-            ],
-            # "images": [
-            #     {
-            #         "type": "image/png",
-            #         "name": "IMAGECID",
-            #         "content": "ZXhhbXBsZSBmaWxl"
-            #     }
-            # ]
-            }
-
+        data = generate_mandrill_request(current_user, "carpool_created")
         result = mandrill_client.messages.send(message=data, async=False,
                                                ip_pool='Main Pool')
-        print(result)
     return jsonify({"results": result}), 200
+
+
+def generate_mandrill_request(user, email_type):
+    email_html, email_text = "", ""
+    if email_type == "carpool_created":
+        email_html = "<p>CREATED CARPOOL!</p>"
+        email_text = "This is some text!"
+    elif email_type == "unconfirmed_carpool":
+        email_html = "<p>Yo, Someone Forgot to Confirm!</p>"
+        e_mail_text = "Out of luck buddy!"
+
+    data = {
+            "html": email_html,
+            "text": email_text,
+            "subject": "Carpool Confimation from RIDEO",
+            "from_email": "no-reply@rideo.wrong-question.com",
+            "from_name": "Rideo Confirmations",
+            "to": [
+                    {
+                    "email": user.email,
+                    "name": user.name,
+                    "type": "to"
+                    }
+                   ],
+            "headers": {
+            "Reply-To": "no-reply@rideo.wrong-question.com"
+            },
+            "important": False,
+            "track_opens": None,
+            "track_clicks": None,
+            "auto_text": None,
+            "auto_html": None,
+            "inline_css": None,
+            "url_strip_qs": None,
+            "preserve_recipients": None,
+            "view_content_link": None,
+            "bcc_address": None,
+            "tracking_domain": None,
+            "signing_domain": None,
+            "return_path_domain": None,
+            "merge": False,
+            "merge_language": "mailchimp",
+            "global_merge_vars": [
+            {
+                "name": "merge1",
+                "content": "merge1 content"
+            }
+            ],
+            "merge_vars": [
+                {
+                    "rcpt": user.name,
+                    "vars": [
+                    {
+                        "name": "merge2",
+                        "content": "merge2 content"
+                    }
+                ]
+                }
+            ],
+            "tags": [
+            "password-resets"
+            ],
+            "subaccount": None,
+            "google_analytics_domains": [
+                None
+            ],
+            "google_analytics_campaign": None,
+            "metadata": {
+                "website": "rideo.wrong-question.com"
+            },
+        "recipient_metadata": [
+        {
+            "rcpt": user.email,
+            "values": {
+                "user_id": user.id
+            }
+        }
+        ],
+        # "images": [
+        #     {
+        #         "type": "image/png",
+        #         "name": "IMAGECID",
+        #         "content": "ZXhhbXBsZSBmaWxl"
+        #     }
+        # ]
+    }
+    return data
 
 
 def get_rider_phone_numbers(carpool):
@@ -293,4 +300,19 @@ def get_mpg(style_id):
     combined_mpg = request["equipment"][6]["attributes"][0]["value"]
     return combined_mpg
 
+
+def user_money(driver_id):
+    driver = User.query.get(driver_id)
+    home = (driver.latitude, driver.longitude)
+    work = Work.query.filter_by(user_id=driver_id).first()
+    workplace = (work.latitude, work.longitude)
+    points = [home, workplace]
+    # print(points)
+    mpg = float(get_mpg(get_vehicle_api_id(driver_id)))
+    gas_price = float(get_gas_prices(driver_id))
+    result = get_directions(points)
+    # print("result = " + result)
+    distance = float(result["route"]["distance"])
+    cost = str(round((distance * 2) * gas_price / mpg, 2))
+    return cost, 200
 
