@@ -14,7 +14,7 @@ app.directive('mileageChart', function() {
           data: {
             columns: [
               ['MILES/WEEK', 259, 130],
-              // ['DOLLARS', 27, 13]
+              ['DOLLARS', 27, 13]
             ],
 
             type: 'bar'

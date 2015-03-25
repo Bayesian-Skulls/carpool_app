@@ -33,7 +33,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   }
 
   self.editProfile = function() {
-    $location.path('/register');
+    $location.path('/profile');
   };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
@@ -109,6 +109,34 @@ app.directive('googleplace', function() {
     };
 });
 
+app.directive('maps', function() {
+  return {
+      // require: 'ngModel',
+      replace: true,
+      scope: {
+          // ngModel: '=',
+          // pickerType: '=?',
+          // details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        console.log('hey, i loaded the maps');
+
+         // create an object for options
+         var options = {
+           elt: document.getElementById('map'),           // ID of map element on page
+           zoom: 10,                                      // initial zoom level of the map
+           latLng: { lat: 39.743943, lng: -105.020089 },  // center of map in latitude/longitude
+           mtype: 'map',                                  // map type (map, sat, hyb); defaults to map
+           bestFitMargin: 0,                              // margin offset from map viewport when applying a bestfit on shapes
+           zoomOnDoubleClick: true                        // enable map to be zoomed in when double-clicking on map
+         };
+
+         // construct an instance of MQA.TileMap with the options object
+         element.map = new MQA.TileMap(options);
+      }
+  };
+});
+
 app.directive('mileageChart', function() {
   return {
       // require: 'ngModel',
@@ -125,7 +153,7 @@ app.directive('mileageChart', function() {
           data: {
             columns: [
               ['MILES/WEEK', 259, 130],
-              // ['DOLLARS', 27, 13]
+              ['DOLLARS', 27, 13]
             ],
 
             type: 'bar'
@@ -157,30 +185,6 @@ app.directive('picker', function() {
           details: '=?'
       },
       link: function(scope, element, attrs, model) {
-        if(scope.pickerType==='date'){
-          $(element).pickadate({
-            formatSubmit: 'yyyy/mm/dd'
-          });
-        } else if (scope.pickerType==='time') {
-          $(element[0]).pickatime();
-        }
-      }
-  };
-});
-
-app.directive('upcoming', function() {
-  return {
-      require: 'ngModel',
-      replace: true,
-
-      scope: {
-          ngModel: '=',
-          details: '=?'
-      },
-      controller: ['$scope', 'current', function($scope, current) {
-        var self = this;
-      }],
-      link: function(scope, element, model, ctrl) {
         if(scope.pickerType==='date'){
           $(element).pickadate({
             formatSubmit: 'yyyy/mm/dd'
@@ -278,14 +282,19 @@ app.directive('mainNav', function() {
 
 });
 
-
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
     templateUrl: '/static/js/register/register.html',
     controller: 'registerCtrl',
     controllerAs: 'vm'
   };
+  var routeOptions2 = {
+    templateUrl: '/static/js/profile/profile.html',
+    controller: 'registerCtrl',
+    controllerAs: 'vm'
+  };
   $routeProvider.when('/register', routeOptions);
+  $routeProvider.when('/profile', routeOptions2);
 
 }]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
                         function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
@@ -504,7 +513,6 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
   currentSpec = {
     getWork: function() {
       return workService.getWork(currentSpec.user.id).then(function(result) {
-        $log.log(result.data.work);
         currentSpec.work = result.data.work;
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
@@ -531,13 +539,18 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
-
-        $log.log(currentSpec.schedule);
       });
     },
     getRideShares: function() {
       return rideShareService.getRideShares().then(function(result) {
-        $log.log(result);
+        if (result.data.carpool.driver.info.id = currentSpec.user.id){
+          currentSpec.role = 'driver';
+          currentSpec.rideo = result.data.carpool.passenger;
+        } else {
+          currentSpec.role = 'passenger';
+          currentSpec.rideo = result.data.carpool.driver;
+        }
+        console.log(currentSpec.rideo);
         currentSpec.rideShares = result.data.carpool;
       });
     },
@@ -557,17 +570,12 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
   // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
-      $log.log('logged in');
-      $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       userService.getPhoto().then(function(result){
-        console.log(result);
         currentSpec.photo = result.data;
       });
-      currentSpec.getStatus().then(function(data) {
-        $log.log('hey');
-      });
+      currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
     }
@@ -586,6 +594,7 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     addDates: function(dates) {
         dates.forEach(function(date) {
+          console.log(date);
           ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
@@ -601,8 +610,8 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     processDates: function(dates) {
       dates.forEach(function(date){
+        date.arrive = new Date(date.arrival_datetime);
         date.depart = new Date(date.departure_datetime);
-        date.return = new Date(date.arrival_datetime);
       });
       return dates;
     }
@@ -697,11 +706,35 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
           });
         });
     },
-    resCarpool: function() {
-        return ajaxService.call($http.get('/api/v1/users/'));
+    resRideSahre: function() {
+        return ajaxService.call($http.get('/api/v1/user/carpool'));
+    },
+    processDates: function(rideshare) {
+      // add date objects
+      rideshare.driver.arrival = new Date(rideshare.driver.arrival);
+      rideshare.driver.departure = new Date(rideshare.driver.departure);
+      rideshare.passenger.arrival = new Date(rideshare.passenger.arrival);
+      rideshare.passenger.departure = new Date(rideshare.passenger.departure);
+
+      // are we passenger or driver?
+      if (result.data.carpool.driver.info.id = currentSpec.user.id){
+        currentSpec.role = 'driver';
+        currentSpec.rideo = result.data.carpool.passenger;
+      } else {
+        currentSpec.role = 'passenger';
+        currentSpec.rideo = result.data.carpool.driver;
+      }
+      return rideshare;
+    },
+
+    getStatus: function(rideshare) {
+      // if( rideshare.driver.accepted === true && rideshare.passenger.accepted = ) {
+      //   // rideshare.status =
+      // }
     }
   };
 
 }]);
+
 
 //# sourceMappingURL=app.js.map

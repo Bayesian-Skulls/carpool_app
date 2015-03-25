@@ -4,7 +4,6 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
   currentSpec = {
     getWork: function() {
       return workService.getWork(currentSpec.user.id).then(function(result) {
-        $log.log(result.data.work);
         currentSpec.work = result.data.work;
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
@@ -31,13 +30,18 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
-
-        $log.log(currentSpec.schedule);
       });
     },
     getRideShares: function() {
       return rideShareService.getRideShares().then(function(result) {
-        $log.log(result);
+        if (result.data.carpool.driver.info.id = currentSpec.user.id){
+          currentSpec.role = 'driver';
+          currentSpec.rideo = result.data.carpool.passenger;
+        } else {
+          currentSpec.role = 'passenger';
+          currentSpec.rideo = result.data.carpool.driver;
+        }
+        console.log(currentSpec.rideo);
         currentSpec.rideShares = result.data.carpool;
       });
     },
@@ -57,17 +61,12 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
   // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
-      $log.log('logged in');
-      $log.log(result.data.user);
       currentSpec.user = result.data.user;
       currentSpec.user.address = result.data.user.street_number + ' ' + result.data.user.street + ' ' + result.data.user.city + ' ' + result.data.user.state + ' ' + result.data.user.zip_code;
       userService.getPhoto().then(function(result){
-        console.log(result);
         currentSpec.photo = result.data;
       });
-      currentSpec.getStatus().then(function(data) {
-        $log.log('hey');
-      });
+      currentSpec.getStatus();
     } else {
       $log.log('sorry bra, no user');
     }

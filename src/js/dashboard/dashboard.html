@@ -2,6 +2,7 @@
   <div class="page-content">
 
     <main-nav class="page-header"></main-nav>
+    <!-- Profile Section -->
     <div class="page-profile page-section" ng-class="{ incomplete: vm.current.incomplete }">
       <div class="page-profile__card">
         <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
@@ -13,16 +14,44 @@
           I live in {{vm.current.user.city}}.
           My preferred email is <span class="page-profile__fields">{{vm.current.user.email}}</span>
           </p>
-        <button ng-click="vm.editProfile()">EDIT</button>
       </div>
       <div class="page-profile__card">
         <h5>WORK</h5>
         <p>I work at <span class="page-profile__fields">{{vm.current.work[0].name}}</span>
            in <span class="page-profile__fields">{{vm.current.work[0].city}}</span></p>
         </p>
-        <button>EDIT</button>
+        <button ng-click="vm.editProfile()">EDIT</button>
       </div>
     </div>
+
+    <!-- Section for displaying Ride Shares -->
+    <div ng-show="vm.current.rideShares.driver" class="dashboard-section-container carpool-details">
+      <h3 class="dashboard-section-title">Upcoming {{ vm.current.rideShares.driver.arrival | date: 'MMMM dd'}}</h3>
+      <div class="dashboard-section__map-info">
+        <div maps id="map" class="dashboard-section__map" style="width:300px; height:300px;"></div>
+      </div>
+      <div class="dashboard-section__ride-info">
+        <h4>Riding with {{vm.current.rideo.info.name}}</h4>
+        <p>
+          You’re {{ vm.current.role }} and you need to pick up {{ vm.current.rideo.info.name }} at {{ vm.current.rideShares.driver.arrival }}.
+        </p>
+        <h5>contact info:</h5>
+        <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.current.rideo.info.phone_number }}</p>
+        <p>email: {{ vm.current.rideo.info.email }}</p>
+        <div class="">
+          <p>status: Unconfirmed
+            <!-- {{vm.current.rideShare.status}} -->
+          </p>
+          <label>Confirm:
+            <input type="checkbox" name="name" ng-click="vm.confirmRide()">
+          </label>
+        </div>
+      </div>
+      <div class="dashboard-section">
+        <mileage-chart></mileage-chart>
+      </div>
+    </div>
+    <!-- Dashboard Section -->
     <div class="dashboard-section-container" ng-if="!vm.current.name">
       <div class="dashboard-steps">
         <div class="dashboard-steps__content">
@@ -40,30 +69,16 @@
           <ul class="dashboard__list">
             <li class="dashbaord__list-item" ng-repeat="date in vm.current.schedule">
               <p class="dashboard__dates">
-                leave: {{ date.depart | date:"MMM, dd'th at' HH:hh a" }} <br>
-                return: {{ date.return | date:"MMM, dd'th at' HH:hh a" }}
+                {{ date.depart | date:"MMM, dd" }} <br>
+                LEAVE: {{ date.arrival_datetime  }}
+                RETURN: {{ date.departure_datetime }}
+                <button class="clear-button" ng-click="vm.deleteDate(date)">X</button>
               </p>
             </li>
           </ul>
         </div>
       </div>
-      <div class="dashboard-steps">
-          <div class="dashboard-steps__content">
-            <mileage-chart></mileage-chart>
-          </div>
-      </div>
     </div>
-    <div ng-show="vm.current.rideShares.driver" class="dashboard-section-container carpool-details">
-      <div class="">
-        <h5>Rideshare for {{ vm.current.rideShares.driver.arrival | date: 'MMMM, dd' }}</h5>
-          <p>{{ vm.current.rideShares.driver.info.name }}</p>
-          <p>{{ vm.current.rideShares.passenger.info.name }}</p>
-      </div>
-      <mileage-chart></mileage-chart>
-
-    </div>
-
-
 
   </div>
 </div>

@@ -16,6 +16,24 @@
   @include span-columns(12);
 }
 
+.dashboard-section {
+  @include span-columns(12);
+}
+.dashboard-section-title {
+  margin-bottom: 1em;
+}
+
+.dashboard-section__map-info {
+  @include span-columns(4);
+  display: inline-block;
+  min-width: 300px;
+}
+.dashboard-section__ride-info {
+  @include span-columns(7);
+  text-align: left;
+  display: inline-block;
+}
+
 .dashboard-steps {
   margin-top: 2.35765%;
   position: relative;

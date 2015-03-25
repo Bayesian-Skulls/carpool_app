@@ -1183,6 +1183,37 @@ select {
   .dashboard-section-container:last-child {
     margin-right: 0; }
 
+.dashboard-section {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 100%; }
+  .dashboard-section:last-child {
+    margin-right: 0; }
+
+.dashboard-section-title {
+  margin-bottom: 1em; }
+
+.dashboard-section__map-info {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 31.76157%;
+  display: inline-block;
+  min-width: 300px; }
+  .dashboard-section__map-info:last-child {
+    margin-right: 0; }
+
+.dashboard-section__ride-info {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 57.35098%;
+  text-align: left;
+  display: inline-block; }
+  .dashboard-section__ride-info:last-child {
+    margin-right: 0; }
+
 .dashboard-steps {
   margin-top: 2.35765%;
   position: relative;

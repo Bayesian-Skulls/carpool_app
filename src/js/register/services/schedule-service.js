@@ -7,6 +7,7 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     addDates: function(dates) {
         dates.forEach(function(date) {
+          console.log(date);
           ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
@@ -22,8 +23,8 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
     },
     processDates: function(dates) {
       dates.forEach(function(date){
+        date.arrive = new Date(date.arrival_datetime);
         date.depart = new Date(date.departure_datetime);
-        date.return = new Date(date.arrival_datetime);
       });
       return dates;
     }
