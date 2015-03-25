@@ -1,3 +1,4 @@
+import os
 from faker import Faker
 from random import randint, choice
 from seeder import generate_location_json
@@ -63,12 +64,19 @@ manager = Manager(app)
 @manager.command
 def add_user():
     key = app.config.get("MAPQUESTAPI")
-    create_user(key)
+    for n in range(50):
+        create_user(key)
 
 @manager.command
-def print_carpools():
-    json = build_carpools()
-    print(json)
+def create_carpools():
+    json = build_carpools().data.decode("utf-8")
+    logs = ""
+    if os.path.isfile("carpools.log"):
+        with open("carpools.log","r") as f:
+            logs = f.read()
+    logs = "{}\n{}:\n{}".format(logs, str(datetime.now()), json)
+    with open("carpools.log","w") as f:
+        f.write(logs)
     return "Success"
 
 if __name__ == '__main__':
