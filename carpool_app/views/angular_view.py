@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices, get_mpg, get_vehicle_api_id
 
 
 
@@ -274,9 +274,9 @@ def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
 
 
-@api.route('/test_gas')
-def test_gas_prices():
-    return get_gas_prices(59)
+@api.route('/test_mpg')
+def test_get_mpg():
+    return get_mpg(get_vehicle_api_id(2))
 
 
 @api.route('/test2')
