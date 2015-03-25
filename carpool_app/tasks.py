@@ -288,13 +288,11 @@ def get_vehicle_api_id(driver_id):
 
 
 def get_mpg(style_id):
-    print(style_id)
     api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
         "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
     request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
     request = json.loads(request)
-    print(request)
-    
-    return "ok"
+    combined_mpg = request["equipment"][6]["attributes"][0]["value"]
+    return combined_mpg
 
 

@@ -264,6 +264,11 @@ def view_current_carpool(user_id=None):
     return jsonify({"carpool": current_carpool.details})
 
 
+@api.route('/vehicle/<driver_id>/mpg', methods=["GET"])
+def get_combined_mpg(driver_id):
+    return get_mpg(get_vehicle_api_id(driver_id=driver_id))
+
+
 @api.route('/tests')
 def test_function():
     return build_carpools()
@@ -272,11 +277,6 @@ def test_function():
 @api.route('/<carpool_id>/phones', methods=["GET"])
 def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
-
-
-@api.route('/test_mpg')
-def test_get_mpg():
-    return get_mpg(get_vehicle_api_id(2))
 
 
 @api.route('/test2')
