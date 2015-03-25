@@ -15,8 +15,8 @@ from .models import User, Work, Calendar, Vehicle, Carpool
 def get_events_by_time():
     start_time = timedelta(hours=18)
     end_time = timedelta(hours=18, minutes=30)
-    start_time = datetime.now() + start_time
-    end_time = datetime.now() + end_time
+    start_time = datetime.now().replace(second=0, microsecond=0) + start_time
+    end_time = datetime.now().replace(second=0, microsecond=0) + end_time
     events = Calendar.query.filter(Calendar.arrival_datetime < end_time).\
         filter(Calendar.arrival_datetime >= start_time).all()
     events = [event.to_dict() for event in events]

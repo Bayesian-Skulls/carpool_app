@@ -261,7 +261,6 @@ def view_current_carpool(user_id=None):
     current_carpool = Carpool.query.filter(or_ ((Carpool.driver_id == user_id),
                                           (Carpool.passenger_id == user_id))).\
                                           order_by(Carpool.id.desc()).first()
-
     return jsonify({"carpool": current_carpool.details})
 
 
