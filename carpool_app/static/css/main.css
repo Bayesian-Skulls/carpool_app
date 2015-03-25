@@ -775,10 +775,13 @@ h4 {
 
 h5 {
   margin-top: 1em;
-  font-size: 1.43em; }
+  font-size: 1.43em;
+  line-height: 1.5em; }
 
 p {
-  font-size: 1em; }
+  font-size: 1em;
+  line-height: 1.5em;
+  margin-bottom: .2em; }
 
 label {
   font-size: .75em;
@@ -850,7 +853,8 @@ nav li {
   top: 0;
   left: 0;
   right: 0;
-  padding: 1em; }
+  padding: 1em;
+  background-color: #627F83; }
 
 @-webkit-keyframes pullDown {
   0% {
@@ -1147,6 +1151,10 @@ select {
   .menu-button:before {
     bottom: -1em; }
 
+.page-header, .page-nav {
+  position: relative;
+  max-width: 1080px; }
+
 .page-nav {
   margin: 1em 1em 2em;
   text-align: center; }
@@ -1162,16 +1170,17 @@ select {
 .dashboard-wrapper {
   color: #fff;
   background-color: #83A9AE;
+  background: linear-gradient(rgba(131, 169, 174, 0.7), rgba(98, 127, 131, 0.7)), url('../img/symphony.png');
   text-align: center; }
 
-.dashboard-steps-container {
+.dashboard-section-container {
   background-color: #627F83;
   padding: 2em;
   float: left;
   display: block;
   margin-right: 2.35765%;
   width: 100%; }
-  .dashboard-steps-container:last-child {
+  .dashboard-section-container:last-child {
     margin-right: 0; }
 
 .dashboard-steps {
@@ -1238,7 +1247,6 @@ select {
       .page-profile__card:last-child {
         margin-right: 0; } }
   .page-profile__card p {
-    line-height: 1.4em;
     margin-bottom: .5em; }
   .page-profile__card button {
     vertical-align: bottom; }

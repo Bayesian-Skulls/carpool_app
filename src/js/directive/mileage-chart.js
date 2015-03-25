@@ -10,7 +10,7 @@ app.directive('mileageChart', function() {
       },
       link: function(scope, element, attrs, model) {
         var chart = c3.generate({
-          bindto: element[0],
+          bindto: element[0].querySelector('.chart'),
           data: {
             columns: [
               ['MILES/WEEK', 259, 130],

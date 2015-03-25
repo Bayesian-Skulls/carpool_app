@@ -6,10 +6,11 @@
 .dashboard-wrapper {
   color: #fff;
   background-color: $accent-color;
+  background: linear-gradient(rgba(131, 169, 174, .7), rgba(98, 127, 131, .7)), url('../img/symphony.png');
   text-align: center;
 }
 
-.dashboard-steps-container {
+.dashboard-section-container {
   background-color: $primary-color;
   padding: 2em;
   @include span-columns(12);
@@ -59,13 +60,14 @@
   display: inline-block;
   vertical-align: baseline;
   p {
-    line-height: 1.4em;
     margin-bottom: .5em;
   }
   button {
     vertical-align: bottom;
   }
 }
+
+
 
 //CONDITIONAL STYLES
 

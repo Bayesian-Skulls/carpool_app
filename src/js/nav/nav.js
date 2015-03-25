@@ -16,7 +16,9 @@ app.directive('mainNav', function() {
       self.current = current;
 
       self.logout = function() {
-        userService.logout();
+        userService.logout().then(function () {
+          $location.path('/');
+        });
       };
 
       $rootScope.$on('$routeChangeSuccess', function() {

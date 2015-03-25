@@ -105,6 +105,12 @@
   }
 }
 
+.page-header,
+.page-nav {
+  position: relative;
+  max-width: 1080px;
+}
+
 .page-nav {
   margin: 1em 1em 2em;
   text-align: center;

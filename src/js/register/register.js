@@ -56,7 +56,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
       self.current.vehicles.push(self.vehicle);
-      self.current.getStatus();
+      current.getStatus();
+      self.editUser();
       $location.path('/dashboard');
     });
   };

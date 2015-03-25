@@ -1,7 +1,7 @@
 <div class="page-wrapper dashboard-wrapper">
   <div class="page-content">
 
-    <main-nav page-header></main-nav>
+    <main-nav class="page-header"></main-nav>
     <div class="page-profile page-section" ng-class="{ incomplete: vm.current.incomplete }">
       <div class="page-profile__card">
         <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
@@ -23,69 +23,46 @@
         <button>EDIT</button>
       </div>
     </div>
-    <div class="dashboard-steps-container" ng-if="!vm.current.name">
+    <div class="dashboard-section-container" ng-if="!vm.current.name">
       <div class="dashboard-steps">
         <div class="dashboard-steps__content">
           <h5>YOUR NEXT RIDESHARE</h5>
-          <p>
-            Coming SOON!
-          </p>
+            <p>{{ vm.current.rideShares.driver.arrival.slice(0,8) }}</p>
+            <p>{{ vm.current.rideShares.driver.info.name }}</p>
+            <p>&amp;</p>
+            <p>{{ vm.current.rideShares.passenger.info.name }}</p>
+            <p>departing {{ vm.current.rideShares.driver.arrival | date: 'HH:hh a'}}</p>
         </div>
       </div>
       <div class="dashboard-steps">
         <div class="dashboard-steps__content">
           <h5>SCHEDULED DATES</h5>
-          <ul>
-            <li ng-repeat="date in vm.current.schedule">
-              <h5>date:</h5>
-              <p>departing: {{ date.departure_datetime.slice(0, 17) }}</p>
-              <p>returning: {{ date.arrival_datetime.slice(0, 17) }}</p>
-              <button ng-click="vm.deleteDate(date, $index)">X</button>
+          <ul class="dashboard__list">
+            <li class="dashbaord__list-item" ng-repeat="date in vm.current.schedule">
+              <p class="dashboard__dates">
+                leave: {{ date.depart | date:"MMM, dd'th at' HH:hh a" }} <br>
+                return: {{ date.return | date:"MMM, dd'th at' HH:hh a" }}
+              </p>
             </li>
           </ul>
         </div>
       </div>
       <div class="dashboard-steps">
           <div class="dashboard-steps__content">
-          <h5>YOU SAVE</h5>
-          <mileage-chart></mileage-chart>
-          <!-- <a ng-if="vm.current.incomplete" href="#/register">
-            <h5>COMPLETE YOUR REGISTRATION</h5>
-              <button class="clear-button"><h5>Complete Your Registration</h5></button>
-          </a> -->
+            <mileage-chart></mileage-chart>
           </div>
       </div>
     </div>
-    <div class="page-section">
-      <!-- <p>
-        this your passenger <br>
-        you leave at this time <br>
-        you’ll be paid X amount | | you will pay X amount <br>
-        You would have paid X <br>
-        You saved X
-      </p> -->
+    <div ng-show="vm.current.rideShares.driver" class="dashboard-section-container carpool-details">
+      <div class="">
+        <h5>Rideshare for {{ vm.current.rideShares.driver.arrival | date: 'MMMM, dd' }}</h5>
+          <p>{{ vm.current.rideShares.driver.info.name }}</p>
+          <p>{{ vm.current.rideShares.passenger.info.name }}</p>
+      </div>
+      <mileage-chart></mileage-chart>
+
     </div>
-    <!-- <h5>WORKPLACES</h5>
-    <ul>
-      <li ng-repeat="job in vm.current.work">{{ job.name }}
-        <button ng-click="vm.deleteWork(job, $index)">X</button>
-      </li>
-    </ul>
-    <h5>DATES</h5>
-    <ul>
-      <li ng-repeat="date in vm.current.schedule">
-        <h5>date:</h5>
-        <p>departing: {{ date.departure_datetime }}</p>
-        <p>returning: {{ date.arrival_datetime }}</p>
-        <button ng-click="vm.deleteDate(date, $index)">X</button>
-      </li>
-    </ul>
-    <h5>VEHICLES</h5>
-    <ul>
-      <li ng-repeat="car in vm.current.vehicles">{{ car.make }}, {{car.model}}
-        <button ng-click="vm.deleteVehicle(car, $index)">X</button>
-      </li>
-    </ul> -->
+
 
 
   </div>

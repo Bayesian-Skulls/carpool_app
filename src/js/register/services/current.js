@@ -1,21 +1,21 @@
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
-                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService', '$q', 'rideShareService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService, $q, rideShareService) {
   // create basic object
   currentSpec = {
     getWork: function() {
-      workService.getWork(currentSpec.user.id).then(function(result) {
+      return workService.getWork(currentSpec.user.id).then(function(result) {
         $log.log(result.data.work);
         currentSpec.work = result.data.work;
-        if(currentSpec.work <= 0) {
+        if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
         }
       });
     },
     getVehicles: function() {
       try {
-        vehicleService.getVehicles().then(function(result) {
+        return vehicleService.getVehicles().then(function(result) {
           currentSpec.vehicles = result.data.vehicles;
-          if(currentSpec.vehicles <= 0) {
+          if(currentSpec.vehicles.length <= 0) {
             currentSpec.incomplete = true;
           }
         });
@@ -24,9 +24,9 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       }
     },
     getSchedule: function() {
-      scheduleService.getSchedule().then(function(result) {
+      return scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
-        if(currentSpec.schedule <= 0) {
+        if(currentSpec.schedule.length <= 0) {
           currentSpec.incomplete = true;
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
@@ -35,10 +35,18 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         $log.log(currentSpec.schedule);
       });
     },
+    getRideShares: function() {
+      return rideShareService.getRideShares().then(function(result) {
+        $log.log(result);
+        currentSpec.rideShares = result.data.carpool;
+      });
+    },
     getStatus: function() {
-      currentSpec.getWork();
-      currentSpec.getVehicles();
-      currentSpec.getSchedule();
+      return $q.all([
+        currentSpec.getWork(),
+        currentSpec.getVehicles(),
+        currentSpec.getSchedule(),
+        currentSpec.getRideShares()]);
     },
     vehicles: [],
     work: [],
@@ -57,7 +65,9 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         console.log(result);
         currentSpec.photo = result.data;
       });
-      currentSpec.getStatus();
+      currentSpec.getStatus().then(function(data) {
+        $log.log('hey');
+      });
     } else {
       $log.log('sorry bra, no user');
     }

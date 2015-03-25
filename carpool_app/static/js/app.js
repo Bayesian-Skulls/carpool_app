@@ -121,7 +121,7 @@ app.directive('mileageChart', function() {
       },
       link: function(scope, element, attrs, model) {
         var chart = c3.generate({
-          bindto: element[0],
+          bindto: element[0].querySelector('.chart'),
           data: {
             columns: [
               ['MILES/WEEK', 259, 130],
@@ -230,7 +230,9 @@ app.directive('mainNav', function() {
       self.current = current;
 
       self.logout = function() {
-        userService.logout();
+        userService.logout().then(function () {
+          $location.path('/');
+        });
       };
 
       $rootScope.$on('$routeChangeSuccess', function() {
@@ -275,6 +277,7 @@ app.directive('mainNav', function() {
 
 
 });
+
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
@@ -334,7 +337,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.addVehicle = function() {
     vehicleService.addVehicle(self.vehicle).then(function(data) {
       self.current.vehicles.push(self.vehicle);
-      self.current.getStatus();
+      current.getStatus();
+      self.editUser();
       $location.path('/dashboard');
     });
   };
@@ -348,6 +352,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.fbRegister = function() {
     $location.path('/facebook/login');
   };
+
+}]);
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
 
 }]);
 
@@ -475,24 +498,24 @@ app.factory('Work', [function(){
 
 }]);
 
-app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService',
-                        function(User, userService, $log, Work, workService, vehicleService, scheduleService) {
+app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 'vehicleService', 'scheduleService', '$q', 'rideShareService',
+                        function(User, userService, $log, Work, workService, vehicleService, scheduleService, $q, rideShareService) {
   // create basic object
   currentSpec = {
     getWork: function() {
-      workService.getWork(currentSpec.user.id).then(function(result) {
+      return workService.getWork(currentSpec.user.id).then(function(result) {
         $log.log(result.data.work);
         currentSpec.work = result.data.work;
-        if(currentSpec.work <= 0) {
+        if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
         }
       });
     },
     getVehicles: function() {
       try {
-        vehicleService.getVehicles().then(function(result) {
+        return vehicleService.getVehicles().then(function(result) {
           currentSpec.vehicles = result.data.vehicles;
-          if(currentSpec.vehicles <= 0) {
+          if(currentSpec.vehicles.length <= 0) {
             currentSpec.incomplete = true;
           }
         });
@@ -501,9 +524,9 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       }
     },
     getSchedule: function() {
-      scheduleService.getSchedule().then(function(result) {
+      return scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
-        if(currentSpec.schedule <= 0) {
+        if(currentSpec.schedule.length <= 0) {
           currentSpec.incomplete = true;
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
@@ -512,10 +535,18 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         $log.log(currentSpec.schedule);
       });
     },
+    getRideShares: function() {
+      return rideShareService.getRideShares().then(function(result) {
+        $log.log(result);
+        currentSpec.rideShares = result.data.carpool;
+      });
+    },
     getStatus: function() {
-      currentSpec.getWork();
-      currentSpec.getVehicles();
-      currentSpec.getSchedule();
+      return $q.all([
+        currentSpec.getWork(),
+        currentSpec.getVehicles(),
+        currentSpec.getSchedule(),
+        currentSpec.getRideShares()]);
     },
     vehicles: [],
     work: [],
@@ -534,7 +565,9 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         console.log(result);
         currentSpec.photo = result.data;
       });
-      currentSpec.getStatus();
+      currentSpec.getStatus().then(function(data) {
+        $log.log('hey');
+      });
     } else {
       $log.log('sorry bra, no user');
     }
@@ -548,17 +581,18 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
 
   return {
 
-    // addDate: function(work, user) {
-    //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
-    // },
+    addDate: function(date) {
+      ajaxService.call($http.post('/api/v1/user/calendar', date));
+    },
     addDates: function(dates) {
         dates.forEach(function(date) {
           ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
-    // editDate: function(work, userId) {
-    //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
-    // },
+    editDate: function(date) {
+      ajaxService.call($http.put('/api/v1/user/calendar', date));
+    },
+
     getSchedule: function(userId) {
         return ajaxService.call($http.get('api/v1/user/calendar'));
     },
@@ -643,6 +677,28 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
     },
     deleteWork: function(work) {
         return ajaxService.call($http.delete('api/v1/user/work/' + work.id));
+    }
+  };
+
+}]);
+
+app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
+
+  return {
+
+    getRideShares: function() {
+        return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
+          return $q(function(resolve, reject) {
+            results.data.carpool.driver.arrival = new Date(results.data.carpool.driver.arrival);
+            results.data.carpool.driver.departure = new Date(results.data.carpool.driver.departure);
+            results.data.carpool.passenger.arrival = new Date(results.data.carpool.passenger.arrival);
+            results.data.carpool.passenger.departure = new Date(results.data.carpool.passenger.departure);
+            resolve(results);
+          });
+        });
+    },
+    resCarpool: function() {
+        return ajaxService.call($http.get('/api/v1/users/'));
     }
   };
 

@@ -2,17 +2,18 @@ app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $h
 
   return {
 
-    // addDate: function(work, user) {
-    //     return ajaxService.call($http.post('/api/v1/users/' + user.id + '/work', work));
-    // },
+    addDate: function(date) {
+      ajaxService.call($http.post('/api/v1/user/calendar', date));
+    },
     addDates: function(dates) {
         dates.forEach(function(date) {
           ajaxService.call($http.post('/api/v1/user/calendar', date));
         });
     },
-    // editDate: function(work, userId) {
-    //     return ajaxService.call($http.put('/api/v1/user/' + userId, work));
-    // },
+    editDate: function(date) {
+      ajaxService.call($http.put('/api/v1/user/calendar', date));
+    },
+
     getSchedule: function(userId) {
         return ajaxService.call($http.get('api/v1/user/calendar'));
     },
