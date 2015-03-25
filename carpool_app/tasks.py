@@ -143,8 +143,6 @@ def get_directions(points):
                "&generalize=0&locale=en_US&unit=m".\
                format(current_app.config["MAPQUESTAPI"])
 
-    base_url + "&from={},{}".format(points[0][0], points[0][1])
-
     for index, point in enumerate(points):
         if not index:
             base_url += "&from={},{}".format(point[0], point[1])
