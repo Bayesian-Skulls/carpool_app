@@ -7,7 +7,7 @@ from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
 from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices, \
-    get_mpg, get_vehicle_api_id, user_money
+    get_mpg, get_vehicle_api_id, user_money, create_google_maps_link
 
 
 
@@ -302,7 +302,7 @@ def get_phone_numbers(carpool_id):
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([22])
+    return jsonify({"links": create_google_maps_link(7, 13)})
 
 
 @api.route('/<driver_id>/testcost/')
