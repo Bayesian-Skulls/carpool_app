@@ -1,7 +1,6 @@
 import json
 import re
 import statistics as st
-from decimal import Decimal
 from datetime import datetime, timedelta
 from flask import current_app
 import urllib.request as url
@@ -307,10 +306,21 @@ def get_vehicle_api_id(user_id):
     year = vehicle.year
     api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
         (make, model, year, current_app.config["EDMUNDSAPIKEY"])
+    print(api_call_for_ID)
     request = url.urlopen(api_call_for_ID).read().decode("utf-8")
     request = json.loads(request)
     style_id = request["styles"][0]["id"]
     return style_id
+
+
+def check_dict(dic):
+    if "Specifications" in dic.values():
+        return dic
+    if "Epa Combined Mpg" in dic.values():
+        return dic
+
+def clean_dict(list):
+    return [i for i in list if i != None]
 
 
 def get_mpg(style_id):
@@ -318,7 +328,13 @@ def get_mpg(style_id):
         "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
     request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
     request = json.loads(request)
-    combined_mpg = request["equipment"][6]["attributes"][0]["value"]
+    equipment_list = request["equipment"]
+    specs = [check_dict(dic) for dic in equipment_list]
+    clean = clean_dict(specs)
+    attributes = clean[0]["attributes"]
+    mpg = [check_dict(dic) for dic in attributes]
+    clean_mpg = clean_dict(mpg)
+    combined_mpg = clean_mpg[0]["value"]
     return combined_mpg
 
 
