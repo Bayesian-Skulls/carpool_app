@@ -272,8 +272,8 @@ def get_gas_prices(driver_id):
     return average_price
 
 
-def get_vehicle_api_id(driver_id):
-    vehicle = Vehicle.query.filter_by(user_id=driver_id).first()
+def get_vehicle_api_id(user_id):
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
     make = vehicle.make
     model = vehicle.model
     year = vehicle.year
@@ -294,19 +294,30 @@ def get_mpg(style_id):
     return combined_mpg
 
 
-def user_money(driver_id):
-    driver = User.query.get(driver_id)
+def format_money(cost):
+    if "." not in cost:
+        cost = "$" + cost + ".00"
+        return cost
+    elif cost[-2] == ".":
+        cost = "$" + cost + "0"
+        return cost
+    else:
+        cost = "$" + cost
+        return cost
+
+
+def user_money(user_id):
+    driver = User.query.get(user_id)
     home = (driver.latitude, driver.longitude)
-    work = Work.query.filter_by(user_id=driver_id).first()
+    work = Work.query.filter_by(user_id=user_id).first()
     workplace = (work.latitude, work.longitude)
     points = [home, workplace]
-    # print(points)
-    mpg = float(get_mpg(get_vehicle_api_id(driver_id)))
-    gas_price = float(get_gas_prices(driver_id))
+    mpg = float(get_mpg(get_vehicle_api_id(user_id)))
+    gas_price = float(get_gas_prices(user_id))
     result = get_directions(points)
-    # print("result = " + result)
     distance = float(result["route"]["distance"])
     cost = str(round((distance * 2) * gas_price / mpg, 2))
-    return cost, 200
+    cost = format_money(cost)
+    return jsonify({"cost": cost}), 200
 
 
