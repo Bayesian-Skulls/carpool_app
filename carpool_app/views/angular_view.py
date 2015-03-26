@@ -101,9 +101,18 @@ def add_work(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    work = Work(**data)
-    db.session.add(work)
+    work = Work.query.filter_by(user_id=user_id).first()
+    if work:
+        for key in data.keys():
+            try:
+                setattr(work, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        work = Work(**data)
+        db.session.add(work)
     db.session.commit()
+    work = work.query.filter_by(user_id=user_id).first()
     result = work_schema.dump(Work.query.get(work.id))
     return jsonify({"message": "Added work", "work": result.data}), 200
 
@@ -121,9 +130,18 @@ def add_vehicle(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    vehicle = Vehicle(**data)
-    db.session.add(vehicle)
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
+    if vehicle:
+        for key in data.keys():
+            try:
+                setattr(vehicle, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        vehicle = Vehicle(**data)
+        db.session.add(vehicle)
     db.session.commit()
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
     result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
@@ -225,8 +243,8 @@ def delete_calendar(calendar_id, user_id=None):
     return jsonify({"message": "Deleted calendar event"}), 200
 
 
-# Delete work should delete all associated calendars
-@api.route('/user/work/<work_id>', methods=["DELETE"])
+
+@api.route('/user/work/<int:work_id>', methods=["DELETE"])
 @login_required
 def delete_work(work_id, user_id=None):
     if not user_id:
@@ -243,7 +261,7 @@ def delete_work(work_id, user_id=None):
         return jsonify({"message": "Work Object Not Found"})
 
 
-@api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
+@api.route('/user/vehicle/<int:vehicle_id>', methods=["DELETE"])
 @login_required
 def delete_vehicle(vehicle_id, user_id=None):
     if not user_id:
@@ -307,3 +325,10 @@ def test_email():
 @api.route('/<driver_id>/testcost/')
 def get_user_cost(driver_id):
     return user_money(driver_id)
+
+@api.route('/test/user/<int:user_id>')
+def login_test_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        login_user(user)
+        return jsonify({"user": user.to_dict()})
