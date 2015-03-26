@@ -296,7 +296,7 @@ def accept_decline_carpool(user_id=None):
     if not request.get_json():
         return jsonify({"message": "No input data provided"}), 400
     data = request.get_json()
-    current_carpool = Carpool.query.get(data["carpool_id"])
+    current_carpool = Carpool.query.get_or_404(data["carpool_id"])
     if user_id == current_carpool.driver_id:
         current_carpool.driver_accepted = True if data["response"] else False
     elif user_id == current_carpool.passenger_id:
