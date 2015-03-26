@@ -7,7 +7,7 @@ from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
 from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices, \
-    get_mpg, get_vehicle_api_id, user_money
+    get_mpg, get_vehicle_api_id, user_money, create_google_maps_link
 
 
 
@@ -101,9 +101,18 @@ def add_work(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    work = Work(**data)
-    db.session.add(work)
+    work = Work.query.filter_by(user_id=user_id).first()
+    if work:
+        for key in data.keys():
+            try:
+                setattr(work, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        work = Work(**data)
+        db.session.add(work)
     db.session.commit()
+    work = work.query.filter_by(user_id=user_id).first()
     result = work_schema.dump(Work.query.get(work.id))
     return jsonify({"message": "Added work", "work": result.data}), 200
 
@@ -121,9 +130,18 @@ def add_vehicle(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    vehicle = Vehicle(**data)
-    db.session.add(vehicle)
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
+    if vehicle:
+        for key in data.keys():
+            try:
+                setattr(vehicle, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        vehicle = Vehicle(**data)
+        db.session.add(vehicle)
     db.session.commit()
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
     result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
@@ -225,8 +243,8 @@ def delete_calendar(calendar_id, user_id=None):
     return jsonify({"message": "Deleted calendar event"}), 200
 
 
-# Delete work should delete all associated calendars
-@api.route('/user/work/<work_id>', methods=["DELETE"])
+
+@api.route('/user/work/<int:work_id>', methods=["DELETE"])
 @login_required
 def delete_work(work_id, user_id=None):
     if not user_id:
@@ -243,7 +261,7 @@ def delete_work(work_id, user_id=None):
         return jsonify({"message": "Work Object Not Found"})
 
 
-@api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
+@api.route('/user/vehicle/<int:vehicle_id>', methods=["DELETE"])
 @login_required
 def delete_vehicle(vehicle_id, user_id=None):
     if not user_id:
@@ -262,7 +280,6 @@ def view_current_carpool(user_id=None):
     current_carpool = Carpool.query.filter(or_ ((Carpool.driver_id == user_id),
                                           (Carpool.passenger_id == user_id))).\
                                           order_by(Carpool.id.desc()).first()
-
     return jsonify({"carpool": current_carpool.details})
 
 
@@ -307,5 +324,17 @@ def get_phone_numbers(carpool_id):
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([22])
+    return jsonify({"links": create_google_maps_link(7, 13)})
+
+
+@api.route('/<driver_id>/testcost/')
+def get_user_cost(driver_id):
+    return user_money(driver_id)
+
+@api.route('/test/user/<int:user_id>')
+def login_test_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        login_user(user)
+        return jsonify({"user": user.to_dict()})
 
