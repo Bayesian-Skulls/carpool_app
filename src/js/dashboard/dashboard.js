@@ -6,13 +6,23 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
 
   var self = this;
   self.current = current;
   if (current.name) {
     $locaton.path('/');
+  }
+
+  self.rideShareRes = function(res) {
+    var response = {
+      response: res
+    }
+    console.log(response);
+    rideShareService.res(response).then(function() {
+      self.current.rideShares = rideShareService.getStatus(self.current.rideShares);
+    });
   }
 
   self.editProfile = function() {

@@ -50,6 +50,14 @@ nav li {
   }
 }
 
+.confirm-button {
+  background-color: seagreen;
+}
+
+.decline-button {
+  background-color: $secondary-color;
+}
+
 .page-wrapper {
   height: 100%;
   overflow: auto;

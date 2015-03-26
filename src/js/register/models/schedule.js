@@ -14,12 +14,14 @@ app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, 
       var weekDate = today.getDate() + dateOffset + index;
       var departDate = new Date();
       var arriveDate = new Date();
+      $log.log(spec);
+      $log.log(spec);
       var depart = spec.departing.split(':');
       var arrive = spec.arriving.split(':');
-      departDate.setDate(weekDate);
-      arriveDate.setDate(weekDate);
-      departDate.setHours(depart[0], depart[1].slice(0,3), 0, 0);
-      arriveDate.setHours(arrive[0], arrive[1].slice(0,3), 0, 0);
+      departDate.setUTCDate(weekDate);
+      arriveDate.setUTCDate(weekDate);
+      departDate.setHours(Math.floor(spec.depart_time / 60), spec.depart_time % 60, 0, 0);
+      arriveDate.setHours(Math.floor(spec.arrive_time / 60), spec.arrive_time % 60, 0, 0);
       week.push(workDate({
         user_id: current.user.id,
         work_id: spec.work_id,

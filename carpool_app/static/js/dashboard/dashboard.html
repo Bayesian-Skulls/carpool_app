@@ -28,23 +28,20 @@
     <div ng-show="vm.current.rideShares.driver" class="dashboard-section-container carpool-details">
       <h3 class="dashboard-section-title">Upcoming {{ vm.current.rideShares.driver.arrival | date: 'MMMM dd'}}</h3>
       <div class="dashboard-section__map-info">
-        <div maps id="map" class="dashboard-section__map" style="width:300px; height:300px;"></div>
+        <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:300px; height:300px;"></div>
       </div>
       <div class="dashboard-section__ride-info">
         <h4>Riding with {{vm.current.rideo.info.name}}</h4>
         <p>
-          You’re {{ vm.current.role }} and you need to pick up {{ vm.current.rideo.info.name }} at {{ vm.current.rideShares.driver.arrival }}.
+          You’re {{ vm.current.role }} and you need to pick up {{ vm.current.rideo.info.name }} at {{ vm.current.rideShares.driver.arrival | date: 'HH:mma' }}.
         </p>
         <h5>contact info:</h5>
         <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.current.rideo.info.phone_number }}</p>
         <p>email: {{ vm.current.rideo.info.email }}</p>
         <div class="">
-          <p>status: Unconfirmed
-            <!-- {{vm.current.rideShare.status}} -->
-          </p>
-          <label>Confirm:
-            <input type="checkbox" name="name" ng-click="vm.confirmRide()">
-          </label>
+          <button class="clear-button confirm-button" ng-click="vm.rideShareRes(true)"><i class="fa fa-check"></i> confirm</button>
+          <button class="clear-button decline-button" ng-click="vm.rideShareRes(false)"><i class="fa fa-times"></i> decline</button>
+          <p>status: {{vm.current.rideShares.status}}</p>
         </div>
       </div>
       <div class="dashboard-section">
@@ -70,9 +67,9 @@
             <li class="dashbaord__list-item" ng-repeat="date in vm.current.schedule">
               <p class="dashboard__dates">
                 {{ date.depart | date:"MMM, dd" }} <br>
-                LEAVE: {{ date.arrival_datetime  }}
-                RETURN: {{ date.departure_datetime }}
-                <button class="clear-button" ng-click="vm.deleteDate(date)">X</button>
+                LEAVE: {{ date.arrival_datetime | date: 'h:mma' }} <br>
+                RETURN: {{ date.departure_datetime | date: 'h:mma' }}
+                <!-- <button class="clear-button" ng-click="vm.deleteDate(date)">X</button> -->
               </p>
             </li>
           </ul>

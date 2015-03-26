@@ -12,7 +12,11 @@ app.directive('picker', function() {
             formatSubmit: 'yyyy/mm/dd'
           });
         } else if (scope.pickerType==='time') {
-          $(element[0]).pickatime();
+          $(element[0]).pickatime({
+            onSet: function(time) {
+              scope.details = time.select;
+            }
+          });
         }
       }
   };

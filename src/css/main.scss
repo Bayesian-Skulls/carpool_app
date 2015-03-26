@@ -8,6 +8,8 @@
 @import 'pickadate/default.time';
 @import 'bourbon/bourbon';
 @import 'neat/neat';
+@import 'font-awesome/font-awesome';
+
 
 /*  RIDEO CSS  */
 @import 'colors';
@@ -29,3 +31,6 @@
 
 /* Dashboard */
 @import 'dashboard/dashboard';
+
+/* Profile Dates*/
+@import 'profile-dates';

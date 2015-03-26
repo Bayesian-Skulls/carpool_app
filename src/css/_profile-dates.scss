@@ -1,0 +1,4 @@
+.profile-dates {
+  display: inline-block;
+  @include span-columns(4);
+}
