@@ -143,7 +143,8 @@ class Carpool(db.Model):
         passenger_work = Work.query.filter(Work.user_id == self.passenger_id).\
             first().to_dict()
 
-        return {"driver":
+        return {"carpool_id": self.id
+                "driver":
                     {
                     "info": driver,
                     "work": driver_work,
