@@ -98,6 +98,27 @@ def create_route(driver_home, passenger_home, driver_dest, passenger_dest):
     return [(driver_home), (passenger_home), (passenger_dest), (driver_dest)]
 
 
+
+def create_google_maps_link(driver_id, passenger_id):
+    driver = User.query.get(driver_id)
+    driver_work = Work.query.filter(Work.user_id == driver_id).first()
+    passenger = User.query.get(passenger_id)
+    passenger_work = Work.query.filter(Work.user_id == passenger_id).first()
+    route = create_route((driver.latitude, driver.longitude),
+                         (passenger.latitude, passenger.longitude),
+                         (driver_work.latitude, driver_work.longitude),
+                         (passenger_work.latitude, passenger_work.longitude))
+    leg1 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[1][0], route[1][1])
+    leg2 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[2][0], route[2][1])
+    leg3 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[3][0], route[3][1])
+    leg4 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[0][0], route[0][1])
+    return [leg1, leg2, leg3, leg4]
+
+
 def determine_best_route(user_pair):
     user1, user2 = user_pair
     route_candidate_1 = create_route((user1["user"]["latitude"],
@@ -315,4 +336,3 @@ def user_money(driver_id):
     distance = float(result["route"]["distance"])
     cost = str(round((distance * 2) * gas_price / mpg, 2))
     return cost, 200
-
