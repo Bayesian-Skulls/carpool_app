@@ -306,6 +306,11 @@ def accept_decline_carpool(user_id=None):
     return jsonify({"carpool": current_carpool.details})
 
 
+@api.route('/<user_id>/cost/')
+@login_required
+def get_user_cost(user_id):
+    return user_money(user_id)
+
 
 @api.route('/tests')
 def test_function():
@@ -332,3 +337,4 @@ def login_test_user(user_id):
     if user:
         login_user(user)
         return jsonify({"user": user.to_dict()})
+
