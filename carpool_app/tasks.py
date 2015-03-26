@@ -197,11 +197,14 @@ def generate_mandrill_request(user, email_type):
         e_mail_text = "Out of luck buddy!"
 
     data = {
-            "html": email_html,
-            "text": email_text,
-            "subject": "Carpool Confimation from RIDEO",
-            "from_email": "no-reply@rideo.wrong-question.com",
-            "from_name": "Rideo Confirmations",
+
+            "template_name": "untitled-template",
+            "template_content": [
+                {
+                    "name": user.name,
+                    "content": email_text
+                }
+            ],
             "to": [
                     {
                     "email": user.email,
@@ -212,6 +215,11 @@ def generate_mandrill_request(user, email_type):
             "headers": {
             "Reply-To": "no-reply@rideo.wrong-question.com"
             },
+            "html": email_html,
+            "text": email_text,
+            "subject": "Carpool Confimation from RIDEO",
+            "from_email": "no-reply@rideo.wrong-question.com",
+            "from_name": "Rideo Confirmations",
             "important": False,
             "track_opens": None,
             "track_clicks": None,
@@ -225,12 +233,12 @@ def generate_mandrill_request(user, email_type):
             "tracking_domain": None,
             "signing_domain": None,
             "return_path_domain": None,
-            "merge": False,
+            "merge": True,
             "merge_language": "mailchimp",
             "global_merge_vars": [
             {
-                "name": "merge1",
-                "content": "merge1 content"
+                "name": user.name,
+                "content": email_type
             }
             ],
             "merge_vars": [
@@ -245,7 +253,7 @@ def generate_mandrill_request(user, email_type):
                 }
             ],
             "tags": [
-            "password-resets"
+            email_type
             ],
             "subaccount": None,
             "google_analytics_domains": [
