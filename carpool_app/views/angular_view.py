@@ -327,10 +327,6 @@ def test_email():
     return send_confirm_email([23])
 
 
-@api.route('/<driver_id>/testcost/')
-def get_user_cost(driver_id):
-    return user_money(driver_id)
-
 @api.route('/test/user/<int:user_id>')
 def login_test_user(user_id):
     user = User.query.get(user_id)
