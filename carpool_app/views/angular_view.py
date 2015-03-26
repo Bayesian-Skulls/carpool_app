@@ -324,7 +324,7 @@ def get_phone_numbers(carpool_id):
 
 @api.route('/test2')
 def test_email():
-    return jsonify({"links": create_google_maps_link(7, 13)})
+    return send_confirm_email([23])
 
 
 @api.route('/<driver_id>/testcost/')
