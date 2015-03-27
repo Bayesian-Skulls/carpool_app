@@ -291,68 +291,67 @@ def get_rider_phone_numbers(carpool):
     return driver_phone, pass_phone
 
 
-def get_gas_prices(driver_id):
-    driver = User.query.filter_by(id=driver_id).first()
-    driver_lat = driver.latitude
-    driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
-               "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
-    request = url.urlopen(api_call_url).read().decode("utf-8")
-    request = json.loads(request)
-    '''request is now a dictionary'''
-    stations = request["stations"]
-    '''stations is a list of dicts'''
-    prices = [station["reg_price"] for station in stations]
-    prices = [i for i in prices if i !="N/A"]
-    average_price = round(st.mean([float(price) for price in prices]), 2)
-    return average_price
-
-
-def get_vehicle_api_id(user_id):
-    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
-    make = vehicle.make
-    model = vehicle.model
-    year = vehicle.year
-    api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
-        (make, model, year, current_app.config["EDMUNDSAPIKEY"])
-    request = url.urlopen(api_call_for_ID).read().decode("utf-8")
-    request = json.loads(request)
-    style_id = request["styles"][0]["id"]
-    return style_id
-
-
-def get_mpg(style_id):
-    api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
-        "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
-    request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
-    request = json.loads(request)
-    combined_mpg = request["equipment"][6]["attributes"][0]["value"]
-    return combined_mpg
-
-
-def format_money(cost):
-    if "." not in cost:
-        cost = "$" + cost + ".00"
-        return cost
-    elif cost[-2] == ".":
-        cost = "$" + cost + "0"
-        return cost
-    else:
-        cost = "$" + cost
-        return cost
-
-
-def user_money(user_id):
-    driver = User.query.get(user_id)
-    home = (driver.latitude, driver.longitude)
-    work = Work.query.filter_by(user_id=user_id).first()
-    workplace = (work.latitude, work.longitude)
-    points = [home, workplace]
-    mpg = float(get_mpg(get_vehicle_api_id(user_id)))
-    gas_price = float(get_gas_prices(user_id))
-    result = get_directions(points)
-    distance = float(result["route"]["distance"])
-    cost = str(round((distance * 2) * gas_price / mpg, 2))
-    cost = format_money(cost)
-    return jsonify({"cost": cost}), 200
-
+# def get_gas_prices(driver_id):
+#     driver = User.query.filter_by(id=driver_id).first()
+#     driver_lat = driver.latitude
+#     driver_lon = driver.longitude
+#     api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+#                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
+#     request = url.urlopen(api_call_url).read().decode("utf-8")
+#     request = json.loads(request)
+#     '''request is now a dictionary'''
+#     stations = request["stations"]
+#     '''stations is a list of dicts'''
+#     prices = [station["reg_price"] for station in stations]
+#     prices = [i for i in prices if i !="N/A"]
+#     average_price = round(st.mean([float(price) for price in prices]), 2)
+#     return average_price
+#
+#
+# def get_vehicle_api_id(user_id):
+#     vehicle = Vehicle.query.filter_by(user_id=user_id).first()
+#     make = vehicle.make
+#     model = vehicle.model
+#     year = vehicle.year
+#     api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
+#         (make, model, year, current_app.config["EDMUNDSAPIKEY"])
+#     request = url.urlopen(api_call_for_ID).read().decode("utf-8")
+#     request = json.loads(request)
+#     style_id = request["styles"][0]["id"]
+#     return style_id
+#
+#
+# def get_mpg(style_id):
+#     api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
+#         "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
+#     request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
+#     request = json.loads(request)
+#     combined_mpg = request["equipment"][6]["attributes"][0]["value"]
+#     return combined_mpg
+#
+#
+# def format_money(cost):
+#     if "." not in cost:
+#         cost = "$" + cost + ".00"
+#         return cost
+#     elif cost[-2] == ".":
+#         cost = "$" + cost + "0"
+#         return cost
+#     else:
+#         cost = "$" + cost
+#         return cost
+#
+#
+# def user_money(user_id):
+#     driver = User.query.get(user_id)
+#     home = (driver.latitude, driver.longitude)
+#     work = Work.query.filter_by(user_id=user_id).first()
+#     workplace = (work.latitude, work.longitude)
+#     points = [home, workplace]
+#     mpg = float(get_mpg(get_vehicle_api_id(user_id)))
+#     gas_price = float(get_gas_prices(user_id))
+#     result = get_directions(points)
+#     distance = float(result["route"]["distance"])
+#     cost = str(round((distance * 2) * gas_price / mpg, 2))
+#     cost = format_money(cost)
+#     return jsonify({"cost": cost}), 200

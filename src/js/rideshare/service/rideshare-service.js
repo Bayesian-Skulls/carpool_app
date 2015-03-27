@@ -1,44 +1,66 @@
 app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
   var rideShare;
 
-  return {
+  var self = {
     getRideShares: function() {
-      if (rideShare) {
+      if (rideShare !== undefined) {
         return $q(function(resolve) {
           resolve(rideShare);
         });
       }
       return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
+        rideShare = results.data.carpool;
+        self.process();
         return $q(function(resolve, reject) {
-          resolve(results);
+          resolve(results.data.carpool);
         });
       });
     },
-    res: function(res) {
+    respond: function(res) {
+        res.carpool_id = rideShare.carpool_id;
         return ajaxService.call($http.post('/api/v1/user/carpool', res));
     },
-    processRole: function(result) {
+    process: function(result) {
       // are we passenger or driver?
-      if (result.data.carpool.driver.info.id === currentSpec.user.id){
-        currentSpec.role = 'driver';
-        currentSpec.rideo = result.data.carpool.passenger;
+      self.getStatus();
+      if (rideShare.driver.info.id === currentSpec.user.id){
+        rideShare.role = 'driver';
+        rideShare.you = self.isConfirmed(rideShare.driver);
+        rideShare.rideo = self.isConfirmed(rideShare.passenger);
       } else {
-        currentSpec.role = 'passenger';
-        currentSpec.rideo = result.data.carpool.driver;
+        rideShare.role = 'passenger';
+        rideShare.you = self.isConfirmed(rideShare.passenger);
+        rideShare.rideo = self.isConfirmed(rideShare.driver);
       }
       return result;
     },
 
-    getStatus: function(rideshare) {
-      if (rideshare.driver.accepted === true && rideshare.passenger.accepted === true) {
-        rideshare.status = 'confirmed';
-      } else if (rideshare.driver.accepted === false && rideshare.passenger.accepted === false) {
-        rideshare.status = 'declined';
+    isConfirmed: function(person) {
+      if (person.accepted === true) {
+        person.status = 'confirmed';
+      } else if (person.accepted === false) {
+        person.status = 'declined';
       } else {
-        rideshare.status = 'pending';
+        person.status = 'unconfirmed';
       }
-      return rideshare;
+      return person;
+    },
+
+    getStatus: function() {
+
+      if (rideShare.driver.accepted === true && rideShare.passenger.accepted === true) {
+        rideShare.status = 'confirmed';
+      } else if (rideShare.driver.accepted === false && rideShare.passenger.accepted === false) {
+        rideShare.status = 'declined';
+      } else {
+        rideShare.status = 'pending';
+      }
+
+
+      return rideShare;
     }
   };
+  return self;
+
 
 }]);

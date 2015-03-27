@@ -9,7 +9,7 @@ app.directive('maps', function() {
         console.log($scope);
 
         rideShareService.getRideShares().then(function(result){
-          var rideShare = result.data.carpool;
+          var rideShare = result;
           MQA.withModule('new-route', function() {
           // uses the MQA.TileMap.addRoute function to pass in an array
           // of locations as part of the request parameter

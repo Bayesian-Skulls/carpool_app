@@ -2904,6 +2904,7 @@ select {
     margin-right: 0; }
 
 .dashboard-section {
+  position: relative;
   float: left;
   display: block;
   margin-right: 2.35765%;
@@ -2915,6 +2916,8 @@ select {
   margin-bottom: 1em; }
 
 .dashboard-section__map-info {
+  text-align: center;
+  padding: 0 2em;
   float: left;
   display: block;
   margin-right: 2.35765%;
@@ -2925,13 +2928,38 @@ select {
     margin-right: 0; }
 
 .dashboard-section__ride-info {
+  text-align: left;
+  display: inline-block;
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 57.35098%;
-  text-align: left;
-  display: inline-block; }
+  width: 100%;
+  overflow: auto; }
   .dashboard-section__ride-info:last-child {
+    margin-right: 0; }
+  @media only screen and (min-width: 768px) {
+    .dashboard-section__ride-info {
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 48.82117%; }
+      .dashboard-section__ride-info:last-child {
+        margin-right: 0; } }
+  @media only screen and (min-width: 915px) {
+    .dashboard-section__ride-info {
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 57.35098%; }
+      .dashboard-section__ride-info:last-child {
+        margin-right: 0; } }
+
+.dashboard-section__response {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 100%; }
+  .dashboard-section__response:last-child {
     margin-right: 0; }
 
 .dashboard-steps {
@@ -3014,3 +3042,34 @@ select {
   width: 31.76157%; }
   .profile-dates:last-child {
     margin-right: 0; }
+
+body {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: hidden; }
+
+.page-wrapper {
+  transition: all .5s ease-in; }
+
+.page-wrapper.ng-enter, .page-wrapper.ng-leave {
+  opacity: 0;
+  width: 100%; }
+
+.page-wrapper.ng-enter {
+  position: relative;
+  left: 100%; }
+
+.page-wrapper.ng-leave {
+  position: absolute;
+  left: -100%; }
+
+.page-wrapper.ng-enter.ng-enter-active {
+  left: 0;
+  opacity: 1; }
+
+.page-wrapper.ng-leave.ng-leave-active {
+  left: -50%;
+  opacity: 1; }

@@ -34,17 +34,14 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     },
     getRideShares: function() {
       return rideShareService.getRideShares().then(function(result) {
-        result = rideShareService.processRole(result);
-        currentSpec.rideShares = result.data.carpool;
-        currentSpec.rideShares = rideShareService.getStatus(currentSpec.rideShares);
+        currentSpec.rideShares = result;
       });
     },
     getStatus: function() {
       return $q.all([
         currentSpec.getWork(),
         currentSpec.getVehicles(),
-        currentSpec.getSchedule(),
-        currentSpec.getRideShares()]);
+        currentSpec.getSchedule()]);
     },
     vehicles: [],
     work: [],

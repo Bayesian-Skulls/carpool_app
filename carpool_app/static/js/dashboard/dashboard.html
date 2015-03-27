@@ -24,28 +24,36 @@
       </div>
     </div>
 
+    <div class="dashboard-section">
     <!-- Section for displaying Ride Shares -->
-    <div ng-show="vm.current.rideShares.driver" class="dashboard-section-container carpool-details">
-      <h3 class="dashboard-section-title">Upcoming {{ vm.current.rideShares.driver.arrival | date: 'MMMM dd'}}</h3>
-      <div class="dashboard-section__map-info">
-        <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:300px; height:300px;"></div>
-      </div>
-      <div class="dashboard-section__ride-info">
-        <h4>Riding with {{vm.current.rideo.info.name}}</h4>
-        <p>
-          You’re {{ vm.current.role }} and you need to pick up {{ vm.current.rideo.info.name }} at {{ vm.current.rideShares.driver.arrival | date: 'HH:mma' }}.
-        </p>
-        <h5>contact info:</h5>
-        <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.current.rideo.info.phone_number }}</p>
-        <p>email: {{ vm.current.rideo.info.email }}</p>
-        <div class="">
-          <button class="clear-button confirm-button" ng-click="vm.rideShareRes(true)"><i class="fa fa-check"></i> confirm</button>
-          <button class="clear-button decline-button" ng-click="vm.rideShareRes(false)"><i class="fa fa-times"></i> decline</button>
-          <p>status: {{vm.current.rideShares.status}}</p>
+      <div ng-show="vm.rideShare.driver" class="dashboard-section-container carpool-details">
+        <h3 class="dashboard-section-title">Upcoming {{ vm.rideShare.driver.arrival | date: 'MMMM dd'}}</h3>
+        <div class="dashboard-section__map-info">
+          <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:250px; height:250px;"></div>
         </div>
-      </div>
-      <div class="dashboard-section">
-        <mileage-chart></mileage-chart>
+        <div class="dashboard-section__ride-info">
+          <h4>Riding with {{vm.rideShare.rideo.info.name}}</h4>
+          <p>
+            You’re {{ vm.rideShare.role }} and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+          </p>
+          <h5>contact info:</h5>
+          <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.rideShare.rideo.info.phone_number }}</p>
+          <p>email: {{ vm.rideShare.rideo.info.email }}</p>
+        </div>
+        <div class="dashboard-section__response">
+          <p>{{vm.current.user.name}}:
+            {{vm.rideShare.you.status}}
+          </p>
+          <p>{{vm.rideShare.rideo.info.name}}:
+            {{vm.rideShare.rideo.status}}
+          </p>
+          <p>current status: {{vm.rideShare.status}}</p>
+          <button ng-hide="vm.rideShare.you.accepted === true" class="clear-button confirm-button" ng-click="vm.rideShareRes(true)"><i class="fa fa-check"></i> confirm</button>
+          <button ng-hide="vm.rideShare.you.accepted === false" class="clear-button decline-button" ng-click="vm.rideShareRes(false)"><i class="fa fa-times"></i> decline</button>
+        </div>
+        <div class="dashboard-section">
+          <mileage-chart></mileage-chart>
+        </div>
       </div>
     </div>
     <!-- Dashboard Section -->
@@ -53,11 +61,11 @@
       <div class="dashboard-steps">
         <div class="dashboard-steps__content">
           <h5>YOUR NEXT RIDESHARE</h5>
-            <p>{{ vm.current.rideShares.driver.arrival.slice(0,8) }}</p>
-            <p>{{ vm.current.rideShares.driver.info.name }}</p>
+            <p>{{ vm.rideShares.driver.arrival.slice(0,8) }}</p>
+            <p>{{ vm.rideShares.driver.info.name }}</p>
             <p>&amp;</p>
-            <p>{{ vm.current.rideShares.passenger.info.name }}</p>
-            <p>departing {{ vm.current.rideShares.driver.arrival | date: 'HH:hh a'}}</p>
+            <p>{{ vm.rideShares.passenger.info.name }}</p>
+            <p>departing {{ vm.rideShares.driver.arrival | date: 'HH:hh a'}}</p>
         </div>
       </div>
       <div class="dashboard-steps">

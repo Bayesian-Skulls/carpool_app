@@ -17,6 +17,7 @@
 }
 
 .dashboard-section {
+  position: relative;
   @include span-columns(12);
 }
 .dashboard-section-title {
@@ -24,14 +25,28 @@
 }
 
 .dashboard-section__map-info {
+  text-align: center;
+  padding: 0 2em;
   @include span-columns(4);
   display: inline-block;
   min-width: 300px;
 }
 .dashboard-section__ride-info {
-  @include span-columns(7);
   text-align: left;
   display: inline-block;
+  @include span-columns(12);
+  @media only screen and (min-width: 768px) {
+    @include span-columns(6);
+  }
+  @media only screen and (min-width: 915px) {
+    @include span-columns(7);
+  }
+  overflow:auto;
+}
+
+.dashboard-section__response {
+  @include span-columns(12);
+  // text-align: left;
 }
 
 .dashboard-steps {
