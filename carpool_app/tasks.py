@@ -300,16 +300,17 @@ def get_gas_prices(driver_id):
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
-        request = json.loads(request)
         if ValueError:
             errors += 1
         else:
+            request = json.loads(request)
             stations = request["stations"]
             prices = [station["reg_price"] for station in stations]
             prices = [i for i in prices if i !="N/A"]
             average_price = round(st.mean([float(price) for price in prices]), 2)
             return average_price
-    return (default_price)
+    return 2.4
+
 
 def get_vehicle_api_id(user_id):
     vehicle = Vehicle.query.filter_by(user_id=user_id).first()
