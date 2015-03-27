@@ -295,8 +295,9 @@ def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
     driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+    api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
+    print(api_call_url)
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
