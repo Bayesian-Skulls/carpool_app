@@ -305,7 +305,10 @@ def accept_decline_carpool(user_id=None):
     db.session.commit()
     return jsonify({"carpool": current_carpool.details})
 
-
+@api.route('/<user_id>/cost/')
+def get_user_cost(user_id):
+    return user_money(user_id)
+    
 
 @api.route('/tests')
 def test_function():

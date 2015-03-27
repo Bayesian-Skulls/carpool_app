@@ -295,8 +295,9 @@ def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
     driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+    api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
+    print(api_call_url)
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
@@ -390,3 +391,10 @@ def user_money(user_id):
     cost = str(round((distance * 2) * gas_price / mpg, 2))
     cost = format_money(cost)
     return jsonify({"cost": cost}), 200
+
+
+def select_random_stat():
+    filename = ("carpool_example_stats.txt")
+    data = open("carpool_example_stats.txt").readlines()
+    stats = random.choice(data).strip("\n")
+    return stats
