@@ -34,23 +34,14 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     },
     getRideShares: function() {
       return rideShareService.getRideShares().then(function(result) {
-        if (result.data.carpool.driver.info.id = currentSpec.user.id){
-          currentSpec.role = 'driver';
-          currentSpec.rideo = result.data.carpool.passenger;
-        } else {
-          currentSpec.role = 'passenger';
-          currentSpec.rideo = result.data.carpool.driver;
-        }
-        console.log(currentSpec.rideo);
-        currentSpec.rideShares = result.data.carpool;
+        currentSpec.rideShares = result;
       });
     },
     getStatus: function() {
       return $q.all([
         currentSpec.getWork(),
         currentSpec.getVehicles(),
-        currentSpec.getSchedule(),
-        currentSpec.getRideShares()]);
+        currentSpec.getSchedule()]);
     },
     vehicles: [],
     work: [],

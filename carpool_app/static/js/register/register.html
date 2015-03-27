@@ -13,12 +13,12 @@
           <input googleplace name="user-address" details="vm.current.user" class="register-input address-input" type="text" autocomplete="off" ng-model="vm.current.user.address" required>.
           <!-- I want to use this paypal address to handle gas money -->
           The best phone number to contact me is
-          <input class="register-input" type="email" name="user-paypal" ng-model="vm.current.user.phone_number" placeholder="your phone number">.
+          <input class="register-input" type="text" name="user-paypal" ng-model="vm.current.user.phone_number" placeholder="your phone number">.
         </p>
         <button class="register-button" ng-click="vm.editUser()">NEXT &rarr;</button>
 
       </div>
-      <div ng-show="vm.show === 'work' || vm.show === 'all'" class="">
+      <div ng-show="vm.show === 'work' || vm.show === 'all'" class="register-section">
         <h5 for="work-name">Your Work</h5>
         <p>I work for <input class="register-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name">.
           Their address is
