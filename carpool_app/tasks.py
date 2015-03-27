@@ -272,3 +272,11 @@ def get_gas_prices(driver_id):
     prices = [i for i in prices if i !="N/A"]
     average_price = round(st.mean([float(price) for price in prices]), 2)
     return average_price
+
+def select_random_stat():
+    filename = ("carpool_example_stats.txt")
+    data = open("carpool_example_stats.txt").readlines()
+    stats = random.choice(data).strip("\n")
+
+    return stats
+select_random_stat()
