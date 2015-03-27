@@ -181,8 +181,9 @@ def send_confirm_email(carpool_users):
     for user in carpool_users:
         current_user = User.query.get(user)
         data = generate_mandrill_request(current_user, "carpool_created")
-        result = mandrill_client.messages.send(message=data, async=False,
-                                               ip_pool='Main Pool')
+        result = mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=[],
+            message=data, async=False, ip_pool='Main Pool')
     return jsonify({"results": result}), 200
 
 
@@ -371,4 +372,3 @@ def user_money(user_id):
     cost = str(round((distance * 2) * gas_price / mpg, 2))
     cost = format_money(cost)
     return jsonify({"cost": cost}), 200
-
