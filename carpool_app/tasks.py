@@ -2,6 +2,7 @@ import json
 import re
 import statistics as st
 from datetime import datetime, timedelta
+import urllib
 from flask import current_app
 import urllib.request as url
 import mandrill
@@ -296,15 +297,19 @@ def get_gas_prices(driver_id):
     driver_lon = driver.longitude
     api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
-    request = url.urlopen(api_call_url).read().decode("utf-8")
-    request = json.loads(request)
-    '''request is now a dictionary'''
-    stations = request["stations"]
-    '''stations is a list of dicts'''
-    prices = [station["reg_price"] for station in stations]
-    prices = [i for i in prices if i !="N/A"]
-    average_price = round(st.mean([float(price) for price in prices]), 2)
-    return average_price
+    errors = 0
+    while errors < 3:
+        request = url.urlopen(api_call_url).read().decode("utf-8")
+        if ValueError:
+            errors += 1
+        else:
+            request = json.loads(request)
+            stations = request["stations"]
+            prices = [station["reg_price"] for station in stations]
+            prices = [i for i in prices if i !="N/A"]
+            average_price = round(st.mean([float(price) for price in prices]), 2)
+            return average_price
+    return 2.4
 
 
 def get_vehicle_api_id(user_id):
@@ -314,11 +319,23 @@ def get_vehicle_api_id(user_id):
     year = vehicle.year
     api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
         (make, model, year, current_app.config["EDMUNDSAPIKEY"])
-    print(api_call_for_ID)
-    request = url.urlopen(api_call_for_ID).read().decode("utf-8")
-    request = json.loads(request)
-    style_id = request["styles"][0]["id"]
-    return style_id
+    try:
+        request = url.urlopen(api_call_for_ID).read().decode("utf-8")
+        request = json.loads(request)
+        style_id = request["styles"][0]["id"]
+        return style_id, year
+    except urllib.error.HTTPError:
+        return "1", year
+
+
+
+def default_mpg(year):
+    if year >= 2000:
+        return "20"
+    elif year >= 1990:
+        return "18"
+    else:
+        return "12"
 
 
 def check_dict(dic):
@@ -331,7 +348,9 @@ def clean_dict(list):
     return [i for i in list if i != None]
 
 
-def get_mpg(style_id):
+def get_mpg(style_id, year):
+    if style_id == "1":
+        return default_mpg(year)
     api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
         "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
     request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
@@ -364,7 +383,7 @@ def user_money(user_id):
     work = Work.query.filter_by(user_id=user_id).first()
     workplace = (work.latitude, work.longitude)
     points = [home, workplace]
-    mpg = float(get_mpg(get_vehicle_api_id(user_id)))
+    mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
     gas_price = float(get_gas_prices(user_id))
     result = get_directions(points)
     distance = float(result["route"]["distance"])
