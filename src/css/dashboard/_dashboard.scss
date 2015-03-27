@@ -70,6 +70,7 @@
   padding: 2em;
   color: darken($primary-color, 10%);
   text-align: left;
+  position: relative;
 }
 
 .page-profile__photo {
@@ -105,5 +106,25 @@
 //CONDITIONAL STYLES
 
 .incomplete {
-  background-color: $secondary-color;
+  background-color: lighten($secondary-color, 50%);
+}
+
+.registration-incomplete {
+  font-family: 'Open Sans';
+  font-weight: bold;
+  position: absolute;
+  bottom: .5em;
+  right: 2em;
+  color: $secondary-color !important;
+}
+.dashboard-section__status {
+    &:hover button {
+      display: inline-block;
+    }
+}
+
+.confirm-button, .decline-button {
+  border-radius: 2em;
+  border: none;
+  // display: none;
 }
