@@ -9,9 +9,7 @@ To promote all forms of ridesharing, connect communities, and provide a safe eff
 any and all demographics.  
 
 At the heart of our application is a unique 'clustering’ algorithm that allows users to simply input three data points- 
-(Home address, Work address, Time for use) and receive a number of carpool options to choose from.  Our goal is to 
-strip away any pretense about ridesharing and connect like minded individuals that share a desire to move their community 
-forward!
+(Home address, Work address, Work Schedule) and receive a personalized ridesharing opportunity to take advantage of.  Our goal is to strip away any pretense about ridesharing and connect like minded individuals that share a desire to move their community forward!
 
 ## Main Features
 Here are just a few of the things that RID*EO* does well:
