@@ -15,14 +15,19 @@ At the heart of our application is a unique clustering algorithm that allows use
 Here are just a few of the things that RID*EO* does well:
 
  - We have a carpool class that will connect users by way of work schedule and location:
-   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/models.py#L106)
+   
+[Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/models.py#L106)
 
  - We have a cool function that searches for the best gas prices near your current carpool route:
-   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/tasks.py#L294)
+   
+[Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/tasks.py#L294)
 
  - We also have a beautiful user interface with some pretty nifty uses of html/css/javascript:
-   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/520b2390549f389939131cd63d0a2d88e62a087f/src/js/home/home.js#L1)
+   
+[Check out the JS code!](https://github.com/Bayesian-Skulls/carpool_app/blob/520b2390549f389939131cd63d0a2d88e62a087f/src/js/home/home.js#L1)
 
+   
+   [Check out the html code!](https://github.com/Bayesian-Skulls/carpool_app/blob/520b2390549f389939131cd63d0a2d88e62a087f/src/js/home/home.html#L1)
 
 
 
