@@ -1,4 +1,4 @@
-<div class="register-page">
+<div class="register-page-wrapper page-wrapper">
   <main-nav page-header></main-nav>
   <div class="register-form">
     <form class="signup-form" ng-submit="vm.register()">
@@ -11,13 +11,14 @@
           <input class="register-input" type="email" name="user-email" ng-model="vm.current.user.email" placeholder="Enter your email" required>.
           The best place to pick me up at is
           <input googleplace name="user-address" details="vm.current.user" class="register-input address-input" type="text" autocomplete="off" ng-model="vm.current.user.address" required>.
-          I want to use this paypal address to handle gas money
-          <input class="register-input" type="email" name="user-paypal" ng-model="vm.current.user.paypal_id" placeholder="paypal email" required>.
+          <!-- I want to use this paypal address to handle gas money -->
+          The best phone number to contact me is
+          <input class="register-input" type="text" name="user-paypal" ng-model="vm.current.user.phone_number" placeholder="your phone number">.
         </p>
-        <button class="register-button" ng-click="vm.editUser()">edit user</button>
+        <button class="register-button" ng-click="vm.editUser()">NEXT &rarr;</button>
 
       </div>
-      <div ng-show="vm.show === 'work' || vm.show === 'all'" class="">
+      <div ng-show="vm.show === 'work' || vm.show === 'all'" class="register-section">
         <h5 for="work-name">Your Work</h5>
         <p>I work for <input class="register-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name">.
           Their address is
@@ -30,20 +31,20 @@
           <select ng-model="vm.schedule.to">
             <option ng-repeat="day in vm.weekdays">{{day}}</option>
           <select>
-          from <input class="register-input" name="schedule-departing" ng-model="vm.schedule.departing" picker picker-type="'time'">
-          to <input class="register-input" name="schedule-returning" ng-model="vm.schedule.arriving" picker picker-type="'time'">
+          from <input class="register-input" name="schedule-returning" ng-model="vm.schedule.arriving" picker picker-type="'time'">
+          to <input class="register-input" name="schedule-departing" ng-model="vm.schedule.departing" picker picker-type="'time'">
         </p>
-        <button class="register-button" ng-click="vm.addSchedule()">add schedule</button>
-        <button class="register-button" ng-click="vm.addWorkFields()">add workplace</button>
+        <button class="register-button" ng-click="vm.addWorkFields()">NEXT &rarr;</button>
       </div>
       <div ng-show="vm.show === 'vehicle' || vm.show === 'all'" class="register-section page-section">
         <h5>My Ride</h5>
         <p>I drive a <input class="register-input" ng-model="vm.vehicle.year" type="text" name="name" value="" placeholder="YYYY">
-          <input class="register-input" ng-model="vm.vehicle.make" type="text" name="name" placeholder="Make">
+          <input class="register-input" ng-model="vm.current.vehicles[0].make" type="text" name="name" placeholder="Make">
           <input class="register-input" ng-model="vm.vehicle.model" type="text" name="name" placeholder="Model">. My license plate number is
           <input class="register-input" ng-model="vm.vehicle.plate_number" type="text" name="name" placeholder="XXX-XXXX">
+          My Driver's license number is <input class="register-imput" ng-model="vm.current.user.drivers_license">
         </p>
-          <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button>
+        <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button>
       </div>
     </form>
   </div>

@@ -79,6 +79,12 @@
   border-radius: .5em;
   position: absolute;
   right: 1em;
+  box-shadow: $cardShadow;
+  &:active {
+    &:after {
+      border-top: 1em solid darken($primary-color, 10%);
+    }
+  }
   &:after,
   &:before {
     content: ' ';
@@ -92,11 +98,17 @@
   }
   &:after {
     bottom: -.5em;
-    border-top: 1em solid $primary-color;;
+    border-top: 1em solid $primary-color;
   }
   &:before {
     bottom: -1em;
   }
+}
+
+.page-header,
+.page-nav {
+  position: relative;
+  max-width: 1080px;
 }
 
 .page-nav {

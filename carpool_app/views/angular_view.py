@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, get_gas_prices
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email #, get_gas_prices, get_mpg, get_vehicle_api_id
 
 
 
@@ -70,6 +70,7 @@ def update_user(user_id=None, data=None):
             return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
     db.session.commit()
     return jsonify({"user": user.to_dict()}), 201
+
 
 
 @api.route('/me', methods=["GET"])
@@ -264,6 +265,30 @@ def view_current_carpool(user_id=None):
     return jsonify({"carpool": current_carpool.details})
 
 
+@api.route('/vehicle/<driver_id>/mpg', methods=["GET"])
+def get_combined_mpg(driver_id):
+    return get_mpg(get_vehicle_api_id(driver_id=driver_id))
+
+
+@api.route('/user/carpool', methods=["POST"])
+# @login_required
+def accept_decline_carpool(user_id=None):
+    if not user_id:
+        user_id = current_user.id
+    if not request.get_json():
+        return jsonify({"message": "No input data provided"}), 400
+    data = request.get_json()
+    current_carpool = Carpool.query.get_or_404(data["carpool_id"])
+    if user_id == current_carpool.driver_id:
+        current_carpool.driver_accepted = True if data["response"] else False
+    elif user_id == current_carpool.passenger_id:
+        current_carpool.passenger_accepted = True if\
+            data["response"] else False
+    db.session.commit()
+    return jsonify({"carpool": current_carpool.details})
+
+
+
 @api.route('/tests')
 def test_function():
     return build_carpools()
@@ -274,11 +299,14 @@ def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
 
 
-@api.route('/test_gas')
-def test_gas_prices():
-    return get_gas_prices(59)
-
-
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([22])
+    return send_confirm_email([23])
+
+
+@api.route('/test/user/<int:user_id>')
+def login_test_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        login_user(user)
+        return jsonify({"user": user.to_dict()})

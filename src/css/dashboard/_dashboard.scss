@@ -3,28 +3,107 @@
   height: 4em;
 }
 
-.dashboard-steps-container {
-  overflow: auto;
+.dashboard-wrapper {
+  color: #fff;
+  background-color: $accent-color;
+  background: linear-gradient(rgba(131, 169, 174, .7), rgba(98, 127, 131, .7)), url('../img/symphony.png');
+  text-align: center;
+}
+
+.dashboard-section-container {
+  background-color: $primary-color;
+  padding: 2em;
+  @include span-columns(12);
+}
+
+.dashboard-section {
+  position: relative;
+  @include span-columns(12);
+}
+.dashboard-section-title {
+  margin-bottom: 1em;
+}
+
+.dashboard-section__map-info {
+  text-align: center;
+  padding: 0 2em;
+  @include span-columns(4);
+  display: inline-block;
+  min-width: 300px;
+}
+.dashboard-section__ride-info {
+  text-align: left;
+  display: inline-block;
+  @include span-columns(12);
+  @media only screen and (min-width: 768px) {
+    @include span-columns(6);
+  }
+  @media only screen and (min-width: 915px) {
+    @include span-columns(7);
+  }
+  overflow:auto;
+}
+
+.dashboard-section__response {
+  @include span-columns(12);
+  // text-align: left;
 }
 
 .dashboard-steps {
   margin-top: 2.35765%;
   position: relative;
   display: inline-block;
-  @include span-columns(4);
-  padding-top: 31.765175%;
-  background-color: $accent-color;
-  &:active {
-    background-color: darken($accent-color, 10%);
+  @include span-columns(12);
+  @media only screen and (min-width: 500px) {
+    @include span-columns(6);
+  }
+  @media only screen and (min-width: 768px) {
+    @include span-columns(4);
   }
   p {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    text-align: center;
+  }
+}
+.page-profile {
+  margin-bottom: 0;
+  background-color: #fff;
+  padding: 2em;
+  color: darken($primary-color, 10%);
+  text-align: left;
+}
+
+.page-profile__photo {
+  width: 100%;
+  max-width: 9em;
+  border-radius: 50%;
+  margin-left: 1em;
+  display: inline-block;
+}
+
+.page-profile__fields {
+  font-weight: 700;
+}
+
+.page-profile__card {
+
+  @include span-columns(12);
+  @media only screen and (min-width: 768px) {
+    @include span-columns(4);
+  }
+  display: inline-block;
+  vertical-align: baseline;
+  p {
+    margin-bottom: .5em;
+  }
+  button {
+    vertical-align: bottom;
   }
 }
 
-.dashboard-content {
-  text-align: center;
+
+
+//CONDITIONAL STYLES
+
+.incomplete {
+  background-color: $secondary-color;
 }

@@ -1,8 +1,8 @@
 import json
 import re
 import statistics as st
-from decimal import Decimal
 from datetime import datetime, timedelta
+import urllib
 from flask import current_app
 import urllib.request as url
 import mandrill
@@ -13,12 +13,12 @@ from .models import User, Work, Calendar, Vehicle, Carpool
 
 
 def get_events_by_time():
-    start_time = timedelta(hours=-24)
-    end_time = timedelta(hours=24)
-    events = Calendar.query.filter((Calendar.arrival_datetime -
-                                    datetime.now()) < end_time).\
-        filter((Calendar.arrival_datetime -
-                datetime.now()) >= start_time).all()
+    start_time = timedelta(hours=18)
+    end_time = timedelta(hours=18, minutes=30)
+    start_time = datetime.now().replace(second=0, microsecond=0) + start_time
+    end_time = datetime.now().replace(second=0, microsecond=0) + end_time
+    events = Calendar.query.filter(Calendar.arrival_datetime < end_time).\
+        filter(Calendar.arrival_datetime >= start_time).all()
     events = [event.to_dict() for event in events]
     return events
 
@@ -81,8 +81,8 @@ def build_carpools():
         send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
         vehicle = Vehicle.query.filter(Vehicle.user_id ==
                                        driver["user"]["id"]).first()
-        new_carpool = Carpool(driver_accepted=False,
-                              passenger_accepted=False,
+        new_carpool = Carpool(driver_accepted=None,
+                              passenger_accepted=None,
                               driver_calendar_id=driver["event"]["id"],
                               passenger_calendar_id=passenger["event"]["id"],
                               vehicle_id=vehicle.id,
@@ -96,6 +96,27 @@ def build_carpools():
 
 def create_route(driver_home, passenger_home, driver_dest, passenger_dest):
     return [(driver_home), (passenger_home), (passenger_dest), (driver_dest)]
+
+
+
+def create_google_maps_link(driver_id, passenger_id):
+    driver = User.query.get(driver_id)
+    driver_work = Work.query.filter(Work.user_id == driver_id).first()
+    passenger = User.query.get(passenger_id)
+    passenger_work = Work.query.filter(Work.user_id == passenger_id).first()
+    route = create_route((driver.latitude, driver.longitude),
+                         (passenger.latitude, passenger.longitude),
+                         (driver_work.latitude, driver_work.longitude),
+                         (passenger_work.latitude, passenger_work.longitude))
+    leg1 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[1][0], route[1][1])
+    leg2 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[2][0], route[2][1])
+    leg3 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[3][0], route[3][1])
+    leg4 = "https://www.google.com/maps/dir/Current+Location/{},{}/"\
+        .format(route[0][0], route[0][1])
+    return [leg1, leg2, leg3, leg4]
 
 
 def determine_best_route(user_pair):
@@ -143,8 +164,6 @@ def get_directions(points):
                "&generalize=0&locale=en_US&unit=m".\
                format(current_app.config["MAPQUESTAPI"])
 
-    base_url + "&from={},{}".format(points[0][0], points[0][1])
-
     for index, point in enumerate(points):
         if not index:
             base_url += "&from={},{}".format(point[0], point[1])
@@ -159,93 +178,108 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
-    response = []
-    base_url = "http://mandrillapp.com/api/1.0/messages/send.json"
-    email_html = "<p>TEST<p>"
-    email_text = "This is only a test."
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for user in carpool_users:
         current_user = User.query.get(user)
-        data = {
-                "html": email_html,
-                "text": email_text,
-                "subject": "Carpool Confimation from RIDEO",
-                "from_email": "no-reply@rideo.wrong-question.com",
-                "from_name": "Rideo Confirmations",
-                "to": [
-                        {
-                        "email": current_user.email,
-                        "name": current_user.name,
-                        "type": "to"
-                        }
-                       ],
-                "headers": {
-                "Reply-To": "no-reply@rideo.wrong-question.com"
-                },
-                "important": False,
-                "track_opens": None,
-                "track_clicks": None,
-                "auto_text": None,
-                "auto_html": None,
-                "inline_css": None,
-                "url_strip_qs": None,
-                "preserve_recipients": None,
-                "view_content_link": None,
-                "bcc_address": None,
-                "tracking_domain": None,
-                "signing_domain": None,
-                "return_path_domain": None,
-                "merge": False,
-                "merge_language": "mailchimp",
-                "global_merge_vars": [
-                {
-                    "name": "merge1",
-                    "content": "merge1 content"
-                }
-                ],
-                "merge_vars": [
-                    {
-                        "rcpt": user,
-                        "vars": [
-                        {
-                            "name": "merge2",
-                            "content": "merge2 content"
-                        }
-                    ]
-                    }
-                ],
-                "tags": [
-                "password-resets"
-                ],
-                "subaccount": None,
-                "google_analytics_domains": [
-                    None
-                ],
-                "google_analytics_campaign": None,
-                "metadata": {
-                    "website": "rideo.wrong-question.com"
-                },
-            "recipient_metadata": [
-            {
-                "rcpt": current_user.email,
-                "values": {
-                    "user_id": current_user.id
-                }
-            }
-            ],
-            # "images": [
-            #     {
-            #         "type": "image/png",
-            #         "name": "IMAGECID",
-            #         "content": "ZXhhbXBsZSBmaWxl"
-            #     }
-            # ]
-            }
-
+        data = generate_mandrill_request(current_user, "carpool_created")
         result = mandrill_client.messages.send(message=data, async=False,
                                                ip_pool='Main Pool')
-    print(result)
     return jsonify({"results": result}), 200
+
+
+def generate_mandrill_request(user, email_type):
+    email_html, email_text = "", ""
+    if email_type == "carpool_created":
+        email_html = "<p>CREATED CARPOOL!</p>"
+        email_text = "This is some text!"
+    elif email_type == "unconfirmed_carpool":
+        email_html = "<p>Yo, Someone Forgot to Confirm!</p>"
+        e_mail_text = "Out of luck buddy!"
+
+    data = {
+
+            "template_name": "untitled-template",
+            "template_content": [
+                {
+                    "name": user.name,
+                    "content": email_text
+                }
+            ],
+            "to": [
+                    {
+                    "email": user.email,
+                    "name": user.name,
+                    "type": "to"
+                    }
+                   ],
+            "headers": {
+            "Reply-To": "no-reply@rideo.wrong-question.com"
+            },
+            "html": email_html,
+            "text": email_text,
+            "subject": "Carpool Confimation from RIDEO",
+            "from_email": "no-reply@rideo.wrong-question.com",
+            "from_name": "Rideo Confirmations",
+            "important": False,
+            "track_opens": None,
+            "track_clicks": None,
+            "auto_text": None,
+            "auto_html": None,
+            "inline_css": None,
+            "url_strip_qs": None,
+            "preserve_recipients": None,
+            "view_content_link": None,
+            "bcc_address": None,
+            "tracking_domain": None,
+            "signing_domain": None,
+            "return_path_domain": None,
+            "merge": True,
+            "merge_language": "mailchimp",
+            "global_merge_vars": [
+            {
+                "name": user.name,
+                "content": email_type
+            }
+            ],
+            "merge_vars": [
+                {
+                    "rcpt": user.name,
+                    "vars": [
+                    {
+                        "name": "merge2",
+                        "content": "merge2 content"
+                    }
+                ]
+                }
+            ],
+            "tags": [
+            email_type
+            ],
+            "subaccount": None,
+            "google_analytics_domains": [
+                None
+            ],
+            "google_analytics_campaign": None,
+            "metadata": {
+                "website": "rideo.wrong-question.com"
+            },
+        "recipient_metadata": [
+        {
+            "rcpt": user.email,
+            "values": {
+                "user_id": user.id
+            }
+        }
+        ],
+        # "images": [
+        #     {
+        #         "type": "image/png",
+        #         "name": "IMAGECID",
+        #         "content": "ZXhhbXBsZSBmaWxl"
+        #     }
+        # ]
+    }
+    return data
 
 
 def get_rider_phone_numbers(carpool):
@@ -261,22 +295,106 @@ def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
     driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+    api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
-    request = url.urlopen(api_call_url).read().decode("utf-8")
+    print(api_call_url)
+    errors = 0
+    while errors < 3:
+        request = url.urlopen(api_call_url).read().decode("utf-8")
+        if ValueError:
+            errors += 1
+        else:
+            request = json.loads(request)
+            stations = request["stations"]
+            prices = [station["reg_price"] for station in stations]
+            prices = [i for i in prices if i !="N/A"]
+            average_price = round(st.mean([float(price) for price in prices]), 2)
+            return average_price
+    return 2.4
+
+
+def get_vehicle_api_id(user_id):
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
+    make = vehicle.make
+    model = vehicle.model
+    year = vehicle.year
+    api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
+        (make, model, year, current_app.config["EDMUNDSAPIKEY"])
+    try:
+        request = url.urlopen(api_call_for_ID).read().decode("utf-8")
+        request = json.loads(request)
+        style_id = request["styles"][0]["id"]
+        return style_id, year
+    except urllib.error.HTTPError:
+        return "1", year
+
+
+
+def default_mpg(year):
+    if year >= 2000:
+        return "20"
+    elif year >= 1990:
+        return "18"
+    else:
+        return "12"
+
+
+def check_dict(dic):
+    if "Specifications" in dic.values():
+        return dic
+    if "Epa Combined Mpg" in dic.values():
+        return dic
+
+def clean_dict(list):
+    return [i for i in list if i != None]
+
+
+def get_mpg(style_id, year):
+    if style_id == "1":
+        return default_mpg(year)
+    api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
+        "equipment?fmt=json&api_key={}".format(style_id, current_app.config["EDMUNDSAPIKEY"])
+    request = url.urlopen(api_call_for_mpg).read().decode("utf-8")
     request = json.loads(request)
-    '''request is now a dictionary'''
-    stations = request["stations"]
-    '''stations is a list of dicts'''
-    prices = [station["reg_price"] for station in stations]
-    prices = [i for i in prices if i !="N/A"]
-    average_price = round(st.mean([float(price) for price in prices]), 2)
-    return average_price
+    equipment_list = request["equipment"]
+    specs = [check_dict(dic) for dic in equipment_list]
+    clean = clean_dict(specs)
+    attributes = clean[0]["attributes"]
+    mpg = [check_dict(dic) for dic in attributes]
+    clean_mpg = clean_dict(mpg)
+    combined_mpg = clean_mpg[0]["value"]
+    return combined_mpg
+
+
+def format_money(cost):
+    if "." not in cost:
+        cost = "$" + cost + ".00"
+        return cost
+    elif cost[-2] == ".":
+        cost = "$" + cost + "0"
+        return cost
+    else:
+        cost = "$" + cost
+        return cost
+
+
+def user_money(user_id):
+    driver = User.query.get(user_id)
+    home = (driver.latitude, driver.longitude)
+    work = Work.query.filter_by(user_id=user_id).first()
+    workplace = (work.latitude, work.longitude)
+    points = [home, workplace]
+    mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
+    gas_price = float(get_gas_prices(user_id))
+    result = get_directions(points)
+    distance = float(result["route"]["distance"])
+    cost = str(round((distance * 2) * gas_price / mpg, 2))
+    cost = format_money(cost)
+    return jsonify({"cost": cost}), 200
+
 
 def select_random_stat():
     filename = ("carpool_example_stats.txt")
     data = open("carpool_example_stats.txt").readlines()
     stats = random.choice(data).strip("\n")
-
     return stats
-select_random_stat()

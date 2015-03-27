@@ -13,6 +13,7 @@ from carpool_app.views.angular_view import (register_or_login_user,
                                             add_calendar, add_vehicle)
 from carpool_app.models import User, Work
 
+
 app = create_app()
 manager = Manager(app)
 
@@ -20,6 +21,7 @@ manager.add_command('server', Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command('show-urls', ShowUrls())
 manager.add_command('clean', Clean())
+
 
 
 @manager.shell
@@ -78,7 +80,7 @@ def seed_calendar():
     data = {}
     for user in users:
         data["work_id"] = Work.query.filter(Work.user_id == user.id).first().id
-        delta = timedelta(hours=18)
+        delta = timedelta(hours=18, minutes = 30)
         delta2 = timedelta(hours=24)
         data["arrival_datetime"] = datetime.today() + delta
         data["arrival_datetime"] = datetime.strftime(data["arrival_datetime"],
