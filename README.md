@@ -8,101 +8,21 @@ RID*EO* Mission:
 To promote all forms of ridesharing, connect communities, and provide a safe efficient service that can be used by
 any and all demographics.  
 
-At the heart of our application is a unique 'clustering’ algorithm that allows users to simply input three data points- 
+At the heart of our application is a unique clustering algorithm that allows users to simply input three data points- 
 (Home address, Work address, Work Schedule) and receive a personalized ridesharing opportunity to take advantage of.  Our goal is to strip away any pretense about ridesharing and connect like minded individuals that share a desire to move their community forward!
 
 ## Main Features
 Here are just a few of the things that RID*EO* does well:
 
- - We have a carpool class that will connect users by way of calenders and common driving times:
+ - We have a carpool class that will connect users by way of work schedule and location:
+   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/models.py#L106)
 
-```
-class Carpool(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    driver_accepted = db.Column(db.Boolean)
-    passenger_accepted = db.Column(db.Boolean)
-    driver_calendar_id = db.Column(db.Integer,
-                                   db.ForeignKey('calendar.id'),
-                                   nullable=False)
-    passenger_calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'),
-                                      nullable=False)
-    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
-    driver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+ - We have a cool function that searches for the best gas prices near your current carpool route:
+   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/tasks.py#L294)
 
-    @property
-    def users(self):
-        user1 = Calendar.query.filter(
-            Calendar.id == self.driver_calendar_id).first().user_id
-        user2 = Calendar.query.filter(
-            Calendar.id == self.passenger_calendar_id).first().user_id
-        return [user1, user2]
+ - We also have a beautiful user interface with some pretty nifty uses of html/css/javascript:
+   [Check out the code!](https://github.com/Bayesian-Skulls/carpool_app/blob/c3fe769e6dc9bf2fb76fb075ef388f8e47d3a180/carpool_app/tasks.py#L294)
 
-    @property
-    def details(self):
-        driver_arrival_time = Calendar.query.filter(
-            Calendar.id == self.driver_calendar_id).first().arrival_datetime
-        driver_depart_time = Calendar.query.filter(
-            Calendar.id == self.driver_calendar_id).first().departure_datetime
-        passenger_arrival_time = Calendar.query.filter(
-            Calendar.id == self.passenger_calendar_id).first().arrival_datetime
-        passenger_depart_time = Calendar.query.filter(
-            Calendar.id == self.passenger_calendar_id).first().\
-                departure_datetime
-        driver = User.query.filter(User.id == self.driver_id).first().to_dict()
-        passenger = User.query.filter(User.id == self.passenger_id).\
-            first().to_dict()
-        return {"driver":
-                    {
-                    "info": driver,
-                    "arrival": driver_arrival_time,
-                    "departure": driver_depart_time
-                    },
-                "passenger":
-                    {
-                    "info": passenger,
-                    "arrival": passenger_arrival_time,
-                    "departure": passenger_depart_time
-                    }
-                }
-
-    def to_dict(self):
-        return {"id": self.id,
-                "driver_accepted": self.driver_accepted,
-                "passenger_accepted": self.passenger_accepted,
-                "driver_calendar_id": self.driver_calendar_id,
-                "passenger_calendar_id": self.passenger_calendar_id,
-                "vehicle_id": self.vehicle_id,
-                "driver_id": self.driver_id,
-                "passenger_id": self.passenger_id
-                }
-```
-  - We have a function that searches for the best gas prices near your current carpool route:
-  
-```
-def get_gas_prices(driver_id):
-    driver = User.query.filter_by(id=driver_id).first()
-    driver_lat = driver.latitude
-    driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
-               "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
-    request = url.urlopen(api_call_url).read().decode("utf-8")
-    request = json.loads(request)
-    '''request is now a dictionary'''
-    stations = request["stations"]
-    '''stations is a list of dicts'''
-    prices = [station["reg_price"] for station in stations]
-    prices = [i for i in prices if i !="N/A"]
-    average_price = round(st.mean([float(price) for price in prices]), 2)
-    return average_price
-
-```
- 
-  - We also have a beautiful user interface with some pretty nifty uses of html/css/javascript:
-  
-```
-
-```
 
 
 
@@ -112,13 +32,6 @@ def get_gas_prices(driver_id):
 ```
 pip install -r requirements.txt
 ```
-
-## Additional Resources
-
-* 
-* 
-
-
 
 ## Contributing
 This is an open source project, and we would love any insight on how to improve our work!
