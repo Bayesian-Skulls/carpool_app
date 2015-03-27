@@ -301,4 +301,12 @@ def get_phone_numbers(carpool_id):
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([22])
+    return send_confirm_email([23])
+
+
+@api.route('/test/user/<int:user_id>')
+def login_test_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        login_user(user)
+        return jsonify({"user": user.to_dict()})
