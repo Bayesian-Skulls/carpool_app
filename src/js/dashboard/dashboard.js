@@ -6,8 +6,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
 
   var self = this;
   self.current = current;
@@ -15,12 +15,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
 
+  rideShareService.getRideShares().then(function(result) {
+    self.rideShare = result;
+  });
+
+  self.rideShareRes = function(res) {
+    var response = {
+      response: res
+    };
+    self.rideShare.you.accepted = res;
+    rideShareService.respond(response);
+    rideShareService.process();
+
+  };
+
   self.editProfile = function() {
     $location.path('/profile');
   };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
-
     workService.deleteWork(workItem).then(function(result) {
       if (result) {
         self.current.work.splice(index, 1);

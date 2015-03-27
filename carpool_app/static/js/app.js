@@ -23,8 +23,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
 
   var self = this;
   self.current = current;
@@ -32,12 +32,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
 
+  rideShareService.getRideShares().then(function(result) {
+    self.rideShare = result;
+  });
+
+  self.rideShareRes = function(res) {
+    var response = {
+      response: res
+    };
+    self.rideShare.you.accepted = res;
+    rideShareService.respond(response);
+    rideShareService.process();
+
+  };
+
   self.editProfile = function() {
     $location.path('/profile');
   };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
-
     workService.deleteWork(workItem).then(function(result) {
       if (result) {
         self.current.work.splice(index, 1);
@@ -111,28 +124,47 @@ app.directive('googleplace', function() {
 
 app.directive('maps', function() {
   return {
-      // require: 'ngModel',
       replace: true,
       scope: {
-          // ngModel: '=',
           // pickerType: '=?',
-          // details: '=?'
+          details: '=?'
       },
+      controller: ['rideShareService', '$scope', function(rideShareService, $scope) {
+        console.log($scope);
+
+        rideShareService.getRideShares().then(function(result){
+          var rideShare = result;
+          MQA.withModule('new-route', function() {
+          // uses the MQA.TileMap.addRoute function to pass in an array
+          // of locations as part of the request parameter
+            $scope.map.addRoute({
+              request: {
+                locations: [
+                  { latLng: { lat: rideShare.driver.info.latitude, lng: rideShare.driver.info.longitude }},
+                  { latLng: { lat: rideShare.passenger.info.latitude, lng: rideShare.passenger.info.longitude }},
+                  { latLng: { lat: rideShare.driver.work.latitude, lng: rideShare.driver.work.longitude }},
+                  { latLng: { lat: rideShare.passenger.work.latitude, lng: rideShare.passenger.work.longitude }}
+                ]
+              }
+            });
+          });
+        });
+
+
+      }],
       link: function(scope, element, attrs, model) {
-        console.log('hey, i loaded the maps');
+        console.log(element);
+        //  create an object for options
+        var options = {
+          elt: element[0],           // ID of map element on page
+          zoom: 10,                                      // initial zoom level of the map
+          mtype: 'map',                                  // map type (map, sat, hyb); defaults to map
+          bestFitMargin: 0,                              // margin offset from map viewport when applying a bestfit on shapes
+          zoomOnDoubleClick: true                        // enable map to be zoomed in when double-clicking on map
+        };
 
-         // create an object for options
-         var options = {
-           elt: document.getElementById('map'),           // ID of map element on page
-           zoom: 10,                                      // initial zoom level of the map
-           latLng: { lat: 39.743943, lng: -105.020089 },  // center of map in latitude/longitude
-           mtype: 'map',                                  // map type (map, sat, hyb); defaults to map
-           bestFitMargin: 0,                              // margin offset from map viewport when applying a bestfit on shapes
-           zoomOnDoubleClick: true                        // enable map to be zoomed in when double-clicking on map
-         };
-
-         // construct an instance of MQA.TileMap with the options object
-         element.map = new MQA.TileMap(options);
+        // construct an instance of MQA.TileMap with the options object
+        scope.map = new MQA.TileMap(options);
       }
   };
 });
@@ -190,7 +222,11 @@ app.directive('picker', function() {
             formatSubmit: 'yyyy/mm/dd'
           });
         } else if (scope.pickerType==='time') {
-          $(element[0]).pickatime();
+          $(element[0]).pickatime({
+            onSet: function(time) {
+              scope.details = time.select;
+            }
+          });
         }
       }
   };
@@ -436,12 +472,14 @@ app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, 
       var weekDate = today.getDate() + dateOffset + index;
       var departDate = new Date();
       var arriveDate = new Date();
+      $log.log(spec);
+      $log.log(spec);
       var depart = spec.departing.split(':');
       var arrive = spec.arriving.split(':');
-      departDate.setDate(weekDate);
-      arriveDate.setDate(weekDate);
-      departDate.setHours(depart[0], depart[1].slice(0,3), 0, 0);
-      arriveDate.setHours(arrive[0], arrive[1].slice(0,3), 0, 0);
+      departDate.setUTCDate(weekDate);
+      arriveDate.setUTCDate(weekDate);
+      departDate.setHours(Math.floor(spec.depart_time / 60), spec.depart_time % 60, 0, 0);
+      arriveDate.setHours(Math.floor(spec.arrive_time / 60), spec.arrive_time % 60, 0, 0);
       week.push(workDate({
         user_id: current.user.id,
         work_id: spec.work_id,
@@ -543,23 +581,14 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     },
     getRideShares: function() {
       return rideShareService.getRideShares().then(function(result) {
-        if (result.data.carpool.driver.info.id = currentSpec.user.id){
-          currentSpec.role = 'driver';
-          currentSpec.rideo = result.data.carpool.passenger;
-        } else {
-          currentSpec.role = 'passenger';
-          currentSpec.rideo = result.data.carpool.driver;
-        }
-        console.log(currentSpec.rideo);
-        currentSpec.rideShares = result.data.carpool;
+        currentSpec.rideShares = result;
       });
     },
     getStatus: function() {
       return $q.all([
         currentSpec.getWork(),
         currentSpec.getVehicles(),
-        currentSpec.getSchedule(),
-        currentSpec.getRideShares()]);
+        currentSpec.getSchedule()]);
     },
     vehicles: [],
     work: [],
@@ -692,49 +721,70 @@ app.factory('workService', ['ajaxService', '$http', function(ajaxService, $http)
 }]);
 
 app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
+  var rideShare;
 
-  return {
-
+  var self = {
     getRideShares: function() {
-        return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
-          return $q(function(resolve, reject) {
-            results.data.carpool.driver.arrival = new Date(results.data.carpool.driver.arrival);
-            results.data.carpool.driver.departure = new Date(results.data.carpool.driver.departure);
-            results.data.carpool.passenger.arrival = new Date(results.data.carpool.passenger.arrival);
-            results.data.carpool.passenger.departure = new Date(results.data.carpool.passenger.departure);
-            resolve(results);
-          });
+      if (rideShare !== undefined) {
+        return $q(function(resolve) {
+          resolve(rideShare);
         });
-    },
-    resRideSahre: function() {
-        return ajaxService.call($http.get('/api/v1/user/carpool'));
-    },
-    processDates: function(rideshare) {
-      // add date objects
-      rideshare.driver.arrival = new Date(rideshare.driver.arrival);
-      rideshare.driver.departure = new Date(rideshare.driver.departure);
-      rideshare.passenger.arrival = new Date(rideshare.passenger.arrival);
-      rideshare.passenger.departure = new Date(rideshare.passenger.departure);
-
-      // are we passenger or driver?
-      if (result.data.carpool.driver.info.id = currentSpec.user.id){
-        currentSpec.role = 'driver';
-        currentSpec.rideo = result.data.carpool.passenger;
-      } else {
-        currentSpec.role = 'passenger';
-        currentSpec.rideo = result.data.carpool.driver;
       }
-      return rideshare;
+      return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
+        rideShare = results.data.carpool;
+        self.process();
+        return $q(function(resolve, reject) {
+          resolve(results.data.carpool);
+        });
+      });
+    },
+    respond: function(res) {
+        res.carpool_id = rideShare.carpool_id;
+        return ajaxService.call($http.post('/api/v1/user/carpool', res));
+    },
+    process: function(result) {
+      // are we passenger or driver?
+      self.getStatus();
+      if (rideShare.driver.info.id === currentSpec.user.id){
+        rideShare.role = 'driver';
+        rideShare.you = self.isConfirmed(rideShare.driver);
+        rideShare.rideo = self.isConfirmed(rideShare.passenger);
+      } else {
+        rideShare.role = 'passenger';
+        rideShare.you = self.isConfirmed(rideShare.passenger);
+        rideShare.rideo = self.isConfirmed(rideShare.driver);
+      }
+      return result;
     },
 
-    getStatus: function(rideshare) {
-      // if( rideshare.driver.accepted === true && rideshare.passenger.accepted = ) {
-      //   // rideshare.status =
-      // }
+    isConfirmed: function(person) {
+      if (person.accepted === true) {
+        person.status = 'confirmed';
+      } else if (person.accepted === false) {
+        person.status = 'declined';
+      } else {
+        person.status = 'unconfirmed';
+      }
+      return person;
+    },
+
+    getStatus: function() {
+
+      if (rideShare.driver.accepted === true && rideShare.passenger.accepted === true) {
+        rideShare.status = 'confirmed';
+      } else if (rideShare.driver.accepted === false && rideShare.passenger.accepted === false) {
+        rideShare.status = 'declined';
+      } else {
+        rideShare.status = 'pending';
+      }
+
+
+      return rideShare;
     }
   };
+  return self;
+
 
 }]);
-
 
 //# sourceMappingURL=app.js.map

@@ -1,0 +1,47 @@
+body {
+  position:absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow:hidden;
+}
+
+.page-wrapper {
+  transition: all .5s ease-in;
+}
+
+.page-wrapper.ng-enter, .page-wrapper.ng-leave {
+  // -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+  // transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+  opacity: 0;
+  width:100%;
+}
+
+.page-wrapper.ng-enter {
+  position: relative;
+  left:100%;
+}
+.page-wrapper.ng-leave {
+  position: absolute;
+  left: -100%;
+}
+
+.page-wrapper.ng-enter.ng-enter-active {
+  left:0;
+  opacity: 1;
+}
+.page-wrapper.ng-leave.ng-leave-active {
+  left:-50%;
+  opacity: 1;
+}
+
+// .page-wrapper
+//
+// .page-wrapper.ng-enter {
+//
+// }
+//
+// .page-wrapper.ng-leave {
+//
+// }

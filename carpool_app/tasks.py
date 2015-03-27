@@ -390,4 +390,3 @@ def user_money(user_id):
     cost = str(round((distance * 2) * gas_price / mpg, 2))
     cost = format_money(cost)
     return jsonify({"cost": cost}), 200
-
