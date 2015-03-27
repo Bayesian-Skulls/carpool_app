@@ -15,10 +15,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
 
-  encouragementService.getCost().then(function(result) {
-    console.log(result);
-  });
-
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;

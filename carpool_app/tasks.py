@@ -368,13 +368,12 @@ def get_mpg(style_id, year):
 
 def format_money(cost):
     if "." not in cost:
-        cost = "$" + cost + ".00"
+        cost = cost + ".00"
         return cost
     elif cost[-2] == ".":
-        cost = "$" + cost + "0"
+        cost = cost + "0"
         return cost
     else:
-        cost = "$" + cost
         return cost
 
 
@@ -388,9 +387,11 @@ def user_money(user_id):
     gas_price = float(get_gas_prices(user_id))
     result = get_directions(points)
     distance = float(result["route"]["distance"])
-    cost = str(round((distance * 2) * gas_price / mpg, 2))
-    cost = format_money(cost)
-    return jsonify({"cost": cost}), 200
+    cost = round((distance * 2) * gas_price / mpg, 2)
+    half = round((cost / 2), 2)
+    total_cost = format_money(str(cost))
+    half_cost = format_money(str(half))
+    return jsonify({"cost": total_cost, "half_cost": half_cost}), 200
 
 
 def select_random_stat():
