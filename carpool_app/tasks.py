@@ -401,3 +401,19 @@ def select_random_stat():
     data = open("carpool_example_stats.txt").readlines()
     stats = random.choice(data).strip("\n")
     return stats
+
+
+def get_total_carpool_cost(carpool_id):
+    carpool = Carpool.query.get_or_404(carpool_id).details
+    points = [(carpool["driver"]["info"]["latitude"],
+               carpool["driver"]["info"]["longitude"]),
+              (carpool["passenger"]["info"]["latitude"],
+               carpool["passenger"]["info"]["longitude"]),
+              (carpool["passenger"]["work"]["latitude"],
+               carpool["passenger"]["work"]["longitude"]),
+              (carpool["driver"]["work"]["latitude"],
+               carpool["driver"]["work"]["longitude"])]
+
+    distance = get_directions(points)["route"]["distance"]
+
+    return distance
