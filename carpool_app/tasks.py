@@ -180,34 +180,49 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
+    results = []
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
-    for user in carpool_users:
+    for index, user in enumerate(carpool_users):
         current_user = User.query.get(user)
         data = generate_mandrill_request(current_user, "carpool_created")
-        result = mandrill_client.messages.send_template(
-            template_name="untitled-template", template_content=[],
-            message=data, async=False, ip_pool='Main Pool')
-    return jsonify({"results": result}), 200
+        content = [{"name": "TEXT1",
+                    "content": "Thank you for choosing RIDEO!"},
+                   {"name": "TEXT2",
+                    "content": "Your carpool for tomorrow has been assigned.\n"\
+                               "Your carpool buddy for tomorrow is {}".format(
+                               User.query.get(carpool_users[index-1]).name
+                               )}]
+        results.append(mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=content,
+            message=data, async=False, ip_pool='Main Pool'))
+    return jsonify({"results": results}), 200
+
+
+def send_unconfirmed_email(carpool_users):
+    results = []
+    mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
+    for index, user in enumerate(carpool_users):
+        current_user = User.query.get(user)
+        data = generate_mandrill_request(current_user, "unconfirmed_carpool")
+        content = [{"name": "TEXT1",
+                    "content": "Thank you for choosing RIDEO!"},
+                   {"name": "TEXT2",
+                    "content": "We regret to inform you that your carpool "\
+                               "was not confirmed for tomorrow."
+                    }]
+        results.append(mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=content,
+            message=data, async=False, ip_pool='Main Pool'))
+    return jsonify({"results": results}), 200
 
 
 def generate_mandrill_request(user, email_type):
-    email_html, email_text = "", ""
     if email_type == "carpool_created":
-        email_html = "<p>CREATED CARPOOL!</p>"
-        email_text = "This is some text!"
+        subject = "Carpool Information from RIDEO"
     elif email_type == "unconfirmed_carpool":
-        email_html = "<p>Yo, Someone Forgot to Confirm!</p>"
-        e_mail_text = "Out of luck buddy!"
-
+        subject = "A Message from RIDEO"
     data = {
-
-            "template_name": "untitled-template",
-            "template_content": [
-                {
-                    "name": user.name,
-                    "content": email_text
-                }
-            ],
+            "subject": subject,
             "to": [
                     {
                     "email": user.email,
@@ -218,69 +233,20 @@ def generate_mandrill_request(user, email_type):
             "headers": {
             "Reply-To": "no-reply@rideo.wrong-question.com"
             },
-            "html": email_html,
-            "text": email_text,
-            "subject": "Carpool Confimation from RIDEO",
             "from_email": "no-reply@rideo.wrong-question.com",
             "from_name": "Rideo Confirmations",
-            "important": False,
-            "track_opens": None,
-            "track_clicks": None,
-            "auto_text": None,
-            "auto_html": None,
             "inline_css": None,
-            "url_strip_qs": None,
-            "preserve_recipients": None,
-            "view_content_link": None,
-            "bcc_address": None,
-            "tracking_domain": None,
-            "signing_domain": None,
-            "return_path_domain": None,
             "merge": True,
             "merge_language": "mailchimp",
             "global_merge_vars": [
             {
-                "name": user.name,
-                "content": email_type
+                "name": "merge1",
+                "content": "merge1 content"
             }
-            ],
-            "merge_vars": [
-                {
-                    "rcpt": user.name,
-                    "vars": [
-                    {
-                        "name": "merge2",
-                        "content": "merge2 content"
-                    }
-                ]
-                }
             ],
             "tags": [
             email_type
-            ],
-            "subaccount": None,
-            "google_analytics_domains": [
-                None
-            ],
-            "google_analytics_campaign": None,
-            "metadata": {
-                "website": "rideo.wrong-question.com"
-            },
-        "recipient_metadata": [
-        {
-            "rcpt": user.email,
-            "values": {
-                "user_id": user.id
-            }
-        }
-        ],
-        # "images": [
-        #     {
-        #         "type": "image/png",
-        #         "name": "IMAGECID",
-        #         "content": "ZXhhbXBsZSBmaWxl"
-        #     }
-        # ]
+            ]
     }
     return data
 
@@ -377,11 +343,18 @@ def user_money(user_id):
     work = Work.query.filter_by(user_id=user_id).first()
     workplace = (work.latitude, work.longitude)
     points = [home, workplace]
+    return user_id, points
+
+
+def get_operands(user_id, points):
     mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
     gas_price = float(get_gas_prices(user_id))
-    result = get_directions(points)
-    distance = float(result["route"]["distance"])
-    cost = round((distance * 2) * gas_price / mpg, 2)
+    distance = get_directions(points)["route"]["distance"]
+    return distance, mpg, gas_price
+
+
+def calculate_trip_cost(distance, mpg, gas_price):
+    cost = round((float(distance) * 2) * gas_price / mpg, 2)
     half = round((cost / 2), 2)
     total_cost = format_money(str(cost))
     half_cost = format_money(str(half))
@@ -393,6 +366,7 @@ def select_random_stat():
     data = open("carpool_example_stats.txt").readlines()
     stats = random.choice(data).strip("\n")
     return stats
+
 
 
 def get_rider_phone_numbers(carpool):
@@ -421,4 +395,21 @@ def send_sms(carpool):
             message=data, async=False, ip_pool='Main Pool')
     return jsonify({"results": result}), 200
     pass
+
+
+def get_total_carpool_cost(carpool_id):
+    carpool = Carpool.query.get_or_404(carpool_id).details
+    points = [(carpool["driver"]["info"]["latitude"],
+               carpool["driver"]["info"]["longitude"]),
+              (carpool["passenger"]["info"]["latitude"],
+               carpool["passenger"]["info"]["longitude"]),
+              (carpool["passenger"]["work"]["latitude"],
+               carpool["passenger"]["work"]["longitude"]),
+              (carpool["driver"]["work"]["latitude"],
+               carpool["driver"]["work"]["longitude"])]
+    user_id = carpool["driver"]["info"]["id"]
+    operands = get_operands(*user_money(user_id))
+    operands = operands[1:]
+    distance = get_directions(points)["route"]["distance"]
+    return calculate_trip_cost(distance, *operands)
 

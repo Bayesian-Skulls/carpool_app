@@ -5,7 +5,7 @@ from random import randint, choice
 from seeder import generate_location_json
 from flask.ext.script import Manager
 from carpool_app import create_app, db
-from carpool_app.tasks import build_carpools, generate_mandrill_request
+from carpool_app.tasks import build_carpools, send_unconfirmed_email
 from seeder import generate_vehicle
 from datetime import datetime, date, time, timedelta
 from itertools import chain
@@ -65,32 +65,28 @@ manager = Manager(app)
 
 @manager.command
 def email_unconfirmed_carpools():
-    mandrill_client = mandrill.Mandrill(app.config["MANDRILL_KEY"])
     delta = timedelta(hours=2)
     delta_2 = timedelta(hours=2, minutes=30)
     target_time = datetime.now().replace(second=0, microsecond=0) + delta
     target_time_2 = datetime.now().replace(second=0, microsecond=0) + delta_2
-    calendars = Calendar.query.filter(Calendar.arrival_datetime > target_time)\
+    calendars = Calendar.query.filter(Calendar.arrival_datetime > target_time) \
         .filter(Calendar.arrival_datetime <= target_time_2).all()
     carpools = []
-    users = []
     for calendar in calendars:
-    	carpool = Carpool.query.filter(or_ ((Carpool.driver_calendar_id == calendar.id),
-    								  (Carpool.passenger_calendar_id == calendar.id))).\
-    							first()
-    	if (carpool not in carpools) and (carpool.driver_accepted == None or
-    									  carpool.passenger_accepted == None):
-    		carpools.append(carpool)
+        carpool = Carpool.query.filter(or_ ((Carpool.driver_calendar_id == calendar.id),
+                                            (Carpool.passenger_calendar_id == calendar.id))). \
+            first()
+        if (carpool not in carpools) and (not carpool.driver_accepted or
+                                                      not carpool.passenger_accepted):
+            carpools.append(carpool)
+    ids = []
     for carpool in carpools:
-    	users.append(User.query.get(carpool.driver_id))
-    	users.append(User.query.get(carpool.passenger_id))
-
-    for user in users:
-    	data = generate_mandrill_request(user, "unconfirmed_carpool")
-    	result = mandrill_client.messages.send(message=data, async=False,
-                                               ip_pool='Main Pool')
-    	with open("carpools.log", "a") as f:
-    		f.write(str(result[0]) + "\n")
+        ids.append(carpool.driver_id)
+        ids.append(carpool.passenger_id)
+    results = send_unconfirmed_email(ids)
+    for result in results:
+        with open("carpools.log", "a") as f:
+            f.write(str(result) + "\n")
     return "Success"
 
 
