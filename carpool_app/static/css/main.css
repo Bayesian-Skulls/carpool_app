@@ -2996,7 +2996,8 @@ select {
   background-color: #fff;
   padding: 2em;
   color: #4c6366;
-  text-align: left; }
+  text-align: left;
+  position: relative; }
 
 .page-profile__photo {
   width: 100%;
@@ -3031,9 +3032,24 @@ select {
     vertical-align: bottom; }
 
 .incomplete {
-  background-color: #8C3A37; }
+  background-color: #eed5d4; }
 
-/* Profile Dates*/
+.registration-incomplete {
+  font-family: 'Open Sans';
+  font-weight: bold;
+  position: absolute;
+  bottom: .5em;
+  right: 2em;
+  color: #8C3A37 !important; }
+
+.dashboard-section__status:hover button {
+  display: inline-block; }
+
+.confirm-button, .decline-button {
+  border-radius: 2em;
+  border: none; }
+
+/* Profile Page*/
 .profile-dates {
   display: inline-block;
   float: left;
@@ -3042,6 +3058,9 @@ select {
   width: 31.76157%; }
   .profile-dates:last-child {
     margin-right: 0; }
+
+.profile-page {
+  background-color: #fff; }
 
 body {
   position: absolute;

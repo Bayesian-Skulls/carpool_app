@@ -1,69 +1,37 @@
-<div class="register-page-wrapper page-wrapper">
+<div class="profile-page-wrapper page-wrapper">
   <div class="page-content">
     <main-nav page-header></main-nav>
-    <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
-    <form class="signup-form" ng-submit="vm.register()">
-
-      <div class="page-section">
-        <h5>Your Profile</h5>
-        <p>Hi my name is <input ng-hide="true" class="profile-input" type="text" ng-model="vm.current.user.name" placeholder="Enter your name" required>
-          <span>{{vm.current.user.name}}</span><a href="#">(edit)</a>
-          <br>
-          The best email to reach me at is <span>{{vm.current.user.email}}</span><a href="#">(edit)</a>
-          <!-- <input class="profile-input" type="email" name="user-email" ng-model="vm.current.user.email" placeholder="Enter your email" required><br> -->
-          The best place to pick me up at is <span>{{vm.current.user.address}}</span><a href="#">(edit)</a>
-          <!-- <input googleplace name="user-address" details="vm.current.user" class="profile-input address-input" type="text" autocomplete="off" ng-model="vm.current.user.address" required>. <br> -->
-          <!-- I want to use this paypal address to handle gas money -->
-          The best phone number to contact me is <span>{{vm.current.user.phone_number}}</span><a href="#">(edit)</a>
-          <!-- <input class="profile-input" type="text" name="user-phone-number" ng-model="vm.current.user.phone_number" placeholder="your phone number">. -->
-        </p>
-        <button class="register-button" ng-click="vm.editUser()">NEXT &rarr;</button>
-      </div>
-      <div>
-        <p>I work for <span>{{vm.current.work[0].name}}</span><a href="#">(edit)</a>
-          <!-- <input class="profile-input" type="text" name="workName" ng-model="vm.newWork.name" placeholder="Business Name">. -->
-          Their address is <span>{{vm.current.work[0].name}}</span>
-          <!-- <input googleplace name="work-address" details="vm.newWork" class="profile-input address-input" type="text" ng-model="vm.newWork.address" autcomplete="false">. -->
-        </p>
-        <!-- <p>I normally work
-          <select ng-model="vm.schedule.from">
-            <option ng-repeat="day in vm.weekdays" value="{{day}}">{{day}}</option>
-          </select> to
-          <select ng-model="vm.schedule.to">
-            <option ng-repeat="day in vm.weekdays">{{day}}</option>
-          <select>
-          from <input class="profile-input" name="schedule-departing" ng-model="vm.schedule.departing" details="vm.schedule.depart_time" picker picker-type="'time'">
-          to <input class="profile-input" name="schedule-returning" ng-model="vm.schedule.arriving" details="vm.schedule.arrive_time" picker picker-type="'time'">
-        </p>
-        <button class="register-button" ng-click="vm.addWorkFields()">NEXT &rarr;</button> -->
-      </div>
-      <div class="register-section page-section">
-        <p>I drive a <span>{{vm.current.vehicles[0].year}}</span><span>{{vm.current.vehicles[0].make}}</span><span>{{vm.current.vehicles[0].model}}</span>
-          <!-- <input class="profile-input" ng-model="vm.current.vehicles[0].year" type="text" name="name" value="" placeholder="YYYY"> -->
-          <!-- <input class="profile-input" ng-model="vm.current.vehicles[0].make" type="text" name="name" placeholder="Make">
-          <input class="profile-input" ng-model="vm.current.vehicles[0].model" type="text" name="name" placeholder="Model">. -->
-          My license plate number is <span>{{vm.current.vehicles[0].plate_number}}</span>
-          <!-- <input class="profile-input" ng-model="vm.current.vehicles[0].plate_number" type="text" name="name" placeholder="XXX-XXXX"> -->
-          My Driver's license number is <span>{{vm.current.user[0].drivers_license}}</span>
-          <!-- <input class="register-imput" ng-model="vm.current.user.drivers_license"> -->
-        </p>
-      </form>
-        <!-- <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button> -->
-      <div >
-        <div>
-          <h5>Scheduled Dates</h5>
-          <ul>
-            <li class="profile-dates" ng-repeat="date in vm.current.schedule">
-              <p>
-                {{ date.depart | date:"MMM, dd" }} <br>
-                LEAVE: {{ date.arrival_datetime | date: 'h:mma' }} <br>
-                RETURN: {{ date.departure_datetime | date: 'h:mma' }}
-                <button class="clear-button" ng-click="vm.deleteDate(date)">X</button>
-              </p>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <div class="page-section profile-page">
+        <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          <h5>Your Profile</h5>
+            <h5>{{vm.current.user.name}}</h5><a href="#">(edit)</a>
+            <ul class="page-profile__fields">
+              <li><i class="fa fa-envelope"> {{vm.current.user.email}}</i></li>
+              <li><i class="fa fa-map-marker"> {{vm.current.user.address}}</i></li>
+              <li><i class="fa fa-phone"> {{vm.current.user.phone_number}}</i></li>
+              <li ng-repeat="car in vm.current.vehicles">
+                <i class="fa fa-car"></i> {{car.year}} {{car.make}} {{car.model}} <br>
+                license plate {{car.plate_number}}</li>
+              <li ng-repeat="work in vm.current.work">
+                {{work.name}} {{work.address}}
+                <!-- <button ng-click="vm.deleteWork(work)">X</button> -->
+              </li>
+            </ul>
+          </p>
+          <button class="register-button" ng-click="vm.addVehicle()">UPDATE PROFILE</button>
+          <div>
+            <h5>Scheduled Dates</h5>
+            <ul>
+              <li class="profile-dates" ng-repeat="date in vm.current.schedule">
+                <p>
+                  {{ date.depart | date:"MMM, dd" }} <br>
+                  LEAVE: {{ date.arrival_datetime | date: 'h:mma' }} <br>
+                  RETURN: {{ date.departure_datetime | date: 'h:mma' }}
+                  <button ng-click="vm.deleteDate(date)">X</button>
+                </p>
+              </li>
+            </ul>
+          </div>
       </div>
   </div>
 

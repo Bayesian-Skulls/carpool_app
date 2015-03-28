@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email #, get_gas_prices, get_mpg, get_vehicle_api_id
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_directions #, get_gas_prices, get_mpg, get_vehicle_api_id
 
 
 
@@ -305,6 +305,12 @@ def accept_decline_carpool(user_id=None):
     db.session.commit()
     return jsonify({"carpool": current_carpool.details})
 
+
+@api.route('/cost/')
+@login_required
+def get_user_cost():
+    user_id = current_user.id
+    return user_money(user_id)
 
 
 @api.route('/tests')

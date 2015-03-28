@@ -182,8 +182,9 @@ def send_confirm_email(carpool_users):
     for user in carpool_users:
         current_user = User.query.get(user)
         data = generate_mandrill_request(current_user, "carpool_created")
-        result = mandrill_client.messages.send(message=data, async=False,
-                                               ip_pool='Main Pool')
+        result = mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=[],
+            message=data, async=False, ip_pool='Main Pool')
     return jsonify({"results": result}), 200
 
 
@@ -295,8 +296,9 @@ def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
     driver_lon = driver.longitude
-    api_call_url = "http://devapi.mygasfeed.com/stations/radius/{}/{}/5/" \
+    api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
                "reg/Price/{}.json".format(driver_lat, driver_lon, current_app.config["MYGASFEEDAPI"])
+    print(api_call_url)
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
@@ -367,13 +369,12 @@ def get_mpg(style_id, year):
 
 def format_money(cost):
     if "." not in cost:
-        cost = "$" + cost + ".00"
+        cost = cost + ".00"
         return cost
     elif cost[-2] == ".":
-        cost = "$" + cost + "0"
+        cost = cost + "0"
         return cost
     else:
-        cost = "$" + cost
         return cost
 
 
@@ -387,6 +388,31 @@ def user_money(user_id):
     gas_price = float(get_gas_prices(user_id))
     result = get_directions(points)
     distance = float(result["route"]["distance"])
-    cost = str(round((distance * 2) * gas_price / mpg, 2))
-    cost = format_money(cost)
-    return jsonify({"cost": cost}), 200
+    cost = round((distance * 2) * gas_price / mpg, 2)
+    half = round((cost / 2), 2)
+    total_cost = format_money(str(cost))
+    half_cost = format_money(str(half))
+    return jsonify({"cost": total_cost, "half_cost": half_cost}), 200
+
+
+def select_random_stat():
+    filename = ("carpool_example_stats.txt")
+    data = open("carpool_example_stats.txt").readlines()
+    stats = random.choice(data).strip("\n")
+    return stats
+
+
+def get_total_carpool_cost(carpool_id):
+    carpool = Carpool.query.get_or_404(carpool_id).details
+    points = [(carpool["driver"]["info"]["latitude"],
+               carpool["driver"]["info"]["longitude"]),
+              (carpool["passenger"]["info"]["latitude"],
+               carpool["passenger"]["info"]["longitude"]),
+              (carpool["passenger"]["work"]["latitude"],
+               carpool["passenger"]["work"]["longitude"]),
+              (carpool["driver"]["work"]["latitude"],
+               carpool["driver"]["work"]["longitude"])]
+
+    distance = get_directions(points)["route"]["distance"]
+
+    return distance

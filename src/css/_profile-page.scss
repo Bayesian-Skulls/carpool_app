@@ -2,3 +2,7 @@
   display: inline-block;
   @include span-columns(4);
 }
+
+.profile-page {
+  background-color: #fff;
+}
