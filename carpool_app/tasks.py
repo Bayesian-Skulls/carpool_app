@@ -178,6 +178,7 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
+    results = []
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for index, user in enumerate(carpool_users):
         current_user = User.query.get(user)
@@ -189,13 +190,14 @@ def send_confirm_email(carpool_users):
                                "Your carpool buddy for tomorrow is {}".format(
                                User.query.get(carpool_users[index-1]).name
                                )}]
-        result = mandrill_client.messages.send_template(
+        results.append(mandrill_client.messages.send_template(
             template_name="untitled-template", template_content=content,
-            message=data, async=False, ip_pool='Main Pool')
-    return jsonify({"results": result}), 200
+            message=data, async=False, ip_pool='Main Pool'))
+    return jsonify({"results": results}), 200
 
 
 def send_unconfirmed_email(carpool_users):
+    results = []
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for index, user in enumerate(carpool_users):
         current_user = User.query.get(user)
@@ -206,10 +208,10 @@ def send_unconfirmed_email(carpool_users):
                     "content": "We regret to inform you that your carpool "\
                                "was not confirmed for tomorrow."
                     }]
-        result = mandrill_client.messages.send_template(
+        results.append(mandrill_client.messages.send_template(
             template_name="untitled-template", template_content=content,
-            message=data, async=False, ip_pool='Main Pool')
-    return jsonify({"results": result}), 200
+            message=data, async=False, ip_pool='Main Pool'))
+    return jsonify({"results": results}), 200
 
 
 def generate_mandrill_request(user, email_type):
