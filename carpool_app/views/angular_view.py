@@ -325,7 +325,7 @@ def get_phone_numbers(carpool_id):
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([23])
+    return send_confirm_email([23, 23])
 
 
 @api.route('/test/user/<int:user_id>')
