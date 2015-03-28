@@ -189,7 +189,23 @@ def send_confirm_email(carpool_users):
                                "Your carpool buddy for tomorrow is {}".format(
                                User.query.get(carpool_users[index-1]).name
                                )}]
-        print(content)
+        result = mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=content,
+            message=data, async=False, ip_pool='Main Pool')
+    return jsonify({"results": result}), 200
+
+
+def send_unconfirmed_email(carpool_users):
+    mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
+    for index, user in enumerate(carpool_users):
+        current_user = User.query.get(user)
+        data = generate_mandrill_request(current_user, "unconfirmed_carpool")
+        content = [{"name": "TEXT1",
+                    "content": "Thank you for choosing RIDEO!"},
+                   {"name": "TEXT2",
+                    "content": "We regret to inform you that your carpool "\
+                               "was not confirmed for tomorrow."
+                    }]
         result = mandrill_client.messages.send_template(
             template_name="untitled-template", template_content=content,
             message=data, async=False, ip_pool='Main Pool')
@@ -197,7 +213,6 @@ def send_confirm_email(carpool_users):
 
 
 def generate_mandrill_request(user, email_type):
-    email_html, email_text = "", ""
     if email_type == "carpool_created":
         subject = "Carpool Information from RIDEO"
     elif email_type == "unconfirmed_carpool":
