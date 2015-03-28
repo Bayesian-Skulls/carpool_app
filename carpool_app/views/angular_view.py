@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money #, get_gas_prices, get_mpg, get_vehicle_api_id
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_directions #, get_gas_prices, get_mpg, get_vehicle_api_id
 
 
 
