@@ -100,9 +100,18 @@ def add_work(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    work = Work(**data)
-    db.session.add(work)
+    work = Work.query.filter_by(user_id=user_id).first()
+    if work:
+        for key in data.keys():
+            try:
+                setattr(work, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        work = Work(**data)
+        db.session.add(work)
     db.session.commit()
+    work = work.query.filter_by(user_id=user_id).first()
     result = work_schema.dump(Work.query.get(work.id))
     return jsonify({"message": "Added work", "work": result.data}), 200
 
@@ -120,9 +129,18 @@ def add_vehicle(user_id=None, data=None):
         if errors:
             return jsonify(errors), 400
     data["user_id"] = user_id
-    vehicle = Vehicle(**data)
-    db.session.add(vehicle)
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
+    if vehicle:
+        for key in data.keys():
+            try:
+                setattr(vehicle, key, data[key])
+            except IOError:
+                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+    else:
+        vehicle = Vehicle(**data)
+        db.session.add(vehicle)
     db.session.commit()
+    vehicle = Vehicle.query.filter_by(user_id=user_id).first()
     result = vehicle_schema.dump(Vehicle.query.get(vehicle.id))
     return jsonify({"message": "Added vehicle", "vehicle": result.data}), 200
 
