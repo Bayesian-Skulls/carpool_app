@@ -4,6 +4,7 @@ import statistics as st
 from random import random
 from datetime import datetime, timedelta
 import urllib
+from twilio.rest import TwilioRestClient
 from flask import current_app
 import urllib.request as url
 import mandrill
@@ -284,15 +285,6 @@ def generate_mandrill_request(user, email_type):
     return data
 
 
-def get_rider_phone_numbers(carpool):
-    for driver_id, passenger_id in carpool.users():
-        driver = User.query.filter_by(user_id=driver_id).first()
-        passenger = User.query.get(user_id=passenger_id).first()
-        driver_phone = driver.phone_number
-        pass_phone = passenger.phone_number
-    return driver_phone, pass_phone
-
-
 def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
@@ -401,3 +393,32 @@ def select_random_stat():
     data = open("carpool_example_stats.txt").readlines()
     stats = random.choice(data).strip("\n")
     return stats
+
+
+def get_rider_phone_numbers(carpool):
+    for driver_id, passenger_id in carpool.users():
+        driver = User.query.filter_by(user_id=driver_id).first()
+        passenger = User.query.get(user_id=passenger_id).first()
+        driver_phone = driver.phone_number
+        pass_phone = passenger.phone_number
+    return driver_phone, pass_phone
+
+
+def generate_sms_message(phone_number):
+    client = TwilioRestClient(current_app.config["ACCOUNT_SID"], current_app.config["AUTH_TOKEN"])
+    message = client.messages.create(body="This is your app.",
+    to="+{}",    # user number
+    from_="+19193440337").format(phone_number)  # Our Twilio number
+    return message.sid
+
+
+def send_sms(carpool):
+    for user in carpool.users:
+        current_user = User.query.get(user)
+        data = generate_mandrill_request(current_user, "carpool_created")
+        result = mandrill_client.messages.send_template(
+            template_name="untitled-template", template_content=[],
+            message=data, async=False, ip_pool='Main Pool')
+    return jsonify({"results": result}), 200
+    pass
+
