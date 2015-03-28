@@ -6,8 +6,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService){
 
   var self = this;
   self.current = current;
@@ -15,9 +15,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
 
-  rideShareService.getRideShares().then(function(result) {
-    self.rideShare = result;
-  });
+  self.getRideShares = function() {
+    rideShareService.getRideShares().then(function(result) {
+      self.rideShare = result;
+    });
+  };
+  self.getRideShares();
 
   self.rideShareRes = function(res) {
     var response = {
@@ -26,7 +29,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     self.rideShare.you.accepted = res;
     rideShareService.respond(response);
     rideShareService.process();
-
+    self.getRideShares();
   };
 
   self.editProfile = function() {

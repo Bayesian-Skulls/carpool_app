@@ -23,8 +23,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService){
 
   var self = this;
   self.current = current;
@@ -32,9 +32,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
 
-  rideShareService.getRideShares().then(function(result) {
-    self.rideShare = result;
-  });
+  self.getRideShares = function() {
+    rideShareService.getRideShares().then(function(result) {
+      self.rideShare = result;
+    });
+  };
+  self.getRideShares();
 
   self.rideShareRes = function(res) {
     var response = {
@@ -43,7 +46,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     self.rideShare.you.accepted = res;
     rideShareService.respond(response);
     rideShareService.process();
-
+    self.getRideShares();
   };
 
   self.editProfile = function() {
@@ -171,50 +174,82 @@ app.directive('maps', function() {
 
 app.directive('mileageChart', function() {
   return {
-      // require: 'ngModel',
       replace: true,
       templateUrl: '/static/js/directive/mileage-chart.html',
       scope: {
-          // ngModel: '=',
-          // pickerType: '=?',
-          // details: '=?'
+          details: '=?'
       },
+      controller: ['$scope', 'encouragementService', function($scope, encouragementService) {
+        var self = this;
+        encouragementService.getCost().then(function(result) {
+          self.cost = result.data;
+          $scope.showLevel(result.data.cost, result.data.half_cost);
+        });
+      }],
+      controllerAs: 'vm',
       link: function(scope, element, attrs, model) {
         var chart = c3.generate({
-          bindto: element[0].querySelector('.chart'),
-          data: {
-            columns: [
-              ['MILES/WEEK', 259, 130],
-              ['DOLLARS', 27, 13]
-            ],
-
-            type: 'bar'
-          },
-          axis: {
-            x: {
-              tick: {
-                format: function (d) {
-                  var labels = ['SOLO', 'RIDESHARE'];
-                  return labels[d % labels.length];
+            bindto: element[0].querySelector('.chart'),
+            data: {
+              columns: [
+                    ['data', 0]
+                ],
+                type: 'gauge',
+            },
+            gauge: {
+               label: {
+                   format: function(value, ratio) {
+                       return '$' + value;
+                   },
+                   min: 0,
+                   max: 50,
+                   unites: ' %'
+               },
+            },
+            color: {
+                pattern: ['000', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
+                threshold: {
+                   unit: 'value', // percentage is default
+                   max: 50, // 100 is default
+                    values: [30, 60, 90, 100]
                 }
-              }
-            }
-          },
-          color: {
-            pattern: ['#FFF', '#aaa']
-          }
+            },
         });
+        chart.load({
+            columns: [['data', 0]]
+        });
+
+        // switch between values every 3 seconds
+        function showLevel(cost, halfCost) {
+          chart.load({
+              columns: [['data', cost * 5]]
+          });
+          setTimeout(function () {
+            chart.load({
+                columns: [['data', halfCost * 5]]
+            });
+            setTimeout(function() {
+              showLevel(cost, halfCost);
+            }, 5000);
+          }, 5000);
+        }
+        scope.showLevel = showLevel;
+
+
+
+
+
       }
   };
 });
 
 app.directive('picker', function() {
   return {
-      require: 'ngModel',
+      // require: 'ngModel',
       scope: {
-          ngModel: '=',
+          // ngModel: '=',
           pickerType: '=?',
-          details: '=?'
+          // details: '=?'
       },
       link: function(scope, element, attrs, model) {
         if(scope.pickerType==='date'){
@@ -320,17 +355,81 @@ app.directive('mainNav', function() {
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
+    templateUrl: '/static/js/profile/profile.html',
+    controller: 'profileCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/profile', routeOptions);
+
+}]).controller('profileCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService){
+
+  var self = this;
+  self.current = current;
+  if (current.name) {
+    $locaton.path('/');
+  }
+
+  // self.getRideShares = function() {
+  //   rideShareService.getRideShares().then(function(result) {
+  //     self.rideShare = result;
+  //   });
+  // };
+  // self.getRideShares();
+  //
+  // self.rideShareRes = function(res) {
+  //   var response = {
+  //     response: res
+  //   };
+  //   self.rideShare.you.accepted = res;
+  //   rideShareService.respond(response);
+  //   rideShareService.process();
+  //   self.getRideShares();
+  // };
+
+  self.goTo = function(url) {
+    $location.path(url);
+  };
+  self.deleteDate = function(dateItem, index) {
+    $log.log(index);
+    scheduleService.deleteDate(dateItem).then(function(result) {
+      if (result) {
+        self.current.schedule.splice(index, 1);
+      }
+    });
+  };
+  self.editWork = function() {
+
+  }
+  self.editVehicle = function() {
+    
+  }
+  self.deleteWork = function(workItem, index) {
+    // IMPLEMENT 'are you sure?' if there are dates associated with this job
+    workService.deleteWork(workItem).then(function(result) {
+      if (result) {
+        self.current.work.splice(index, 1);
+      }
+      current.getSchedule();
+    });
+  };
+  self.deleteVehicle = function(carItem, index) {
+    vehicleService.deleteVehicle(carItem).then(function(result) {
+      if (result) {
+        self.current.vehicles.splice(index, 1);
+      }
+    });
+  };
+
+}]);
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
     templateUrl: '/static/js/register/register.html',
     controller: 'registerCtrl',
     controllerAs: 'vm'
   };
-  var routeOptions2 = {
-    templateUrl: '/static/js/profile/profile.html',
-    controller: 'registerCtrl',
-    controllerAs: 'vm'
-  };
   $routeProvider.when('/register', routeOptions);
-  $routeProvider.when('/profile', routeOptions2);
 
 }]).controller('registerCtrl', ['$log', '$location', 'current', 'Work', 'Schedule', 'userService', 'workService', 'scheduleService', 'Vehicle', 'vehicleService', '$timeout',
                         function($log, $location, current, Work, Schedule, userService, workService, scheduleService, Vehicle, vehicleService, $timeout){
@@ -400,25 +499,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/rideshare/rideshare.html',
-    controller: 'rideCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/rideshare', routeOptions);
-
-}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
-      function($log, $location, current, rideShareService){
-
-  var self = this;
-
-  rideShareService.getRideShares().then(function(result) {
-    $log.log(result);
-  });
-
-}]);
-
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
@@ -441,6 +521,63 @@ app.factory('StringUtil', function() {
       str = str || '';
       return str.slice(0, subStr.length) === subStr;
     }
+  };
+});
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
+
+}]);
+
+app.factory('encouragementService', ['ajaxService', '$http', 'current', function(ajaxService, $http, current) {
+
+  return {
+
+    getCost: function() {
+      return ajaxService.call($http.get('/api/v1/cost'));
+    },
+    // getEncouragement: function() {
+    //   return ajaxService.call($http.get('/api/v1/user/carpool'));
+    // }
+  };
+
+}]);
+
+app.directive('picker', function() {
+  return {
+      require: 'ngModel',
+      scope: {
+          ngModel: '=',
+          pickerType: '=?',
+          details: '=?'
+      },
+      link: function(scope, element, attrs, model) {
+        if(scope.pickerType==='date'){
+          $(element).pickadate({
+            formatSubmit: 'yyyy/mm/dd'
+          });
+        } else if (scope.pickerType==='time') {
+          $(element[0]).pickatime({
+            onSet: function(time) {
+              scope.details = time.select;
+            }
+          });
+        }
+      }
   };
 });
 

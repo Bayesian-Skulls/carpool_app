@@ -1,10 +1,10 @@
 app.directive('picker', function() {
   return {
-      // require: 'ngModel',
+      require: 'ngModel',
       scope: {
-          // ngModel: '=',
+          ngModel: '=',
           pickerType: '=?',
-          // details: '=?'
+          details: '=?'
       },
       link: function(scope, element, attrs, model) {
         if(scope.pickerType==='date'){
