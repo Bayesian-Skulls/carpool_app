@@ -385,11 +385,18 @@ def user_money(user_id):
     work = Work.query.filter_by(user_id=user_id).first()
     workplace = (work.latitude, work.longitude)
     points = [home, workplace]
+    return user_id, points
+
+
+def get_operands(user_id, points):
     mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
     gas_price = float(get_gas_prices(user_id))
-    result = get_directions(points)
-    distance = float(result["route"]["distance"])
-    cost = round((distance * 2) * gas_price / mpg, 2)
+    distance = get_directions(points)["route"]["distance"]
+    return distance, mpg, gas_price
+
+
+def calculate_trip_cost(distance, mpg, gas_price):
+    cost = round((float(distance) * 2) * gas_price / mpg, 2)
     half = round((cost / 2), 2)
     total_cost = format_money(str(cost))
     half_cost = format_money(str(half))
@@ -413,7 +420,8 @@ def get_total_carpool_cost(carpool_id):
                carpool["passenger"]["work"]["longitude"]),
               (carpool["driver"]["work"]["latitude"],
                carpool["driver"]["work"]["longitude"])]
-
+    user_id = carpool["driver"]["info"]["id"]
+    operands = get_operands(*user_money(user_id))
+    operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
-
-    return distance
+    return calculate_trip_cost(distance, *operands)
