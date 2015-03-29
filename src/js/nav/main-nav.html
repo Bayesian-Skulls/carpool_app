@@ -10,11 +10,10 @@
     <nav class="js-menu sliding-menu-content">
       <ul>
         <li class="mobile-li"><a href="#/">Home</a></li>
-        <li ng-hide="vm.current.user.email" class="mobile-li"><a href="#/register">Register</a></li>
+        <li ng-hide="vm.current.user.email" class="mobile-li"><a href="/facebook/login">Register</a></li>
         <li ng-show="vm.current.user.name"><a class="mobile-li" href="#/dashboard">Dashboard</a></li>
-        <li ng-show="vm.current.user.name"><a class="mobile-li" href="#/profile">Profile</a></li>
-        <li class="mobile-li"><a href="#/">Why Carpool?</a></li>
-        <li class="mobile-li"><a href="#/">How It Works</a></li>
+        <!-- <li class="mobile-li"><a href="#/">Why Carpool?</a></li>
+        <li class="mobile-li"><a href="#/">How It Works</a></li> -->
         <li class="mobile-li" ng-show="!vm.current.user.name"><a href="/facebook/login">Login</a></li>
         <li class="mobile-li" ng-show="vm.current.user.name" ng-click="vm.logout()"><a href="#">Logout</a></li>
       </ul>
