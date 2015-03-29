@@ -25,7 +25,6 @@ def get_line_shape(points, time=False):
         else:
             base_url += "&to={},{}".format(point[0], point[1])
     base_url += "&drivingStyle=2"
-    print(base_url)
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
     request = json.loads(re.findall(r"\((.+)\);", request)[0])
@@ -48,8 +47,15 @@ def create_route(driver, passenger=None):
     else:
         return [(driver["home_latitude"], driver["home_longitude"]),
                 (passenger["home_latitude"], passenger["home_longitude"]),
-                (passenger["work_latitude"], driver["work_longitude"]),
+                (passenger["work_latitude"], passenger["work_longitude"]),
                 (driver["work_latitude"], driver["work_longitude"])]
+
+
+def check_carpool_efficiency(driver, carpool_directions):
+   driver_directions = get_directions([(driver["user"]['latitude'], driver["user"]["longitude"]), (driver["work"]["latitude"], driver["work"]["longitude"])])
+   carpool_time = carpool_directions['route']['time']
+   driver_time = driver_directions['route']['time']
+   return not carpool_time >= (driver_time * 1.5)
 
 
 def create_users(num_users):
@@ -120,9 +126,9 @@ def pair_users(users):
                 potential_pair.append((row, row2))
         try:
             match = current.index(min(current))
+            pairs.append(potential_pair[match])
         except ValueError:
             continue
-        pairs.append(potential_pair[match])
         for item in users[index:]:
             if (item["name"] == pairs[-1][0]["name"] or
                     item["name"] == pairs[-1][1]["name"]):
@@ -137,10 +143,25 @@ def determine_best_route(user_pair):
     route_candidate_1 = create_route(user1, user2)
     route_candidate_2 = create_route(user1, user2)
 
-    driver, directions = select_driver(route_candidate_1, route_candidate_2)
+    driver, directions, time = select_driver(route_candidate_1, route_candidate_2)
+    if not driver:
+        driver = user1
+    else:
+        driver = user2
 
-    return directions
+    if check_carpool_efficiency(driver, directions, time):
+        return directions
+    else:
+        return None
 
+
+def check_carpool_efficiency(driver, carpool_directions, carpool_time):
+   driver_directions, driver_time = get_line_shape([(driver["home_latitude"],
+                                                     driver["home_longitude"]),
+                                                    (driver["work_latitude"],
+                                                     driver["work_longitude"])],
+                                                    time=True)
+   return not carpool_time >= (driver_time * 2)
 
 
 def select_driver(route_1, route_2):
@@ -148,6 +169,6 @@ def select_driver(route_1, route_2):
     route_2_directions, time_2 = get_line_shape(route_2, time=True)
 
     if (time_1 < time_2):
-        return 0, route_1_directions
+        return 0, route_1_directions, time_1
     else:
-        return 1, route_2_directions
+        return 1, route_2_directions, time_2
