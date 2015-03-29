@@ -30,11 +30,13 @@ class WorkSchema(Schema):
 
 
 def legit_year(year):
+    """determine valid year for vehicle"""
     if not 1930 <= year <= 2016:
         raise ValidationError("Invalid Year")
 
 
 def legit_rating(rating):
+    """determine a valid rating"""
     if not 0 <= rating <= 5:
         raise ValidationError("Invalid Rating")
 
