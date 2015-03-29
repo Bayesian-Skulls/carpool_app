@@ -10,11 +10,12 @@ import urllib.request as url
 import mandrill
 from flask import jsonify
 from random import shuffle
-from .extensions import db, config
+from .extensions import db
 from .models import User, Work, Calendar, Vehicle, Carpool
 
 
 def get_events_by_time():
+    """get carpool events 18 hours in the future"""
     start_time = timedelta(hours=18)
     end_time = timedelta(hours=18, minutes=30)
     start_time = datetime.now().replace(second=0, microsecond=0) + start_time
@@ -26,6 +27,7 @@ def get_events_by_time():
 
 
 def pair_event_and_driver():
+    """get user for event 18 hours in the future"""
     events = get_events_by_time()
     event_by_user = []
     for event in events:
@@ -36,6 +38,7 @@ def pair_event_and_driver():
 
 
 def pair_users():
+    """pair drivers with passengers"""
     data = pair_event_and_driver()
     data = prep_data(data)
     pairs = []
@@ -70,12 +73,14 @@ def pair_users():
 
 
 def prep_data(data):
+    """format data to be paired"""
     for item in data:
         item["matched"] = False
     return data
 
 
 def build_carpools():
+    """generate carpool objects"""
     new_carpools = []
     pairs = pair_users()
     for pair in pairs:
@@ -89,8 +94,8 @@ def build_carpools():
                                   driver_calendar_id=driver["event"]["id"],
                                   passenger_calendar_id=passenger["event"]["id"],
                                   vehicle_id=vehicle.id,
-                                  driver_id = driver["user"]["id"],
-                                  passenger_id = passenger["user"]["id"])
+                                  driver_id=driver["user"]["id"],
+                                  passenger_id=passenger["user"]["id"])
             db.session.add(new_carpool)
             new_carpools.append(new_carpool.to_dict())
     db.session.commit()
@@ -98,11 +103,13 @@ def build_carpools():
 
 
 def create_route(driver_home, passenger_home, driver_dest, passenger_dest):
+    """create list of stops on the route"""
     return [(driver_home), (passenger_home), (passenger_dest), (driver_dest)]
 
 
 
 def create_google_maps_link(driver_id, passenger_id):
+    """use route stops to generate a URL for mapquest"""
     driver = User.query.get(driver_id)
     driver_work = Work.query.filter(Work.user_id == driver_id).first()
     passenger = User.query.get(passenger_id)
@@ -123,6 +130,7 @@ def create_google_maps_link(driver_id, passenger_id):
 
 
 def determine_best_route(user_pair):
+    """iterate over pairs to determine possible routes"""
     user1, user2 = user_pair
     route_candidate_1 = create_route((user1["user"]["latitude"],
                                       user1["user"]["longitude"]),
@@ -155,8 +163,8 @@ def determine_best_route(user_pair):
             return None, None, None
 
 
-
 def check_carpool_efficiency(driver, carpool_directions):
+    """check the efficiency of the route"""
     driver_directions = get_directions([(driver["user"]['latitude'], driver["user"]["longitude"]), (driver["work"]["latitude"], driver["work"]["longitude"])])
     carpool_time = carpool_directions['route']['time']
     driver_time = driver_directions['route']['time']
@@ -164,6 +172,7 @@ def check_carpool_efficiency(driver, carpool_directions):
 
 
 def select_driver(route_1, route_2):
+    """determine which user in pair will drive"""
     route_1_directions = get_directions(route_1)
     route_2_directions = get_directions(route_2)
 
@@ -175,6 +184,7 @@ def select_driver(route_1, route_2):
 
 
 def get_directions(points):
+    """send stops to mapquest and get step by step directions"""
     base_url = "http://open.mapquestapi.com/directions/v2/route?key={}"\
                "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
                "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
@@ -195,6 +205,7 @@ def get_directions(points):
 
 
 def send_confirm_email(carpool_users):
+    """send email to users notifying them of their carpool status and partner"""
     results = []
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for index, user in enumerate(carpool_users):
@@ -214,6 +225,7 @@ def send_confirm_email(carpool_users):
 
 
 def send_unconfirmed_email(carpool_users):
+    """send email to user that his/her partner declined to participate"""
     results = []
     mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
     for index, user in enumerate(carpool_users):
@@ -232,6 +244,7 @@ def send_unconfirmed_email(carpool_users):
 
 
 def generate_mandrill_request(user, email_type):
+    """generate mandrill email"""
     if email_type == "carpool_created":
         subject = "Carpool Information from RIDEO"
     elif email_type == "unconfirmed_carpool":
@@ -267,6 +280,7 @@ def generate_mandrill_request(user, email_type):
 
 
 def get_gas_prices(driver_id):
+    """get average price of regular gas within a 5 mile radius of user's pickup address"""
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
     driver_lon = driver.longitude
@@ -282,19 +296,20 @@ def get_gas_prices(driver_id):
             request = json.loads(request)
             stations = request["stations"]
             prices = [station["reg_price"] for station in stations]
-            prices = [i for i in prices if i !="N/A"]
+            prices = [i for i in prices if i != "N/A"]
             average_price = round(st.mean([float(price) for price in prices]), 2)
             return average_price
     return 2.4
 
 
 def get_vehicle_api_id(user_id):
+    """get the Style ID of a vehicle via Edmunds API"""
     vehicle = Vehicle.query.filter_by(user_id=user_id).first()
     make = vehicle.make
     model = vehicle.model
     year = vehicle.year
     api_call_for_ID = "https://api.edmunds.com/api/vehicle/v2/{}/{}/{}?fmt=json&api_key={}".format \
-        (make, model, year, current_app.config["EDMUNDSAPIKEY"])
+                       (make, model, year, current_app.config["EDMUNDSAPIKEY"])
     try:
         request = url.urlopen(api_call_for_ID).read().decode("utf-8")
         request = json.loads(request)
@@ -304,8 +319,8 @@ def get_vehicle_api_id(user_id):
         return "1", year
 
 
-
 def default_mpg(year):
+    """return a default mpg for a vehicle not found in the Edmunds DB"""
     if year >= 2000:
         return "20"
     elif year >= 1990:
@@ -315,16 +330,20 @@ def default_mpg(year):
 
 
 def check_dict(dic):
+    """search Edmunds json for combined MPG"""
     if "Specifications" in dic.values():
         return dic
     if "Epa Combined Mpg" in dic.values():
         return dic
 
+
 def clean_dict(list):
+    """Clean out NoneType objects from json object"""
     return [i for i in list if i != None]
 
 
 def get_mpg(style_id, year):
+    """Get the EPA Combined MPG for a vehicle via the Edmunds API"""
     if style_id == "1":
         return default_mpg(year)
     api_call_for_mpg = "https://api.edmunds.com/api/vehicle/v2/styles/{}/"  \
@@ -342,6 +361,7 @@ def get_mpg(style_id, year):
 
 
 def format_money(cost):
+    """format money strings to reflect US Currency"""
     if "." not in cost:
         cost = cost + ".00"
         return cost
@@ -353,6 +373,7 @@ def format_money(cost):
 
 
 def user_money(user_id):
+    """get the coordinates of a user's home and workplace"""
     driver = User.query.get(user_id)
     home = (driver.latitude, driver.longitude)
     work = Work.query.filter_by(user_id=user_id).first()
@@ -362,6 +383,7 @@ def user_money(user_id):
 
 
 def get_operands(user_id, points):
+    """get operands of user and vehicle info to use in calculation"""
     mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
     gas_price = float(get_gas_prices(user_id))
     distance = get_directions(points)["route"]["distance"]
@@ -369,6 +391,7 @@ def get_operands(user_id, points):
 
 
 def calculate_trip_cost(distance, mpg, gas_price):
+    """use vehicle and user info to calculate the true cost of travel per day"""
     cost = round((float(distance) * 2) * gas_price / mpg, 2)
     half = round((cost / 2), 2)
     total_cost = format_money(str(cost))
@@ -377,6 +400,7 @@ def calculate_trip_cost(distance, mpg, gas_price):
 
 
 def select_random_stat():
+    """generate a random carpool stat for dashboard"""
     filename = ("carpool_example_stats.txt")
     data = open("carpool_example_stats.txt").readlines()
     stats = random.choice(data).strip("\n")
@@ -385,6 +409,7 @@ def select_random_stat():
 
 
 def get_rider_phone_numbers(carpool):
+    """get the phone numbers associated with each carpool object"""
     for driver_id, passenger_id in carpool.users():
         driver = User.query.filter_by(user_id=driver_id).first()
         passenger = User.query.get(user_id=passenger_id).first()
@@ -394,6 +419,7 @@ def get_rider_phone_numbers(carpool):
 
 
 def generate_sms_message(phone_number):
+    """create and send sms message"""
     print(phone_number)
     client = TwilioRestClient(current_app.config["ACCOUNT_SID"], current_app.config["AUTH_TOKEN"])
     message = client.messages.create(body="You trip for tomorrow has been planned. Please go to RIDEO to confirm.",
@@ -402,6 +428,7 @@ def generate_sms_message(phone_number):
 
 
 def send_sms(carpool):
+    """send sms to both users in a carpool"""
     for user in carpool.users:
         current_user = User.query.get(user)
         data = generate_sms_message(current_user.phone_number)
@@ -409,6 +436,7 @@ def send_sms(carpool):
 
 
 def get_total_carpool_cost(carpool_id):
+    """calculate the true cost of the driving the full carpool route"""
     carpool = Carpool.query.get_or_404(carpool_id).details
     points = [(carpool["driver"]["info"]["latitude"],
                carpool["driver"]["info"]["longitude"]),
@@ -423,4 +451,3 @@ def get_total_carpool_cost(carpool_id):
     operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
     return calculate_trip_cost(distance, *operands)
-
