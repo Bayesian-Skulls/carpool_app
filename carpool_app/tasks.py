@@ -1,6 +1,7 @@
 import json
 import re
 import statistics as st
+from random import random
 from datetime import datetime, timedelta
 import urllib
 from flask import current_app
@@ -78,18 +79,19 @@ def build_carpools():
     pairs = pair_users()
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
-        send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
-        vehicle = Vehicle.query.filter(Vehicle.user_id ==
-                                       driver["user"]["id"]).first()
-        new_carpool = Carpool(driver_accepted=None,
-                              passenger_accepted=None,
-                              driver_calendar_id=driver["event"]["id"],
-                              passenger_calendar_id=passenger["event"]["id"],
-                              vehicle_id=vehicle.id,
-                              driver_id = driver["user"]["id"],
-                              passenger_id = passenger["user"]["id"])
-        db.session.add(new_carpool)
-        new_carpools.append(new_carpool.to_dict())
+        if driver:
+            send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
+            vehicle = Vehicle.query.filter(Vehicle.user_id ==
+                                           driver["user"]["id"]).first()
+            new_carpool = Carpool(driver_accepted=None,
+                                  passenger_accepted=None,
+                                  driver_calendar_id=driver["event"]["id"],
+                                  passenger_calendar_id=passenger["event"]["id"],
+                                  vehicle_id=vehicle.id,
+                                  driver_id = driver["user"]["id"],
+                                  passenger_id = passenger["user"]["id"])
+            db.session.add(new_carpool)
+            new_carpools.append(new_carpool.to_dict())
     db.session.commit()
     return jsonify({"carpools": new_carpools})
 
@@ -141,9 +143,23 @@ def determine_best_route(user_pair):
     driver, directions = select_driver(route_candidate_1, route_candidate_2)
 
     if not driver:
-        return user1, user2, directions
+        if check_carpool_efficiency(user1, directions):
+            return user1, user2, directions
+        else:
+            return None, None, None
     else:
-        return user2, user1, directions
+        if check_carpool_efficiency(user2, directions):
+            return user2, user1, directions
+        else:
+            return None, None, None
+
+
+
+def check_carpool_efficiency(driver, carpool_directions):
+    driver_directions = get_directions([(driver["user"]['latitude'], driver["user"]["longitude"]), (driver["work"]["latitude"], driver["work"]["longitude"])])
+    carpool_time = carpool_directions['route']['time']
+    driver_time = driver_directions['route']['time']
+    return not carpool_time >= (driver_time * 1.5)
 
 
 def select_driver(route_1, route_2):
@@ -350,11 +366,18 @@ def user_money(user_id):
     work = Work.query.filter_by(user_id=user_id).first()
     workplace = (work.latitude, work.longitude)
     points = [home, workplace]
+    return user_id, points
+
+
+def get_operands(user_id, points):
     mpg = float(get_mpg(*get_vehicle_api_id(user_id)))
     gas_price = float(get_gas_prices(user_id))
-    result = get_directions(points)
-    distance = float(result["route"]["distance"])
-    cost = round((distance * 2) * gas_price / mpg, 2)
+    distance = get_directions(points)["route"]["distance"]
+    return distance, mpg, gas_price
+
+
+def calculate_trip_cost(distance, mpg, gas_price):
+    cost = round((float(distance) * 2) * gas_price / mpg, 2)
     half = round((cost / 2), 2)
     total_cost = format_money(str(cost))
     half_cost = format_money(str(half))
@@ -378,7 +401,8 @@ def get_total_carpool_cost(carpool_id):
                carpool["passenger"]["work"]["longitude"]),
               (carpool["driver"]["work"]["latitude"],
                carpool["driver"]["work"]["longitude"])]
-
+    user_id = carpool["driver"]["info"]["id"]
+    operands = get_operands(*user_money(user_id))
+    operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
-
-    return distance
+    return calculate_trip_cost(distance, *operands)

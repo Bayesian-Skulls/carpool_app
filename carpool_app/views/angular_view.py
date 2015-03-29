@@ -6,7 +6,9 @@ from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_directions #, get_gas_prices, get_mpg, get_vehicle_api_id
+
+from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_gas_prices, get_directions, get_mpg, get_vehicle_api_id
+from ..tasks import calculate_trip_cost, get_operands, get_total_carpool_cost
 
 
 
@@ -310,7 +312,13 @@ def accept_decline_carpool(user_id=None):
 @login_required
 def get_user_cost():
     user_id = current_user.id
-    return user_money(user_id)
+    return calculate_trip_cost(*get_operands(*user_money(user_id)))
+
+
+@api.route('/<carpool_id>/carpool_cost')
+def get_carpool_cost(carpool_id):
+    return get_total_carpool_cost(carpool_id)
+
 
 
 @api.route('/tests')
@@ -321,6 +329,11 @@ def test_function():
 @api.route('/<carpool_id>/phones', methods=["GET"])
 def get_phone_numbers(carpool_id):
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
+
+
+@api.route('/<user_id>/cost', methods=["GET"])
+def test_cost(user_id):
+    return calculate_trip_cost(*get_operands(*user_money(user_id)))
 
 
 @api.route('/test2')

@@ -17,6 +17,7 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       });
     },
     respond: function(res) {
+        console.log('rideShare');
         res.carpool_id = rideShare.carpool_id;
         return ajaxService.call($http.post('/api/v1/user/carpool', res));
     },

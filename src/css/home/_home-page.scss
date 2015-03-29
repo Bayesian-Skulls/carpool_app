@@ -4,15 +4,16 @@
   @media only screen and (min-width: 768px) {
     @include span-columns(4);
   }
+  margin-bottom: 3em;
 }
 
 .page-info-text {
+  text-align: left;
   font-weight: 200;
   line-height: 1.4em;
-  padding: 1em;
+  margin: 1em auto;
   max-width: 333px;
-  margin: 0 auto;
-  animation: pullDown 1s ease-in forwards;
+  animation: pullDown .5s forwards;
 }
 
 .page-info-heading {
@@ -49,9 +50,19 @@
   }
 }
 
+.page-info-paragraph {
+  // @include span-columns(12);
+  // @media only screen and (min-width: 768px) {
+  //   @include span-columns(6);
+  // }
+  max-width: 30em;
+  margin: 5em auto;
+  // animation: pullDown 1s ease-in forwards;
+}
+
 .home-page-content {
+  @include outer-container(980px);
   text-align: center;
-  max-width: $container-width;
   margin: 0 auto;
 }
 .home-page-wrapper {

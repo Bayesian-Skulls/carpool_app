@@ -6,7 +6,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', function($log, $location, current, Work){
+}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', '$anchorScroll', function($log, $location, current, Work, $anchorScroll){
   var self = this;
   current.page = '/';
   self.current = current;
@@ -16,4 +16,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     self.current.work = self.newWork;
     $location.path('/facebook/login');
   };
+
+  self.showInfo = function(info) {
+    console.log(info);
+    self.pageInfo = info;
+
+    $location.hash('how');
+    $anchorScroll();
+  }
 }]);

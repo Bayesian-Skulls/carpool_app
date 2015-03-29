@@ -23,11 +23,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService', '$anchorScroll',
+      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService, $anchorScroll){
 
   var self = this;
   self.current = current;
+  self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
   if (current.name) {
     $locaton.path('/');
   }
@@ -39,19 +40,50 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   self.getRideShares();
 
-  self.rideShareRes = function(res) {
+  self.rideShareResponse = function() {
     var response = {
-      response: res
+      response: self.rideShare.you.accepted
     };
-    self.rideShare.you.accepted = res;
+    console.log('dashboard fired');
     rideShareService.respond(response);
     rideShareService.process();
     self.getRideShares();
-  };
+  }
+
+  // self.rideShareRes = function(res) {
+  //   var response = {
+  //     response: res
+  //   };
+  //   self.rideShare.you.accepted = res;
+  //   rideShareService.respond(response).then(function(result){
+  //     $log.log('result');
+  //     $log.log(result);
+  //   });
+  //   rideShareService.process();
+  //   self.getRideShares();
+  // };
 
   self.editProfile = function() {
-    $location.path('/profile');
+    $location.hash('profile')
+    $anchorScroll();
   };
+
+  self.edit = function() {
+    console.log(self.current);
+    userService.editUser(self.current.user).then(function(result) {
+      console.log(result);
+    });
+    //
+    vehicleService.addVehicle(self.current.vehicles[0]).then(function(result) {
+      console.log(result);
+    });
+
+    workService.addWork(self.current.work[0], current.user).then(function(result) {
+      console.log(result);
+      self.current.work[0] = result.data.work;
+    });
+  }
+
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
     workService.deleteWork(workItem).then(function(result) {
@@ -61,6 +93,13 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       current.getSchedule();
     });
   };
+  self.addDate = function(dateItem) {
+    self.schedule.user_id = current.user.id;
+    console.log(self.schedule);
+    scheduleService.addDate(self.schedule).then(function(result) {
+      console.log(result);
+    });
+  }
   self.deleteDate = function(dateItem, index) {
     $log.log(index);
     scheduleService.deleteDate(dateItem).then(function(result) {
@@ -76,6 +115,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       }
     });
   };
+  self.getStat = function() {
+    encouragementService.getStat().then(function(data) {
+      self.stat = data;
+    });
+  }
+  self.getStat();
 
 }]);
 
@@ -133,7 +178,6 @@ app.directive('maps', function() {
           details: '=?'
       },
       controller: ['rideShareService', '$scope', function(rideShareService, $scope) {
-        console.log($scope);
 
         rideShareService.getRideShares().then(function(result){
           var rideShare = result;
@@ -156,14 +200,13 @@ app.directive('maps', function() {
 
       }],
       link: function(scope, element, attrs, model) {
-        console.log(element);
         //  create an object for options
         var options = {
           elt: element[0],           // ID of map element on page
           zoom: 10,                                      // initial zoom level of the map
           mtype: 'map',                                  // map type (map, sat, hyb); defaults to map
           bestFitMargin: 0,                              // margin offset from map viewport when applying a bestfit on shapes
-          zoomOnDoubleClick: true                        // enable map to be zoomed in when double-clicking on map
+          zoomOnDoubleClick: true,
         };
 
         // construct an instance of MQA.TileMap with the options object
@@ -206,6 +249,9 @@ app.directive('mileageChart', function() {
                    unites: ' %'
                },
             },
+            tooltip: {
+              show: false
+            },
             color: {
                 pattern: ['000', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
                 threshold: {
@@ -245,11 +291,9 @@ app.directive('mileageChart', function() {
 
 app.directive('picker', function() {
   return {
-      // require: 'ngModel',
       scope: {
-          // ngModel: '=',
           pickerType: '=?',
-          // details: '=?'
+          details: '=?'
       },
       link: function(scope, element, attrs, model) {
         if(scope.pickerType==='date'){
@@ -275,7 +319,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/', routeOptions);
 
-}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', function($log, $location, current, Work){
+}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', '$anchorScroll', function($log, $location, current, Work, $anchorScroll){
   var self = this;
   current.page = '/';
   self.current = current;
@@ -285,7 +329,75 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     self.current.work = self.newWork;
     $location.path('/facebook/login');
   };
+
+  self.showInfo = function(info) {
+    console.log(info);
+    self.pageInfo = info;
+
+    $location.hash('how');
+    $anchorScroll();
+  }
 }]);
+
+app.directive('footerNav', function() {
+
+  return {
+
+    replace: true,
+
+    scope: {
+      onclose: '='
+    },
+
+    templateUrl: '/static/js/nav/footer-nav.html',
+
+    controller: ['$location', 'StringUtil', '$log', 'current', '$scope', '$rootScope', 'userService',
+    function($location, StringUtil, $log, current, $scope, $rootScope, userService) {
+      var self = this;
+      self.current = current;
+
+      self.logout = function() {
+        userService.logout().then(function () {
+          $location.path('/');
+        });
+      };
+
+      $rootScope.$on('$routeChangeSuccess', function() {
+        self.page = $location.path();
+        // if (self.page === '/register') {
+        //   $('body').css('background-color', '#8C3A37');
+        // } else if(self.page === '/dashboard') {
+        //   $('body').css('background-color', '#83A9AE');
+        // } else if(self.page === '/') {
+        //   $('body').css('background-color', '#627F83');
+        // }
+      });
+
+      self.isActive = function (path) {
+        // The default route is a special case.
+        if (path === '/') {
+          return $location.path() === '/';
+        }
+        return StringUtil.startsWith($location.path(), path);
+      };
+
+      self.goTo = function(elem) {
+        $location.hash(elem);
+        $anchorScroll();
+      };
+
+    }],
+
+    controllerAs: 'vm',
+
+    link: function ($scope, element, attrs, ctrl) {
+
+    }
+  };
+
+
+
+});
 
 app.directive('mainNav', function() {
 
@@ -499,6 +611,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
+
+}]);
+
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
@@ -524,72 +655,65 @@ app.factory('StringUtil', function() {
   };
 });
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/rideshare/rideshare.html',
-    controller: 'rideCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/rideshare', routeOptions);
+app.factory('encouragementService', ['ajaxService', '$http', 'current', '$q', function(ajaxService, $http, current, $q) {
 
-}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
-      function($log, $location, current, rideShareService){
-
-  var self = this;
-
-  rideShareService.getRideShares().then(function(result) {
-    $log.log(result);
-  });
-
-}]);
-
-app.factory('encouragementService', ['ajaxService', '$http', 'current', function(ajaxService, $http, current) {
+  var stats = [
+    'In some cities there are HOV (High Occupancy Vehicle) lanes, which are meant to be used only by those who are carpooling and are designed to make your commute time faster.Taking the HOV lane can cut your commute time down by as much as half.',
+    'An average American spends 40 hours each year stuck in traffic... Wouldn\'t it be nice to share the ride?',
+    'About 51% of the people who carpoolers are in the same family and 40% of people carpool with their apartment or flat mates.',
+    'As much as 77% of carpoolers ride with just one other person.',
+    'The average carpooler can cut out as much as $600 each month on the cost of their commuting drive.',
+    'About 78% Americans drive to work without carpooling at all, which is part of a peculiar two decade-long decrease in carpooling.',
+    'The EO in RidEO is an irregular latin verb meaning- "To Go"',
+    'By carpooling just twice a week, 1,600 pounds of greenhouse gases can be kept out of the air each year.',
+    'If 100 people were to take advantage of the carpool option every day, more than of 1,320 pounds of carbon monoxide and 2,376,000 pounds of carbon dioxide could be removed from the air.',
+    'About 18% of a person’s monthly budget it taken up in car maintenance, repairs, and gas.',
+    'If you add at least one carpooler whom you split costs with, it may add 5-10 minutes onto your drive time but will reduce your bills and expenses by half; adding more people means even more savings.',
+    'Carpooling means fewer cars on the road each day which means less oil usage, and this can help reduce the nation’s dependency on foreign oil.',
+    'If everyone opted to carpool just one day a week, the traffic on the nation’s major highways and roads would be reduced by as much as 20%.',
+    'Total percent of people who carpool with a family member - 51%',
+    'Percent of people who carpool with someone that they live with  - 40%',
+    'Percent of Americans who carpool - 10%',
+    'Percent of people who carpool with just 1 other person - 77.3%',
+    'Percent of Americans who drive to work solo - 78%',
+    'Percent of traffic that would die down if everyone carpooled once a week - 20%',
+    'Total amount of gas saved yearly by carpooling - 85 million gallons',
+    'Total amount of miles avoided traffic every year by carpooling - 56,000 miles',
+    'Total amount of money saved by carpooling every year - $1.1 billion'
+  ];
 
   return {
 
     getCost: function() {
       return ajaxService.call($http.get('/api/v1/cost'));
     },
-    // getEncouragement: function() {
-    //   return ajaxService.call($http.get('/api/v1/user/carpool'));
-    // }
+    getStat: function() {
+      // return ajaxService.call($http.get('/api/v1/user/carpool'));
+      var length = stats.length;
+      var statIndex = Math.floor(Math.random() * length);
+      return $q(function(resolve, reject) {
+          resolve(stats[statIndex]);
+      });
+    }
   };
 
 }]);
 
-app.directive('picker', function() {
-  return {
-      require: 'ngModel',
-      scope: {
-          ngModel: '=',
-          pickerType: '=?',
-          details: '=?'
-      },
-      link: function(scope, element, attrs, model) {
-        if(scope.pickerType==='date'){
-          $(element).pickadate({
-            formatSubmit: 'yyyy/mm/dd'
-          });
-        } else if (scope.pickerType==='time') {
-          $(element[0]).pickatime({
-            onSet: function(time) {
-              scope.details = time.select;
-            }
-          });
-        }
-      }
-  };
-});
-
-app.factory('workDate', [function(){
+app.factory('workDate', [ function(){
 
   return function (spec) {
-    return {
-      user_id: spec.user_id || undefined,
-      work_id: spec.work_id || undefined,
+    console.log(spec);
+    var departDate = new Date(spec.date);
+    var arriveDate = new Date(spec.date);
+    console.log(departDate);
+    console.log(arriveDate);
+    var date = {
+      user_id: spec.user_id || current.user.id,
+      work_id: spec.work_id || current.work[0].id,
       arrival_datetime: spec.arrival_datetime || undefined,
       departure_datetime: spec.departure_datetime || undefined
-    };
+    }
+    return date;
   };
 }]);
 
@@ -689,8 +813,12 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     getWork: function() {
       return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
+        currentSpec.work.forEach(function(work, index) {
+          work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+        })
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
+        } else {
         }
       });
     },
@@ -714,6 +842,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
+        $log.log(currentSpec);
       });
     },
     getRideShares: function() {
@@ -751,12 +880,13 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
 
 }]);
 
-app.factory('scheduleService', ['ajaxService', '$http', function(ajaxService, $http) {
+app.factory('scheduleService', ['ajaxService', '$http', 'workDate', function(ajaxService, $http, workDate) {
 
   return {
 
     addDate: function(date) {
-      ajaxService.call($http.post('/api/v1/user/calendar', date));
+      console.log(workDate(date));
+      // ajaxService.call($http.post('/api/v1/user/calendar', date));
     },
     addDates: function(dates) {
         dates.forEach(function(date) {
@@ -876,6 +1006,7 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       });
     },
     respond: function(res) {
+        console.log('rideShare');
         res.carpool_id = rideShare.carpool_id;
         return ajaxService.call($http.post('/api/v1/user/carpool', res));
     },

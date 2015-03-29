@@ -36,6 +36,7 @@ nav li {
 .page-section {
   overflow: auto;
   padding: 1em;
+  color: #fff;
 }
 
 .hidden {
@@ -65,16 +66,20 @@ nav li {
   top: 0;
   left: 0;
   right: 0;
-  padding: 1em;
   background-color: $primary-color;
 }
 
 // Conditional body colors
 
-// .page-footer {
-//   height: 10em;
-//   overflow: auto;
-//   @include background(url('/static/img/homepageimg.jpg'), linear-gradient(10deg, $primary-color, darken($primary-color, 20%)), no-repeat $primary-color scroll);
-//   background-attachment: fixed;
-//   background-size: cover;
-// }
+.page-footer {
+  text-align: center;
+  background-color: $secondary-color;
+  height: 5em;
+  padding: 2em;
+  color: #fff;
+  margin: 0 auto;
+  
+  a:hover {
+    color: #ddd;
+  }
+}
