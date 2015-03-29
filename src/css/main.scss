@@ -10,13 +10,13 @@
 @import 'neat/neat';
 @import 'font-awesome/font-awesome';
 
-
 /*  RIDEO CSS  */
 @import 'colors';
 @import 'defaults';
 @import 'fonts';
 @import 'common-layout';
 @import 'animations';
+@import 'components/components';
 
 /* Home Page */
 @import 'home/hero-content';
@@ -27,7 +27,8 @@
 @import 'register/register-page';
 
 /* Navigation */
-@import 'main-nav';
+@import 'nav/main-nav';
+@import 'nav/footer-nav';
 
 /* Dashboard */
 @import 'dashboard/dashboard';

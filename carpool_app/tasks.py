@@ -80,18 +80,19 @@ def build_carpools():
     pairs = pair_users()
     for pair in pairs:
         driver, passenger, directions = determine_best_route(pair)
-        send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
-        vehicle = Vehicle.query.filter(Vehicle.user_id ==
-                                       driver["user"]["id"]).first()
-        new_carpool = Carpool(driver_accepted=None,
-                              passenger_accepted=None,
-                              driver_calendar_id=driver["event"]["id"],
-                              passenger_calendar_id=passenger["event"]["id"],
-                              vehicle_id=vehicle.id,
-                              driver_id = driver["user"]["id"],
-                              passenger_id = passenger["user"]["id"])
-        db.session.add(new_carpool)
-        new_carpools.append(new_carpool.to_dict())
+        if driver:
+            send_confirm_email([driver["user"]["id"], passenger["user"]["id"]])
+            vehicle = Vehicle.query.filter(Vehicle.user_id ==
+                                           driver["user"]["id"]).first()
+            new_carpool = Carpool(driver_accepted=None,
+                                  passenger_accepted=None,
+                                  driver_calendar_id=driver["event"]["id"],
+                                  passenger_calendar_id=passenger["event"]["id"],
+                                  vehicle_id=vehicle.id,
+                                  driver_id = driver["user"]["id"],
+                                  passenger_id = passenger["user"]["id"])
+            db.session.add(new_carpool)
+            new_carpools.append(new_carpool.to_dict())
     db.session.commit()
     return jsonify({"carpools": new_carpools})
 
@@ -143,9 +144,23 @@ def determine_best_route(user_pair):
     driver, directions = select_driver(route_candidate_1, route_candidate_2)
 
     if not driver:
-        return user1, user2, directions
+        if check_carpool_efficiency(user1, directions):
+            return user1, user2, directions
+        else:
+            return None, None, None
     else:
-        return user2, user1, directions
+        if check_carpool_efficiency(user2, directions):
+            return user2, user1, directions
+        else:
+            return None, None, None
+
+
+
+def check_carpool_efficiency(driver, carpool_directions):
+    driver_directions = get_directions([(driver["user"]['latitude'], driver["user"]["longitude"]), (driver["work"]["latitude"], driver["work"]["longitude"])])
+    carpool_time = carpool_directions['route']['time']
+    driver_time = driver_directions['route']['time']
+    return not carpool_time >= (driver_time * 1.5)
 
 
 def select_driver(route_1, route_2):
@@ -379,22 +394,18 @@ def get_rider_phone_numbers(carpool):
 
 
 def generate_sms_message(phone_number):
+    print(phone_number)
     client = TwilioRestClient(current_app.config["ACCOUNT_SID"], current_app.config["AUTH_TOKEN"])
-    message = client.messages.create(body="This is your app.",
-    to="+{}",    # user number
-    from_="+19193440337").format(phone_number)  # Our Twilio number
+    message = client.messages.create(body="You trip for tomorrow has been planned. Please go to RIDEO to confirm.",
+    to="+1{}".format(phone_number), from_="+19193440337") # Our Twilio number
     return message.sid
 
 
 def send_sms(carpool):
-    pass
     for user in carpool.users:
         current_user = User.query.get(user)
         data = generate_sms_message(current_user.phone_number)
-        result = mandrill_client.messages.send_template(
-            template_name="untitled-template", template_content=[],
-            message=data, async=False, ip_pool='Main Pool')
-    return jsonify({"results": result}), 200
+    return data, 200
 
 
 def get_total_carpool_cost(carpool_id):

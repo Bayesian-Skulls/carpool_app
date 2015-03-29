@@ -5,8 +5,12 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
     getWork: function() {
       return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
+        currentSpec.work.forEach(function(work, index) {
+          work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+        })
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
+        } else {
         }
       });
     },
@@ -30,6 +34,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
+        $log.log(currentSpec);
       });
     },
     getRideShares: function() {

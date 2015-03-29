@@ -1,11 +1,15 @@
 <div>
-
-  <h5>YOU SAVE</h5>
-
   <div class="chart">
 
   </div>
-  <p>{{vm.cost.cost | currency}}</p>
-  <p>{{vm.cost.half_cost | currency}}</p>
+  <div class="dashboard-chart__text">
+    <div class="edmunds-wrapper">
+      <a href="http://www.edmunds.com/?id=apis">
+        <img class="edmunds-logo"src="/static/img/edmunds.png"  alt="edmunds logo" />
+      </a>
+    </div>
+    <p>Based on your current drive to work and the estimated mpg for your vehicle we estimate you spend {{vm.cost.cost | currency}} per week in gas alone</p>
+    <p>You could cut that cost in half to {{vm.cost.half_cost | currency}}</p>
+  </div>
 
 </div>
