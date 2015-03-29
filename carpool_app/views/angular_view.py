@@ -312,7 +312,7 @@ def accept_decline_carpool(user_id=None):
 @login_required
 def get_user_cost():
     user_id = current_user.id
-    return user_money(user_id)
+    return calculate_trip_cost(*get_operands(*user_money(user_id)))
 
 
 @api.route('/<carpool_id>/carpool_cost')
