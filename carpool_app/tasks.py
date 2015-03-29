@@ -387,14 +387,14 @@ def generate_sms_message(phone_number):
 
 
 def send_sms(carpool):
+    pass
     for user in carpool.users:
         current_user = User.query.get(user)
-        data = generate_mandrill_request(current_user, "carpool_created")
+        data = generate_sms_message(current_user.phone_number)
         result = mandrill_client.messages.send_template(
             template_name="untitled-template", template_content=[],
             message=data, async=False, ip_pool='Main Pool')
     return jsonify({"results": result}), 200
-    pass
 
 
 def get_total_carpool_cost(carpool_id):
