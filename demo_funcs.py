@@ -25,6 +25,7 @@ def get_line_shape(points, time=False):
         else:
             base_url += "&to={},{}".format(point[0], point[1])
     base_url += "&drivingStyle=2"
+    print(base_url)
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
     request = json.loads(re.findall(r"\((.+)\);", request)[0])
@@ -58,15 +59,31 @@ def create_users(num_users):
         address = seeder.generate_location_json(key)
         work = seeder.generate_location_json(key)
 
-        new_user = {"name": fake.name(),
-                    "home_latitude": address["latitude"],
-                    "home_longitude": address["longitude"],
-                    "work_latitude": work["latitude"],
-                    "work_longitude": work["longitude"]
+        new_user = {"name": fake.name()
                     }
+        new_user["home_latitude"], new_user["home_longitude"] = \
+            refine_lat_long(address["latitude"], address["longitude"])
+        new_user["work_latitude"], new_user["work_longitude"] = \
+            refine_lat_long(work["latitude"], work["longitude"])
         users_list.append(new_user)
 
     return users_list
+
+
+def refine_lat_long(latitude, longitude):
+    base_url = "http://open.mapquestapi.com/geocoding/v1/reverse?key={}"\
+               "&callback=renderReverse&location={},{}".format(
+                key, latitude, longitude)
+
+    request = url.urlopen(base_url)
+    request = str(request.read(), encoding="utf-8")
+    data = json.loads(re.findall(r"\((.+)\);", request)[0])
+
+    for item in data["results"]:
+        for location in item["locations"]:
+            new_lat = location["latLng"]["lat"]
+            new_long = location["latLng"]["lng"]
+    return new_lat, new_long
 
 
 def color_mapper(k):
