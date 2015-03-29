@@ -4,6 +4,7 @@ import statistics as st
 from random import random
 from datetime import datetime, timedelta
 import urllib
+from twilio.rest import TwilioRestClient
 from flask import current_app
 import urllib.request as url
 import mandrill
@@ -265,15 +266,6 @@ def generate_mandrill_request(user, email_type):
     return data
 
 
-def get_rider_phone_numbers(carpool):
-    for driver_id, passenger_id in carpool.users():
-        driver = User.query.filter_by(user_id=driver_id).first()
-        passenger = User.query.get(user_id=passenger_id).first()
-        driver_phone = driver.phone_number
-        pass_phone = passenger.phone_number
-    return driver_phone, pass_phone
-
-
 def get_gas_prices(driver_id):
     driver = User.query.filter_by(id=driver_id).first()
     driver_lat = driver.latitude
@@ -391,6 +383,31 @@ def select_random_stat():
     return stats
 
 
+
+def get_rider_phone_numbers(carpool):
+    for driver_id, passenger_id in carpool.users():
+        driver = User.query.filter_by(user_id=driver_id).first()
+        passenger = User.query.get(user_id=passenger_id).first()
+        driver_phone = driver.phone_number
+        pass_phone = passenger.phone_number
+    return driver_phone, pass_phone
+
+
+def generate_sms_message(phone_number):
+    print(phone_number)
+    client = TwilioRestClient(current_app.config["ACCOUNT_SID"], current_app.config["AUTH_TOKEN"])
+    message = client.messages.create(body="You trip for tomorrow has been planned. Please go to RIDEO to confirm.",
+    to="+1{}".format(phone_number), from_="+19193440337") # Our Twilio number
+    return message.sid
+
+
+def send_sms(carpool):
+    for user in carpool.users:
+        current_user = User.query.get(user)
+        data = generate_sms_message(current_user.phone_number)
+    return data, 200
+
+
 def get_total_carpool_cost(carpool_id):
     carpool = Carpool.query.get_or_404(carpool_id).details
     points = [(carpool["driver"]["info"]["latitude"],
@@ -406,3 +423,4 @@ def get_total_carpool_cost(carpool_id):
     operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
     return calculate_trip_cost(distance, *operands)
+
