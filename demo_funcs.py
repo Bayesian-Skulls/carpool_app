@@ -51,39 +51,41 @@ def create_route(driver, passenger=None):
                 (driver["work_latitude"], driver["work_longitude"])]
 
 
-def check_carpool_efficiency(driver, carpool_directions):
-   driver_directions = get_directions([(driver["user"]['latitude'], driver["user"]["longitude"]), (driver["work"]["latitude"], driver["work"]["longitude"])])
-   carpool_time = carpool_directions['route']['time']
-   driver_time = driver_directions['route']['time']
-   return not carpool_time >= (driver_time * 1.5)
-
-
-def create_users(num_users):
+def create_users():
+    home_addresses = ["609 N Boundary St. Raleigh, NC 27604",
+                      "407 Polk St Raleigh, NC 27604",
+                      "1129 Harvey St Raleigh, NC 27608",
+                      "1507 Oberlin Rd Raleigh, NC 27608",
+                      "499 N Driver St Durham, NC 27703",
+                      "2107 Hart St Durham, NC 27703"]
+    work_addresses = ["334 Blackwell Street Durham, NC 27701",
+                      "318 Blackwell St Durham, NC 27701",
+                      "100 SAS Campus Dr Cary, NC 27513",
+                      "1505 N Harrison Ave Cary, NC 27513",
+                      "3600 Glenwood Ave Raleigh, NC 27612",
+                      "2211 Summit Park Ln Raleigh, NC 27612"]
     users_list = []
-    for user in range(num_users):
-        name =  seeder.user_generator(1)
-        address = seeder.generate_location_json(key)
-        work = seeder.generate_location_json(key)
+    for index, address in enumerate(home_addresses):
 
-        new_user = {"name": fake.name()
-                    }
+        new_user = {"name": fake.name()}
+        home = address.replace(" ", "%20")
+        work = work_addresses[index].replace(" ", "%20")
         new_user["home_latitude"], new_user["home_longitude"] = \
-            refine_lat_long(address["latitude"], address["longitude"])
+            get_lat_long(home)
         new_user["work_latitude"], new_user["work_longitude"] = \
-            refine_lat_long(work["latitude"], work["longitude"])
+            get_lat_long(work)
         users_list.append(new_user)
 
     return users_list
 
 
-def refine_lat_long(latitude, longitude):
-    base_url = "http://open.mapquestapi.com/geocoding/v1/reverse?key={}"\
-               "&callback=renderReverse&location={},{}".format(
-                key, latitude, longitude)
+def get_lat_long(address):
+    base_url = "http://open.mapquestapi.com/geocoding/v1/address?key={}"\
+               "&location={}".format(key, address)
 
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
-    data = json.loads(re.findall(r"\((.+)\);", request)[0])
+    data = json.loads(request)
 
     for item in data["results"]:
         for location in item["locations"]:
@@ -161,7 +163,7 @@ def check_carpool_efficiency(driver, carpool_directions, carpool_time):
                                                     (driver["work_latitude"],
                                                      driver["work_longitude"])],
                                                     time=True)
-   return not carpool_time >= (driver_time * 2)
+   return not carpool_time >= (driver_time * 1.5)
 
 
 def select_driver(route_1, route_2):
