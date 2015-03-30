@@ -13,7 +13,6 @@ def create_app():
     app.register_blueprint(api, url_prefix='/api/v1')
     app.register_blueprint(users)
 
-
     config.init_app(app)
     oauth.init_app(app)
     db.init_app(app)

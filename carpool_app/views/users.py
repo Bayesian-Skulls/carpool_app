@@ -7,13 +7,14 @@ from ..extensions import oauth
 
 users = Blueprint("users", __name__)
 
-facebook = oauth.remote_app('facebook',
-                            base_url='https://graph.facebook.com/',
-                            request_token_url=None,
-                            access_token_url='/oauth/access_token',
-                            authorize_url='https://www.facebook.com/dialog/oauth',
-                            app_key="FACEBOOK",
-                            request_token_params={'scope': 'email, public_profile'})
+facebook = oauth.remote_app(
+    'facebook',
+    base_url='https://graph.facebook.com/',
+    request_token_url=None,
+    access_token_url='/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    app_key="FACEBOOK",
+    request_token_params={'scope': 'email, public_profile'})
 
 
 @facebook.tokengetter
@@ -64,13 +65,16 @@ def facebook_authorized():
     flash('You were signed in as {}'.format(me.data['email']))
     return register_or_login_user(user)
 
+
 @users.route('/facebook/photo')
 @users.route('/facebook/photo/<facebook_id>')
 @login_required
 def facebook_photo(facebook_id=None):
     """return user's facebook profile picture"""
     if facebook_id:
-        photo = facebook.get('/{}/picture?redirect=false&height=250&width=250'.format(facebook_id))
+        photo = facebook.get(
+            '/{}/picture?redirect=false&height=250&width=250'.format(
+                facebook_id))
     else:
         photo = facebook.get('/me/picture?redirect=false&height=250&width=250')
     return photo.data['data']['url']
