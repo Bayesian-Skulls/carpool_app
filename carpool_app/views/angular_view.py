@@ -1,16 +1,15 @@
-import json
 from datetime import datetime, timedelta
-from flask import Blueprint, request, redirect, flash, jsonify, current_app
-from flask.ext.login import (current_user, abort, login_user, logout_user,
+from flask import Blueprint, request, redirect, jsonify
+from flask.ext.login import (current_user, login_user, logout_user,
                              login_required)
 from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
-from ..extensions import oauth, db
+from ..extensions import db
 
 from ..tasks import (build_carpools, get_rider_phone_numbers,
-                     send_confirm_email, user_money, get_gas_prices,
-                     get_directions, get_mpg, get_vehicle_api_id,
+                     send_confirm_email, user_money,
+                     get_mpg, get_vehicle_api_id,
                      calculate_trip_cost, get_operands, get_total_carpool_cost,
                      generate_sms_message)
 

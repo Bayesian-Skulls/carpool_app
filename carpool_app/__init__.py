@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 
 from . import models
 from .extensions import db, migrate, config, oauth, login_manager

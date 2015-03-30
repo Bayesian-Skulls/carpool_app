@@ -1,8 +1,6 @@
 from .extensions import db, login_manager, bcrypt
 from flask.ext.login import UserMixin
 
-from datetime import datetime
-
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
