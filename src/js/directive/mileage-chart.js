@@ -9,7 +9,11 @@ app.directive('mileageChart', function() {
         var self = this;
         encouragementService.getCost().then(function(result) {
           self.cost = result.data;
-          $scope.showLevel(result.data.cost, result.data.half_cost);
+          console.log(self.cost);
+          self.cost.cost = self.cost.cost * 5;
+          self.cost.half_cost = self.cost.half_cost * 5;
+          console.log(self.cost);
+          $scope.showLevel(self.cost.cost, self.cost.half_cost);
         });
       }],
       controllerAs: 'vm',
@@ -51,11 +55,11 @@ app.directive('mileageChart', function() {
         // switch between values every 3 seconds
         function showLevel(cost, halfCost) {
           chart.load({
-              columns: [['data', cost * 5]]
+              columns: [['data', cost]]
           });
           setTimeout(function () {
             chart.load({
-                columns: [['data', halfCost * 5]]
+                columns: [['data', halfCost]]
             });
             setTimeout(function() {
               showLevel(cost, halfCost);
