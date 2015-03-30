@@ -269,7 +269,7 @@ app.directive('mileageChart', function() {
               show: false
             },
             color: {
-                pattern: ['000', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
+                pattern: ['#FFF', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
                 threshold: {
                    unit: 'value', // percentage is default
                    max: 50, // 100 is default

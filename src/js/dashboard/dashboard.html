@@ -34,7 +34,7 @@
       <h3>UPCOMING RIDESHARE</h3>
     </div>
     <div ng-show="vm.rideShare.driver" class="rideshare-date-section">
-      <p>{{ vm.rideShare.driver.arrival | date: 'MMMM dd'}}</p>
+      <h4>{{ vm.rideShare.driver.arrival | date: 'MMMM dd'}}</h4>
     </div>
     <div ng-show="vm.rideShare.driver" class="rideshare-status-section" ng-class="{unconfirmed: vm.rideShare.you.status !== 'confirmed'}">
       <p>
