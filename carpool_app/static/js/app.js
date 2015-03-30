@@ -71,7 +71,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
     workService.addWork(self.current.work[0], current.user).then(function(result) {
       $log.log(result);
-      self.current.work[0] = result.data.work;
+      // self.current.work[0] = result.data.work;
     });
   };
 
@@ -91,14 +91,15 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       arriveDate.setHours(Math.floor(self.schedule.arrival_datetime / 60), self.schedule.arrival_datetime % 60, 0, 0);
       departDate.setHours(Math.floor(self.schedule.departure_datetime / 60), self.schedule.departure_datetime % 60, 0, 0);
       var newDate = {
-        user_id: current.user.id,
-        work_id: current.work[0].id,
+        user_id: self.current.user.id,
+        work_id: self.current.work[0].id,
         arrival_datetime: arriveDate.toISOString(),
         departure_datetime: departDate.toISOString()
       };
       scheduleService.addDate(newDate).then(function(result) {
         self.current.schedule.push(result.data.calendar);
       });
+      self.schedule = workDate();
     });
   };
 
@@ -124,6 +125,12 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     });
   };
   self.getStat();
+
+  self.fixError = function() {
+    console.log('fired');
+    $location.hash(self.current.errorURL);
+    $anchorScroll();
+  }
 
 }]);
 
@@ -151,12 +158,14 @@ app.directive('googleplace', function() {
 
             google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
                 scope.$apply(function() {
+                  console.log(scope.details);
 
                     var addressObj = scope.gPlace.getPlace();
                     model.$setViewValue(element.val());
 
                     addressObj.address_components.forEach(function(address_comp){
                       var type = address_comp.types[0];
+                      console.log(type);
                       if (addressValues[type]) {
                         var add_field = addressValues[type];
                         scope.details[add_field] = address_comp.long_name;
@@ -305,13 +314,19 @@ app.directive('picker', function() {
       link: function(scope, element, attrs, model) {
         if(scope.pickerType==='date'){
           $(element).pickadate({
+            // container: '#root-picker-outlet',
             formatSubmit: 'yyyy/mm/dd',
             onSet: function(submit) {
               scope.details = new Date( submit.select );
-            }
+            },
+            disable: [{
+              from: new Date(1962-07-07),
+              to: new Date()
+            }]
           });
         } else if (scope.pickerType==='time') {
           $(element).pickatime({
+            // container: '#root-picker-outlet',
             onSet: function(time) {
               console.log('set time');
               scope.details = time.select;
@@ -426,6 +441,10 @@ app.directive('mainNav', function() {
     function($location, StringUtil, $log, current, $scope, $rootScope, userService) {
       var self = this;
       self.current = current;
+
+      // if(!self.current.user.name) {
+      //   $location.path('/');
+      // }
 
       self.logout = function() {
         userService.logout().then(function () {
@@ -746,8 +765,8 @@ app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, 
       week.push(workDate({
         user_id: current.user.id,
         work_id: spec.work_id,
-        arrival_datetime: departDate.toISOString(),
-        departure_datetime: arriveDate.toISOString()
+        arrival_datetime: arriveDate.toISOString(),
+        departure_datetime: departDate.toISOString()
       }));
     });
 
@@ -820,6 +839,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         });
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
+          currentSpec.errorMsg = 'You don\'t have a workplace. Please add one.';
+          currentSpec.errorURL = 'profile';
         } else {
         }
       });
@@ -830,6 +851,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
           currentSpec.vehicles = result.data.vehicles;
           if(currentSpec.vehicles.length <= 0) {
             currentSpec.incomplete = true;
+            currentSpec.errorMsg = 'You don\'t have a vehicle. Please add one.';
+            currentSpec.errorURL = 'profile';
           }
         });
       } catch(e) {
@@ -841,6 +864,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.schedule = result.data.calendars;
         if(currentSpec.schedule.length <= 0) {
           currentSpec.incomplete = true;
+          currentSpec.errorMsg = 'You don\'t have any dates on the calendar. Please add one.';
+          currentSpec.errorURL = 'dates';
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
@@ -999,6 +1024,7 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
         });
       }
       return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
+        console.log(rideShare);
         rideShare = results.data.carpool;
         self.process();
         return $q(function(resolve, reject) {

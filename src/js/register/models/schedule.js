@@ -21,8 +21,8 @@ app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, 
       week.push(workDate({
         user_id: current.user.id,
         work_id: spec.work_id,
-        arrival_datetime: departDate.toISOString(),
-        departure_datetime: arriveDate.toISOString()
+        arrival_datetime: arriveDate.toISOString(),
+        departure_datetime: departDate.toISOString()
       }));
     });
 

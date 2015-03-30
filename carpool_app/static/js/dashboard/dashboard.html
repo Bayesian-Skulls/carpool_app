@@ -3,8 +3,7 @@
 
     <main-nav class="page-header"></main-nav>
     <!-- Profile Section -->
-      <div class="page-profile page-section" ng-class="{ incomplete: vm.current.incomplete }">
-        <a ng-if="vm.current.incomplete" class="registration-incomplete" href="#/register">registration incomplete</a>
+      <div class="page-profile page-section">
         <div class="page-profile__card">
           <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
           <button class="page-profile__editbtn" ng-click="vm.editProfile()">(EDIT)</button>
@@ -23,6 +22,10 @@
              in <span class="page-profile__fields">{{vm.current.work[0].city}}</span></p>
           </p>
         </div>
+      </div>
+      <div ng-show="vm.current.incomplete" ng-click="vm.fixError()" class="rideshare-status-section registration-incomplete">
+        <p>registration incomplete: <br>
+          {{vm.current.errorMsg}}</p>
       </div>
     <div ng-show="!vm.rideShare.driver" class="dashboard-section__title">
       <h3>DASHBOARD</h3>
@@ -71,35 +74,37 @@
             <p><span>ridshare status:</span> {{vm.rideShare.status}}</p>
           </div>
         </div>
-        <div class="dashboard-dates">
-          <h5>UPCOMING DATES </h5>
-          <ul>
-            <li class="dashboard-dates__date" ng-repeat="date in vm.current.schedule">
-              <p>
-                {{ date.departure_datetime | date:"MMM, dd" }} <br>
-                DEPART: {{ date.departure_datetime | date: 'h:mma' }} <br>
-                RETURN: {{ date.arrival_datetime | date: 'h:mma' }}
-                <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.deleteDate(date)"><i class="fa fa-trash"></i></button>
-              </p>
-            </li>
-          </ul>
-          <div class="dashboard-dates__date dashboard-dates__new">
-            <h5>
-              NEW DATE
-            </h5>
-            <label class="dashboard-input__label" for="schedule-date">date</label>
-            <input class="register-input dashboard-input" name="schedule-date" ng-model="vm.schedule.date" details="vm.schedule.utc_date" picker picker-type="'date'">
+      </div>
+      <div id="dates" class="dashboard-dates">
+        <h4>UPCOMING DATES </h4>
+        <ul>
+          <li ng-hide="date.arrival_datetime.slice(0, 10) === vm.rideShare.driver.arrival.slice(0, 10)" class="dashboard-dates__date" ng-repeat="date in vm.current.schedule">
+            <p>
+              {{ date.departure_datetime | date:"MMM, dd" }} <br>
+              PICKUP: {{ date.arrival_datetime | date: 'h:mma' }} <br>
+              RETURN: {{ date.departure_datetime | date: 'h:mma' }}
+              <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.deleteDate(date)"><i class="fa fa-trash"></i></button>
+            </p>
+          </li>
+        </ul>
+      </div>
+      <div class="dashboard-dates__date dashboard-dates__new">
+        <h5>NEW DATE</h5>
+        <label class="dashboard-input__label" for="schedule-date">date
+          <input class="register-input dashboard-input" name="schedule-date" ng-model="vm.schedule.date" details="vm.schedule.utc_date" picker picker-type="'date'">
+        </label>
 
-            <label class="dashboard-input__label" for="schedule-arrive">from</label>
-            <input picker class="register-input dashboard-input" type="text" name="schedule-arrive" ng-model="vm.schedule.arriving" details="vm.schedule.arrival_datetime" picker-type="'time'">
+        <label class="dashboard-input__label" for="schedule-arrive">from
+          <input picker class="register-input dashboard-input" type="text" name="schedule-arrive" ng-model="vm.schedule.arriving" details="vm.schedule.arrival_datetime" picker-type="'time'">
+        </label>
 
-            <label class="dashboard-input__label" for="schedule-depart">to</label>
-            <input picker class="register-input dashboard-input" type="text" name="schedule-depart" ng-model="vm.schedule.departing" details="vm.schedule.departure_datetime" picker-type="'time'">
+        <label class="dashboard-input__label" for="schedule-depart">to
+          <input picker class="register-input dashboard-input" type="text" name="schedule-depart" ng-model="vm.schedule.departing" details="vm.schedule.departure_datetime" picker-type="'time'">
+        </label>
+        <div id="root-picker-outlet"></div>
 
 
-            <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.addDate()"><i class="fa fa-plus"></i></button>
-          </div>
-        </div>
+        <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.addDate()"><i class="fa fa-plus"></i></button>
       </div>
 
     </div>
@@ -142,15 +147,10 @@
             <h5 for="work-name">Your Work</h5>
             I work for <input class="register-input dashboard-input" type="text" name="workName" ng-model="vm.current.work[0].name" placeholder="Business Name">.
             Their address is
-            <input googleplace name="work-address" details="vm.newWork" class="register-input dashboard-input address-input" type="text" ng-model="vm.current.work[0].address" autcomplete="false">.
-          </p>
-          <!-- <p ng-repeat="work in vm.current.work">
-            <h5 for="work-name">Your Work</h5>
-            I work for <input class="register-input dashboard-input" type="text" name="workName" ng-model="work.name" placeholder="Business Name">.
-            Their address is
-            <input googleplace name="work-address" details="vm.newWork" class="register-input dashboard-input address-input" type="text" ng-model="work.address" autcomplete="false">.
-          </p> -->
+            <input googleplace name="work-address" details="vm.current.work[0]" class="register-input dashboard-input address-input" type="text" ng-model="vm.current.work[0].address" autcomplete="false">.
 
+            <button ng-click="vm.deleteWork(vm.current.work[0], 0)" name="button"></button>
+          </p>
           <p>
           </p>
           <h5>My Ride</h5>

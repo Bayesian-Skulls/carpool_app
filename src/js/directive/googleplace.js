@@ -22,12 +22,14 @@ app.directive('googleplace', function() {
 
             google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
                 scope.$apply(function() {
+                  console.log(scope.details);
 
                     var addressObj = scope.gPlace.getPlace();
                     model.$setViewValue(element.val());
 
                     addressObj.address_components.forEach(function(address_comp){
                       var type = address_comp.types[0];
+                      console.log(type);
                       if (addressValues[type]) {
                         var add_field = addressValues[type];
                         scope.details[add_field] = address_comp.long_name;

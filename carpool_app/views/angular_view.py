@@ -308,8 +308,10 @@ def view_current_carpool(user_id=None):
         or_((Carpool.driver_id == user_id),
             (Carpool.passenger_id == user_id))).\
         order_by(Carpool.id.desc()).first()
-
-    return jsonify({"carpool": current_carpool.details})
+    if current_carpool:
+        return jsonify({"carpool": current_carpool.details})
+    else:
+        return jsonify({"carpool": None})
 
 
 @api.route('/vehicle/<driver_id>/mpg', methods=["GET"])

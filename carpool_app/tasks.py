@@ -171,7 +171,7 @@ def check_carpool_efficiency(driver, carpool_directions):
                                          driver["work"]["longitude"])])
     carpool_time = carpool_directions['route']['time']
     driver_time = driver_directions['route']['time']
-    return not carpool_time >= (driver_time * 1.5)
+    return not carpool_time >= (driver_time * 5)
 
 
 def select_driver(route_1, route_2):

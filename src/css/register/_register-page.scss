@@ -21,7 +21,9 @@
 }
 
 .address-input {
-  min-width: 33em;
+  @media only screen and (min-width: 768px) {
+    min-width: 33em;
+  }
 }
 
 .schedule-week {
