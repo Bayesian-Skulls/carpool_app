@@ -142,7 +142,7 @@ class Carpool(db.Model):
             Calendar.id == self.passenger_calendar_id).first().arrival_datetime
         passenger_depart_time = Calendar.query.filter(
             Calendar.id == self.passenger_calendar_id).first().\
-                departure_datetime
+            departure_datetime
         driver = User.query.filter(User.id == self.driver_id).first().to_dict()
         driver_work = Work.query.filter(Work.user_id == self.driver_id).\
             first().to_dict()
@@ -153,7 +153,7 @@ class Carpool(db.Model):
 
         return {"carpool_id": self.id,
                 "driver":
-                    {
+                {
                     "info": driver,
                     "work": driver_work,
                     "arrival": driver_arrival_time.strftime(

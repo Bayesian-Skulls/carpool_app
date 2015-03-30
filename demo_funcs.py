@@ -15,9 +15,9 @@ with open("carpool_app/config.cfg") as file:
 
 def get_line_shape(points, time=False):
     base_url = "http://open.mapquestapi.com/directions/v2/route?key={}"\
-                "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
-                "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
-                "&generalize=0&locale=en_US&unit=m".format(key)
+               "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
+               "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
+               "&generalize=0&locale=en_US&unit=m".format(key)
 
     for index, point in enumerate(points):
         if not index:
@@ -31,7 +31,8 @@ def get_line_shape(points, time=False):
     if not time:
         return request["route"]["shape"]["shapePoints"]
     else:
-        return request["route"]["shape"]["shapePoints"], request["route"]["time"]
+        return (request["route"]["shape"]["shapePoints"],
+                request["route"]["time"])
 
 
 def parse_request(request):
@@ -95,14 +96,15 @@ def get_lat_long(address):
 
 
 def color_mapper(k):
-   colors = []
-   for _ in range(k):
-           r = lambda: random.randint(0,255)
-           colors.append('#%02X%02X%02X' % (r(),r(),r()))
-   def color_gen(x):
-       # Generate list of random colors that match number of carpools
-       return colors[x]
-   return color_gen
+    colors = []
+    for _ in range(k):
+        r = lambda: random.randint(0, 255)
+        colors.append('#%02X%02X%02X' % (r(), r(), r()))
+
+    def color_gen(x):
+        # Generate list of random colors that match number of carpools
+        return colors[x]
+    return color_gen
 
 
 def pair_users(users):
@@ -145,7 +147,8 @@ def determine_best_route(user_pair):
     route_candidate_1 = create_route(user1, user2)
     route_candidate_2 = create_route(user1, user2)
 
-    driver, directions, time = select_driver(route_candidate_1, route_candidate_2)
+    driver, directions, time = select_driver(route_candidate_1,
+                                             route_candidate_2)
     if not driver:
         driver = user1
     else:
@@ -158,12 +161,10 @@ def determine_best_route(user_pair):
 
 
 def check_carpool_efficiency(driver, carpool_directions, carpool_time):
-   driver_directions, driver_time = get_line_shape([(driver["home_latitude"],
-                                                     driver["home_longitude"]),
-                                                    (driver["work_latitude"],
-                                                     driver["work_longitude"])],
-                                                    time=True)
-   return not carpool_time >= (driver_time * 1.5)
+    driver_directions, driver_time = get_line_shape([
+        (driver["home_latitude"], driver["home_longitude"]),
+        (driver["work_latitude"], driver["work_longitude"])], time=True)
+    return not carpool_time >= (driver_time * 1.5)
 
 
 def select_driver(route_1, route_2):
