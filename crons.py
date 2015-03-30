@@ -16,7 +16,8 @@ fake = Faker()
 
 
 def create_user(key):
-    name, gender = choice([(fake.name_male(), 'male'), (fake.name_female(), 'female')])
+    name, gender = choice([(fake.name_male(), 'male'), (fake.name_female(),
+                           'female')])
     email = name.replace(" ", "").lower()
     user = {"name": name, "email": email + "@carpool.com",
             "facebook_id": str(randint(100, 10000)), "gender": gender}
@@ -73,11 +74,11 @@ def email_unconfirmed_carpools():
         .filter(Calendar.arrival_datetime <= target_time_2).all()
     carpools = []
     for calendar in calendars:
-        carpool = Carpool.query.filter(or_ ((Carpool.driver_calendar_id == calendar.id),
-                                            (Carpool.passenger_calendar_id == calendar.id))). \
-            first()
+        carpool = Carpool.query.filter(or_(
+            (Carpool.driver_calendar_id == calendar.id),
+            (Carpool.passenger_calendar_id == calendar.id))).first()
         if (carpool not in carpools) and (not carpool.driver_accepted or
-                                                      not carpool.passenger_accepted):
+                                          not carpool.passenger_accepted):
             carpools.append(carpool)
     ids = []
     for carpool in carpools:
@@ -96,6 +97,7 @@ def add_user():
     for n in range(50):
         create_user(key)
 
+
 @manager.command
 def create_carpools():
     json = build_carpools().data.decode("utf-8")
@@ -104,7 +106,7 @@ def create_carpools():
         with open("carpools.log", "r") as f:
             logs = f.read()
     logs = "{}\n{}:\n{}".format(logs, str(datetime.now()), json)
-    with open("carpools.log","w") as f:
+    with open("carpools.log", "w") as f:
         f.write(logs)
     return "Success"
 

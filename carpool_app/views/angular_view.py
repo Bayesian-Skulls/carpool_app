@@ -1,16 +1,17 @@
-import json
 from datetime import datetime, timedelta
-from flask import Blueprint, request, redirect, flash, jsonify, current_app
-from flask.ext.login import current_user, abort, login_user, logout_user, login_required
+from flask import Blueprint, request, redirect, jsonify
+from flask.ext.login import (current_user, login_user, logout_user,
+                             login_required)
 from sqlalchemy import or_
 from ..models import User, Work, Vehicle, Calendar, Carpool
 from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
-from ..extensions import oauth, db
+from ..extensions import db
 
-from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_gas_prices, get_directions, get_mpg, get_vehicle_api_id
-from ..tasks import calculate_trip_cost, get_operands, get_total_carpool_cost, generate_sms_message
-
-
+from ..tasks import (build_carpools, get_rider_phone_numbers,
+                     send_confirm_email, user_money,
+                     get_mpg, get_vehicle_api_id,
+                     calculate_trip_cost, get_operands, get_total_carpool_cost,
+                     generate_sms_message)
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -51,7 +52,8 @@ def register_or_login_user(data):
             user = User(**data)
             db.session.add(user)
             db.session.commit()
-            user = User.query.filter_by(facebook_id=data['facebook_id']).first()
+            user = User.query.filter_by(
+                facebook_id=data['facebook_id']).first()
             login_user(user)
             return redirect("/#/register", 302)
 
@@ -73,7 +75,8 @@ def update_user(user_id=None, data=None):
         try:
             setattr(user, key, data[key])
         except IOError:
-            return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+            return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(
+                key, data[key])}), 400
     db.session.commit()
     return jsonify({"user": user.to_dict()}), 201
 
@@ -114,7 +117,9 @@ def add_work(user_id=None, data=None):
             try:
                 setattr(work, key, data[key])
             except IOError:
-                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+                return jsonify(
+                    {"ERROR": "Invalid Input Key: {}, Value: {}".format(
+                        key, data[key])}), 400
     else:
         work = Work(**data)
         db.session.add(work)
@@ -144,7 +149,9 @@ def add_vehicle(user_id=None, data=None):
             try:
                 setattr(vehicle, key, data[key])
             except IOError:
-                return jsonify({"ERROR": "Invalid Input Key: {}, Value: {}".format(key, data[key])}), 400
+                return jsonify(
+                    {"ERROR": "Invalid Input Key: {}, Value: {}".format(
+                        key, data[key])}), 400
     else:
         vehicle = Vehicle(**data)
         db.session.add(vehicle)
@@ -171,8 +178,9 @@ def add_calendar(user_id=None, data=None):
                                   "%Y-%m-%dT%H:%M:%S.%fZ")
     depart_dt = datetime.strptime(data["departure_datetime"],
                                   "%Y-%m-%dT%H:%M:%S.%fZ")
-    user_calendars = Calendar.query.filter(Calendar.user_id==user_id,
-        Calendar.work_id==data["work_id"]).all()
+    user_calendars = Calendar.query.filter(Calendar.user_id == user_id,
+                                           Calendar.work_id == data[
+                                               "work_id"]).all()
     for calendar in user_calendars:
         if calendar.arrival_datetime.date() == arrive_dt.date():
             calendar.arrival_datetime = arrive_dt
@@ -198,8 +206,8 @@ def view_calendars(user_id=None):
         user_id = current_user.id
     user_calendars = Calendar.query.filter(Calendar.user_id ==
                                            user_id).\
-                                    filter(Calendar.arrival_datetime >=
-                                           datetime.now()).all()
+        filter(Calendar.arrival_datetime >=
+               datetime.now()).all()
     user_calendars = [calendar.to_dict() for calendar in user_calendars]
     return jsonify({"calendars": user_calendars})
 
@@ -214,10 +222,10 @@ def get_last_week_schedule(user_id=None):
     start_td = timedelta(days=today.weekday()+7)
     end_td = timedelta(days=today.weekday())
     previous_calendars = Calendar.query.filter(Calendar.user_id == user_id).\
-                                        filter(Calendar.arrival_datetime >=
-                                               (today-start_td)).\
-                                        filter(Calendar.arrival_datetime <=
-                                               (today-end_td)).all()
+        filter(Calendar.arrival_datetime >=
+               (today-start_td)).\
+        filter(Calendar.arrival_datetime <=
+               (today-end_td)).all()
     previous_calendars = [calendar.to_dict() for calendar
                           in previous_calendars]
 
@@ -264,7 +272,8 @@ def delete_work(work_id, user_id=None):
     """delete all calendar objects associated with user_id"""
     if not user_id:
         user_id = current_user.id
-    calendars = Calendar.query.filter_by(user_id=user_id, work_id=work_id).all()
+    calendars = Calendar.query.filter_by(user_id=user_id,
+                                         work_id=work_id).all()
     for calendar in calendars:
         db.session.delete(calendar)
     work = Work.query.get(work_id)
@@ -289,14 +298,15 @@ def delete_vehicle(vehicle_id, user_id=None):
 
 
 @api.route('/user/carpool', methods=["GET"])
-#@login_required
+# @login_required
 def view_current_carpool(user_id=None):
     """get a carpool object"""
     if not user_id:
         user_id = current_user.id
-    current_carpool = Carpool.query.filter(or_ ((Carpool.driver_id == user_id),
-                                          (Carpool.passenger_id == user_id))).\
-                                          order_by(Carpool.id.desc()).first()
+    current_carpool = Carpool.query.filter(
+        or_((Carpool.driver_id == user_id),
+            (Carpool.passenger_id == user_id))).\
+        order_by(Carpool.id.desc()).first()
 
     return jsonify({"carpool": current_carpool.details})
 
@@ -338,7 +348,6 @@ def get_user_cost():
 def get_carpool_cost(carpool_id):
     """get the total cost of driving the carpool route with the driver's car"""
     return get_total_carpool_cost(carpool_id)
-
 
 
 @api.route('/tests')

@@ -3,8 +3,7 @@ app.factory('scheduleService', ['ajaxService', '$http', 'workDate', function(aja
   return {
 
     addDate: function(date) {
-      console.log(workDate(date));
-      // ajaxService.call($http.post('/api/v1/user/calendar', date));
+      return ajaxService.call($http.post('/api/v1/user/calendar', date));
     },
     addDates: function(dates) {
         dates.forEach(function(date) {

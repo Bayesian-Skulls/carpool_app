@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 
 from . import models
 from .extensions import db, migrate, config, oauth, login_manager
@@ -12,7 +12,6 @@ def create_app():
     app.register_blueprint(angular_view)
     app.register_blueprint(api, url_prefix='/api/v1')
     app.register_blueprint(users)
-
 
     config.init_app(app)
     oauth.init_app(app)

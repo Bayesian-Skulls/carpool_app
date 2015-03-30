@@ -1,8 +1,6 @@
-import os
 import json
 import re
 import urllib.request as url
-import seeder
 import random
 from faker import Faker
 
@@ -31,7 +29,8 @@ def get_line_shape(points, time=False):
     if not time:
         return request["route"]["shape"]["shapePoints"]
     else:
-        return request["route"]["shape"]["shapePoints"], request["route"]["time"]
+        return (request["route"]["shape"]["shapePoints"],
+                request["route"]["time"])
 
 
 def parse_request(request):
@@ -118,8 +117,9 @@ def get_lat_long(address):
 def color_mapper(k):
     colors = []
     for _ in range(k):
-        r = lambda: random.randint(0,255)
-        colors.append('#%02X%02X%02X' % (r(),r(),r()))
+        r = lambda: random.randint(0, 255)
+        colors.append('#%02X%02X%02X' % (r(), r(), r()))
+        
     def color_gen(x):
         # Generate list of random colors that match number of carpools
         return colors[x]
@@ -166,7 +166,8 @@ def determine_best_route(user_pair):
     route_candidate_1 = create_route(user1, user2)
     route_candidate_2 = create_route(user2, user1)
 
-    driver, directions, time = select_driver(route_candidate_1, route_candidate_2)
+    driver, directions, time = select_driver(route_candidate_1,
+                                             route_candidate_2)
     if not driver:
         driver = user1
     else:
@@ -184,6 +185,7 @@ def check_carpool_efficiency(driver, carpool_directions, carpool_time):
                                                      (driver["work_latitude"],
                                                       driver["work_longitude"])],
                                                     time=True)
+
     return not carpool_time >= (driver_time * 1.5)
 
 

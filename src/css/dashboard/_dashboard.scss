@@ -22,6 +22,17 @@ $dashShadow: 0px 2px 5px #444;
   padding: 2em;
   padding-top: 4em;
   @include span-columns(12);
+  span {
+    font-weight: 700;
+    color: #ccc;
+  }
+
+}
+.rideshare-container {
+  padding-top: 0;
+  @media only screen and (min-width: 768px) {
+    padding-top: 2em;
+  }
 }
 
 .dashboard-section {
@@ -29,27 +40,46 @@ $dashShadow: 0px 2px 5px #444;
   @include span-columns(12);
 }
 .dashboard-section__title {
-  padding: .5em;
   background-color: darken($primary-color, 10%);
   @include span-columns(12);
+  font-size: 1em;
+  padding: 2em;
+  @media only screen and (max-width: 768px) {
+    padding: .5em;
+    font-size: .75em;
+  }
 }
 
 .dashboard-section__map-info {
   text-align: center;
-  padding: 0 2em;
   display: inline-block;
+  margin-right: 2.35765%;
+  padding: 2em;
+  @media only screen and (min-width: 768px) {
+    float: left;
+    padding: 0;
+  }
 }
 .dashboard-section__ride-info {
   text-align: left;
   display: inline-block;
+  min-height: 250px;
+  padding: 1em 2em;
+  background-color: darken($primary-color, 5%);
+  overflow:auto;
+  margin-top: 0 auto;
+  h4 {
+    margin-bottom: 1em;
+  }
   @include span-columns(12);
   @media only screen and (min-width: 768px) {
     @include span-columns(6);
+    margin-top: 0;
   }
   @media only screen and (min-width: 915px) {
-    @include span-columns(7);
+    @include span-columns(8);
+    margin-top: 0;
   }
-  overflow:auto;
 }
 
 .dashboard-section__response {
@@ -131,6 +161,7 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .dashboard-dates__date {
+  box-sizing: border-box;
   display: inline-block;
   font-size: .75em;
   padding: 1em;
@@ -142,7 +173,7 @@ $dashShadow: 0px 2px 5px #444;
   @media only screen and (min-width: 560px) {
     @include span-columns(4);
   }
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 915px) {
     @include span-columns(2.4);
   }
   h5 {
@@ -199,7 +230,16 @@ $dashShadow: 0px 2px 5px #444;
   display: inline-block;
 }
 
-
+.page-profile__editbtn {
+  background-color: transparent;
+  color: darken($primary-color, 10%);
+  &:hover {
+    color: lighten($primary-color, 20%);
+  }
+  &:active {
+    background-color: transparent;
+  }
+}
 .page-profile__fields {
   font-weight: 700;
 }
@@ -221,20 +261,6 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 
-//CONDITIONAL STYLES
-
-.incomplete {
-  background-color: lighten($secondary-color, 50%);
-}
-
-.registration-incomplete {
-  font-family: 'Open Sans';
-  font-weight: bold;
-  position: absolute;
-  bottom: .5em;
-  right: 2em;
-  color: $secondary-color !important;
-}
 .dashboard-section__status {
     &:hover button {
       display: inline-block;
@@ -246,6 +272,36 @@ $dashShadow: 0px 2px 5px #444;
   border: none;
 }
 
+.rideshare-status-section {
+  @include span-columns(12);
+  text-align: left;
+  background-color: darken($primary-color, 2%);
+  padding: .5em 2em;
+  p {
+    display: inline;
+  }
+}
+.rideshare-status {
+  margin-top: 2em;
+  padding: .5em 1em;
+  background-color: darken($primary-color, 10%);
+}
+
+.rideshare-date-section {
+  @include span-columns(12);
+  background-color: darken($primary-color, 5%);
+  padding: .5em 2em;
+  text-transform: uppercase;
+}
+
+.rideshare-status-switch {
+  display: inline-block;
+}
+
+.label-switch {
+  margin-right: 1em;
+  float: left;
+}
 
 // C3 Tweeks
 .c3-chart-arc .c3-gauge-value {
@@ -265,6 +321,28 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .edmunds-logo {
-  width: 7em;
-  margin: 0 1em;
+  width: 6em;
+  margin: 1em;
+  @media only screen and (min-width: 500px) {
+    width: 7em;
+  }
+}
+
+//CONDITIONAL STYLES
+
+.incomplete {
+  background-color: lighten($secondary-color, 50%);
+}
+
+.unconfirmed {
+  background-color: $secondary-color;
+}
+
+.registration-incomplete {
+  font-family: 'Open Sans';
+  font-weight: bold;
+  position: absolute;
+  bottom: .5em;
+  right: 2em;
+  color: $secondary-color !important;
 }

@@ -2962,6 +2962,15 @@ select {
   width: 100%; }
   .dashboard-section-container:last-child {
     margin-right: 0; }
+  .dashboard-section-container span {
+    font-weight: 700;
+    color: #ccc; }
+
+.rideshare-container {
+  padding-top: 0; }
+  @media only screen and (min-width: 768px) {
+    .rideshare-container {
+      padding-top: 2em; } }
 
 .dashboard-section {
   position: relative;
@@ -2973,28 +2982,44 @@ select {
     margin-right: 0; }
 
 .dashboard-section__title {
-  padding: .5em;
   background-color: #4c6366;
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 100%; }
+  width: 100%;
+  font-size: 1em;
+  padding: 2em; }
   .dashboard-section__title:last-child {
     margin-right: 0; }
+  @media only screen and (max-width: 768px) {
+    .dashboard-section__title {
+      padding: .5em;
+      font-size: .75em; } }
 
 .dashboard-section__map-info {
   text-align: center;
-  padding: 0 2em;
-  display: inline-block; }
+  display: inline-block;
+  margin-right: 2.35765%;
+  padding: 2em; }
+  @media only screen and (min-width: 768px) {
+    .dashboard-section__map-info {
+      float: left;
+      padding: 0; } }
 
 .dashboard-section__ride-info {
   text-align: left;
   display: inline-block;
+  min-height: 250px;
+  padding: 1em 2em;
+  background-color: #577174;
+  overflow: auto;
+  margin-top: 0 auto;
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 100%;
-  overflow: auto; }
+  width: 100%; }
+  .dashboard-section__ride-info h4 {
+    margin-bottom: 1em; }
   .dashboard-section__ride-info:last-child {
     margin-right: 0; }
   @media only screen and (min-width: 768px) {
@@ -3002,7 +3027,8 @@ select {
       float: left;
       display: block;
       margin-right: 2.35765%;
-      width: 48.82117%; }
+      width: 48.82117%;
+      margin-top: 0; }
       .dashboard-section__ride-info:last-child {
         margin-right: 0; } }
   @media only screen and (min-width: 915px) {
@@ -3010,7 +3036,8 @@ select {
       float: left;
       display: block;
       margin-right: 2.35765%;
-      width: 57.35098%; }
+      width: 65.88078%;
+      margin-top: 0; }
       .dashboard-section__ride-info:last-child {
         margin-right: 0; } }
 
@@ -3119,6 +3146,7 @@ select {
     margin-right: 0; }
 
 .dashboard-dates__date {
+  box-sizing: border-box;
   display: inline-block;
   font-size: .75em;
   padding: 1em;
@@ -3140,7 +3168,7 @@ select {
       width: 31.76157%; }
       .dashboard-dates__date:last-child {
         margin-right: 0; } }
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 915px) {
     .dashboard-dates__date {
       float: left;
       display: block;
@@ -3194,6 +3222,14 @@ select {
   margin-left: 1em;
   display: inline-block; }
 
+.page-profile__editbtn {
+  background-color: transparent;
+  color: #4c6366; }
+  .page-profile__editbtn:hover {
+    color: #99afb2; }
+  .page-profile__editbtn:active {
+    background-color: transparent; }
+
 .page-profile__fields {
   font-weight: 700; }
 
@@ -3219,23 +3255,48 @@ select {
   .page-profile__card button {
     vertical-align: bottom; }
 
-.incomplete {
-  background-color: #eed5d4; }
-
-.registration-incomplete {
-  font-family: 'Open Sans';
-  font-weight: bold;
-  position: absolute;
-  bottom: .5em;
-  right: 2em;
-  color: #8C3A37 !important; }
-
 .dashboard-section__status:hover button {
   display: inline-block; }
 
 .confirm-button, .decline-button {
   border-radius: 2em;
   border: none; }
+
+.rideshare-status-section {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 100%;
+  text-align: left;
+  background-color: #5e797d;
+  padding: .5em 2em; }
+  .rideshare-status-section:last-child {
+    margin-right: 0; }
+  .rideshare-status-section p {
+    display: inline; }
+
+.rideshare-status {
+  margin-top: 2em;
+  padding: .5em 1em;
+  background-color: #4c6366; }
+
+.rideshare-date-section {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 100%;
+  background-color: #577174;
+  padding: .5em 2em;
+  text-transform: uppercase; }
+  .rideshare-date-section:last-child {
+    margin-right: 0; }
+
+.rideshare-status-switch {
+  display: inline-block; }
+
+.label-switch {
+  margin-right: 1em;
+  float: left; }
 
 .c3-chart-arc .c3-gauge-value {
   fill: #fff; }
@@ -3253,8 +3314,25 @@ select {
     margin-right: 0; }
 
 .edmunds-logo {
-  width: 7em;
-  margin: 0 1em; }
+  width: 6em;
+  margin: 1em; }
+  @media only screen and (min-width: 500px) {
+    .edmunds-logo {
+      width: 7em; } }
+
+.incomplete {
+  background-color: #eed5d4; }
+
+.unconfirmed {
+  background-color: #8C3A37; }
+
+.registration-incomplete {
+  font-family: 'Open Sans';
+  font-weight: bold;
+  position: absolute;
+  bottom: .5em;
+  right: 2em;
+  color: #8C3A37 !important; }
 
 /* Profile Page*/
 .profile-dates {
