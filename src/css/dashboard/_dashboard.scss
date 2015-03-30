@@ -22,6 +22,11 @@ $dashShadow: 0px 2px 5px #444;
   padding: 2em;
   padding-top: 4em;
   @include span-columns(12);
+  span {
+    font-weight: 700;
+    color: #ccc;
+  }
+
 }
 .rideshare-container {
   padding-top: 0;
@@ -61,8 +66,12 @@ $dashShadow: 0px 2px 5px #444;
   min-height: 250px;
   padding: 1em 2em;
   background-color: darken($primary-color, 5%);
-  @include span-columns(12);
+  overflow:auto;
   margin-top: 0 auto;
+  h4 {
+    margin-bottom: 1em;
+  }
+  @include span-columns(12);
   @media only screen and (min-width: 768px) {
     @include span-columns(6);
     margin-top: 0;
@@ -71,7 +80,6 @@ $dashShadow: 0px 2px 5px #444;
     @include span-columns(8);
     margin-top: 0;
   }
-  overflow:auto;
 }
 
 .dashboard-section__response {

@@ -36,6 +36,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
+      rideShareService.getCost().then(function(result) {
+        console.log(result);
+        self.rideShare.cost = result;
+      });
     });
   };
   self.getRideShares();
@@ -1040,6 +1044,13 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       }
       return $q(function(resolve, reject) {
         resolve(rideShare);
+      });
+    },
+    getCost: function() {
+      return ajaxService.call($http.get('/api/v1/'+ rideShare.carpool_id +'/carpool_cost')).then(function(results) {
+        return $q(function(resolve, reject){
+          resolve( rideShare.cost = results.data );
+        });
       });
     }
   };

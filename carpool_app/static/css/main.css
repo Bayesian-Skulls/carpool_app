@@ -2962,6 +2962,9 @@ select {
   width: 100%; }
   .dashboard-section-container:last-child {
     margin-right: 0; }
+  .dashboard-section-container span {
+    font-weight: 700;
+    color: #ccc; }
 
 .rideshare-container {
   padding-top: 0; }
@@ -3009,12 +3012,14 @@ select {
   min-height: 250px;
   padding: 1em 2em;
   background-color: #577174;
+  overflow: auto;
+  margin-top: 0 auto;
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 100%;
-  margin-top: 0 auto;
-  overflow: auto; }
+  width: 100%; }
+  .dashboard-section__ride-info h4 {
+    margin-bottom: 1em; }
   .dashboard-section__ride-info:last-child {
     margin-right: 0; }
   @media only screen and (min-width: 768px) {

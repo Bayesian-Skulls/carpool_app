@@ -19,6 +19,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
+      rideShareService.getCost().then(function(result) {
+        console.log(result);
+        self.rideShare.cost = result;
+      });
     });
   };
   self.getRideShares();

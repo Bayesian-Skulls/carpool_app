@@ -54,18 +54,21 @@
         </div>
         <div class="dashboard-section__ride-info">
           <h4>Riding with {{vm.rideShare.rideo.info.name}}</h4>
-          <p>{{vm.rideShare.rideo.info.name}} status: {{vm.rideShare.rideo.status}}</p>
-          <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.rideShare.rideo.info.phone_number }}</p>
-          <p>email: {{ vm.rideShare.rideo.info.email }}</p>
-          <p>facebook: <a href="http://www.facebook.com/{{ vm.current.user.facebook_id }}">facebook.com/{{ vm.current.user.facebook_id }}</a></p>
+          <p><span>{{vm.rideShare.rideo.info.name}} status:</span> {{vm.rideShare.rideo.status}}</p>
+          <p ng-if="vm.cohort.info.phone_number"><span>phone:</span> {{ vm.rideShare.rideo.info.phone_number }}</p>
+          <p><span>email:</span> {{ vm.rideShare.rideo.info.email }}</p>
+          <p><span>facebook:</span> <a href="http://www.facebook.com/{{ vm.current.user.facebook_id }}">facebook.com/{{ vm.current.user.facebook_id }}</a></p>
           <p ng-if="vm.rideShare.role === 'driver'">
-            You’re driving and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+            <span>You’re driving</span> and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
           </p>
           <p ng-if="vm.rideShare.role === 'passenger'">
-            You’re {{ vm.rideShare.role }} and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+            <span>You’re {{ vm.rideShare.role }}</span> and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+          </p>
+          <p>
+            <span>Suggested RideShare Amount:</span> {{ vm.rideShare.cost.half_cost | currency}}
           </p>
           <div class="rideshare-status">
-            <p>ridshare status: {{vm.rideShare.status}}</p>
+            <p><span>ridshare status:</span> {{vm.rideShare.status}}</p>
           </div>
         </div>
         <div class="dashboard-dates">
