@@ -8,7 +8,7 @@ from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import oauth, db
 
 from ..tasks import build_carpools, get_rider_phone_numbers, send_confirm_email, user_money, get_gas_prices, get_directions, get_mpg, get_vehicle_api_id
-from ..tasks import calculate_trip_cost, get_operands, get_total_carpool_cost
+from ..tasks import calculate_trip_cost, get_operands, get_total_carpool_cost, generate_sms_message
 
 
 
@@ -22,18 +22,21 @@ calendar_schema = CalendarSchema()
 
 @angular_view.route("/")
 def index():
+    """home"""
     return angular_view.send_static_file("index.html")
 
 
 @api.route("/")
 @login_required
 def api_index():
+    """home of current user"""
     print("Current User:  ", current_user)
     return str(current_user.id)
 
 
 @api.route("/user", methods=['POST'])
 def register_or_login_user(data):
+    """register new user or login returner"""
     if not data:
         data = request.get_json()
     errors = UserSchema().validate(data)
@@ -56,6 +59,7 @@ def register_or_login_user(data):
 @api.route("/user", methods=['PUT'])
 @login_required
 def update_user(user_id=None, data=None):
+    """edit user profile"""
     if not user_id:
         user_id = current_user.id
     if not data:
@@ -74,16 +78,17 @@ def update_user(user_id=None, data=None):
     return jsonify({"user": user.to_dict()}), 201
 
 
-
 @api.route('/me', methods=["GET"])
 @login_required
 def get_current_user():
+    """return current user object"""
     return jsonify({"user": current_user.to_dict()})
 
 
 @api.route("/logout")
 @login_required
 def logout():
+    """logout current user"""
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     return jsonify({"user": user.to_dict()}), 201
@@ -92,6 +97,7 @@ def logout():
 @api.route('/users/<user_id>/work', methods=["POST"])
 # @login_required
 def add_work(user_id=None, data=None):
+    """create work object"""
     if not user_id:
         user_id = current_user.id
     if not data:
@@ -121,6 +127,7 @@ def add_work(user_id=None, data=None):
 @api.route('/user/vehicle', methods=["POST"])
 # @login_required
 def add_vehicle(user_id=None, data=None):
+    """create a vehicle object"""
     if not user_id:
         user_id = current_user.id
     if not data:
@@ -150,6 +157,7 @@ def add_vehicle(user_id=None, data=None):
 @api.route('/user/calendar', methods=["POST"])
 # @login_required
 def add_calendar(user_id=None, data=None):
+    """create a calendar object from a user work schedule"""
     if not user_id:
         user_id = current_user.id
     if not data:
@@ -185,6 +193,7 @@ def add_calendar(user_id=None, data=None):
 @api.route('/user/calendar', methods=["GET"])
 # @login_required
 def view_calendars(user_id=None):
+    """return a calendar"""
     if not user_id:
         user_id = current_user.id
     user_calendars = Calendar.query.filter(Calendar.user_id ==
@@ -198,6 +207,7 @@ def view_calendars(user_id=None):
 @api.route('/user/calendar/previous', methods=["GET"])
 @login_required
 def get_last_week_schedule(user_id=None):
+    """get previous user schedule"""
     if not user_id:
         user_id = current_user.id
     today = datetime.today()
@@ -217,6 +227,7 @@ def get_last_week_schedule(user_id=None):
 @api.route('/users/work', methods=["GET"])
 @login_required
 def get_work():
+    """get user's work object"""
     work = Work.query.filter_by(user_id=current_user.id)
     serializer = WorkSchema(many=True)
     result = serializer.dump(work)
@@ -226,6 +237,7 @@ def get_work():
 @api.route('/user/vehicle', methods=["GET"])
 @login_required
 def get_vehicle():
+    """get user's vehicle object"""
     vehicle_list = []
     vehicles = Vehicle.query.filter_by(user_id=current_user.id).all()
     for vehicle in vehicles:
@@ -236,6 +248,7 @@ def get_vehicle():
 @api.route('/user/calendar/<calendar_id>', methods=["DELETE"])
 @login_required
 def delete_calendar(calendar_id, user_id=None):
+    """remove a calendar object"""
     if not user_id:
         user_id = current_user.id
     calendar = Calendar.query.get(calendar_id)
@@ -248,6 +261,7 @@ def delete_calendar(calendar_id, user_id=None):
 @api.route('/user/work/<work_id>', methods=["DELETE"])
 @login_required
 def delete_work(work_id, user_id=None):
+    """delete all calendar objects associated with user_id"""
     if not user_id:
         user_id = current_user.id
     calendars = Calendar.query.filter_by(user_id=user_id, work_id=work_id).all()
@@ -265,6 +279,7 @@ def delete_work(work_id, user_id=None):
 @api.route('/user/vehicle/<vehicle_id>', methods=["DELETE"])
 @login_required
 def delete_vehicle(vehicle_id, user_id=None):
+    """delete a user's vehicle"""
     if not user_id:
         user_id = current_user.id
     vehicle = Vehicle.query.get(vehicle_id)
@@ -276,6 +291,7 @@ def delete_vehicle(vehicle_id, user_id=None):
 @api.route('/user/carpool', methods=["GET"])
 #@login_required
 def view_current_carpool(user_id=None):
+    """get a carpool object"""
     if not user_id:
         user_id = current_user.id
     current_carpool = Carpool.query.filter(or_ ((Carpool.driver_id == user_id),
@@ -287,12 +303,14 @@ def view_current_carpool(user_id=None):
 
 @api.route('/vehicle/<driver_id>/mpg', methods=["GET"])
 def get_combined_mpg(driver_id):
+    """return combined mpg for user's vehicle"""
     return get_mpg(get_vehicle_api_id(driver_id=driver_id))
 
 
 @api.route('/user/carpool', methods=["POST"])
 # @login_required
 def accept_decline_carpool(user_id=None):
+    """user can accept or decline a proposed carpool"""
     if not user_id:
         user_id = current_user.id
     if not request.get_json():
@@ -311,28 +329,38 @@ def accept_decline_carpool(user_id=None):
 @api.route('/cost/')
 @login_required
 def get_user_cost():
+    """get the cost of a user driving to work alone"""
     user_id = current_user.id
     return calculate_trip_cost(*get_operands(*user_money(user_id)))
 
 
 @api.route('/<carpool_id>/carpool_cost')
 def get_carpool_cost(carpool_id):
+    """get the total cost of driving the carpool route with the driver's car"""
     return get_total_carpool_cost(carpool_id)
 
 
 
 @api.route('/tests')
 def test_function():
+    """test the carpool generator"""
     return build_carpools()
 
 
 @api.route('/<carpool_id>/phones', methods=["GET"])
 def get_phone_numbers(carpool_id):
+    """get phone numbers for each member of carpool object"""
     return get_rider_phone_numbers(carpool=Carpool.query.get(carpool_id))
+
+
+@api.route('/test_sms/<phone_number>')
+def test_sms(phone_number):
+    return generate_sms_message(phone_number)
 
 
 @api.route('/<user_id>/cost', methods=["GET"])
 def test_cost(user_id):
+    """test the trip calculator"""
     return calculate_trip_cost(*get_operands(*user_money(user_id)))
 
 
@@ -343,6 +371,7 @@ def test_email():
 
 @api.route('/test/user/<int:user_id>')
 def login_test_user(user_id):
+    """test user login"""
     user = User.query.get(user_id)
     if user:
         login_user(user)

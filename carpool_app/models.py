@@ -26,18 +26,21 @@ class User(db.Model, UserMixin):
         return getattr(self, "_password", None)
 
     def set_password(self, password):
+        """encrypt user password"""
         self._password = password
         self.encrypted_password = bcrypt.generate_password_hash(password)
 
     password = property(get_password, set_password)
 
     def check_password(self, password):
+        """verify password"""
         return bcrypt.check_password_hash(self.encrypted_password, password)
 
     def __repr__(self):
         return "<User {}>".format(self.email)
 
     def to_dict(self):
+        """return user object as dictionary"""
         return {"id": self.id,
                 "name": self.name,
                 "email": self.email,
@@ -57,6 +60,7 @@ class User(db.Model, UserMixin):
 
 @login_manager.user_loader
 def load_user(id):
+    """return current user"""
     return User.query.get(id)
 
 
@@ -73,6 +77,7 @@ class Work(db.Model):
     longitude = db.Column(db.Float)
 
     def to_dict(self):
+        """return work object as dictionary"""
         return {"id": self.id,
                 "name": self.name,
                 "user_id": self.user_id,
@@ -93,6 +98,7 @@ class Calendar(db.Model):
     departure_datetime = db.Column(db.DateTime, nullable=False)
 
     def to_dict(self):
+        """return calendar object as dictionary"""
         return {"id": self.id,
                 "user_id": self.user_id,
                 "work_id": self.work_id,
@@ -118,6 +124,7 @@ class Carpool(db.Model):
 
     @property
     def users(self):
+        """get users in this carpool"""
         user1 = Calendar.query.filter(
             Calendar.id == self.driver_calendar_id).first().user_id
         user2 = Calendar.query.filter(
@@ -126,6 +133,7 @@ class Carpool(db.Model):
 
     @property
     def details(self):
+        """return all carpool data in a dictionary"""
         driver_arrival_time = Calendar.query.filter(
             Calendar.id == self.driver_calendar_id).first().arrival_datetime
         driver_depart_time = Calendar.query.filter(
@@ -167,6 +175,7 @@ class Carpool(db.Model):
                 }
 
     def to_dict(self):
+        """return carpool object as dictionary"""
         return {"id": self.id,
                 "driver_accepted": self.driver_accepted,
                 "passenger_accepted": self.passenger_accepted,
@@ -187,6 +196,7 @@ class Vehicle(db.Model):
     plate_number = db.Column(db.String(16))
 
     def to_dict(self):
+        """return vehicle object as dictionary"""
         return {"id": self.id,
                 "user_id": self.user_id,
                 "year": self.year,

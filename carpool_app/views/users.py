@@ -18,10 +18,12 @@ facebook = oauth.remote_app('facebook',
 
 @facebook.tokengetter
 def get_facebook_token(token=None):
+    """get facebook oauth token"""
     return session.get('facebook_token')
 
 
 def require_login(view):
+    """direct user based on logged in status"""
     @wraps(view)
     def decorated_view(*args, **kwargs):
         if 'facebook_token' in session:
@@ -33,6 +35,7 @@ def require_login(view):
 
 @users.route("/facebook/login")
 def facebook_login():
+    """log in user via facebook"""
     session.pop('facebook_token', None)
     return facebook.authorize(callback=url_for('.facebook_authorized',
                                                _external=True,
@@ -41,6 +44,7 @@ def facebook_login():
 
 @users.route('/login/facebook/authorized', methods=["GET", "POST"])
 def facebook_authorized():
+    """verify that user completed facebook authorization"""
     resp = facebook.authorized_response()
     if resp is None:
         flash('You denied the request to sign in.')
@@ -64,6 +68,7 @@ def facebook_authorized():
 @users.route('/facebook/photo/<facebook_id>')
 @login_required
 def facebook_photo(facebook_id=None):
+    """return user's facebook profile picture"""
     if facebook_id:
         photo = facebook.get('/{}/picture?redirect=false&height=250&width=250'.format(facebook_id))
     else:

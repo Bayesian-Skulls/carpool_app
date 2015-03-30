@@ -47,26 +47,51 @@ def create_route(driver, passenger=None):
     else:
         return [(driver["home_latitude"], driver["home_longitude"]),
                 (passenger["home_latitude"], passenger["home_longitude"]),
-                (passenger["work_latitude"], driver["work_longitude"]),
+                (passenger["work_latitude"], passenger["work_longitude"]),
                 (driver["work_latitude"], driver["work_longitude"])]
 
 
-def create_users(num_users):
+def create_users():
+    home_addresses = ["609 N Boundary St. Raleigh, NC 27604",
+                      "407 Polk St Raleigh, NC 27604",
+                      "1129 Harvey St Raleigh, NC 27608",
+                      "1507 Oberlin Rd Raleigh, NC 27608",
+                      "499 N Driver St Durham, NC 27703",
+                      "2107 Hart St Durham, NC 27703"]
+    work_addresses = ["334 Blackwell Street Durham, NC 27701",
+                      "318 Blackwell St Durham, NC 27701",
+                      "100 SAS Campus Dr Cary, NC 27513",
+                      "1505 N Harrison Ave Cary, NC 27513",
+                      "3600 Glenwood Ave Raleigh, NC 27612",
+                      "2211 Summit Park Ln Raleigh, NC 27612"]
     users_list = []
-    for user in range(num_users):
-        name =  seeder.user_generator(1)
-        address = seeder.generate_location_json(key)
-        work = seeder.generate_location_json(key)
+    for index, address in enumerate(home_addresses):
 
-        new_user = {"name": fake.name(),
-                    "home_latitude": address["latitude"],
-                    "home_longitude": address["longitude"],
-                    "work_latitude": work["latitude"],
-                    "work_longitude": work["longitude"]
-                    }
+        new_user = {"name": fake.name()}
+        home = address.replace(" ", "%20")
+        work = work_addresses[index].replace(" ", "%20")
+        new_user["home_latitude"], new_user["home_longitude"] = \
+            get_lat_long(home)
+        new_user["work_latitude"], new_user["work_longitude"] = \
+            get_lat_long(work)
         users_list.append(new_user)
 
     return users_list
+
+
+def get_lat_long(address):
+    base_url = "http://open.mapquestapi.com/geocoding/v1/address?key={}"\
+               "&location={}".format(key, address)
+
+    request = url.urlopen(base_url)
+    request = str(request.read(), encoding="utf-8")
+    data = json.loads(request)
+
+    for item in data["results"]:
+        for location in item["locations"]:
+            new_lat = location["latLng"]["lat"]
+            new_long = location["latLng"]["lng"]
+    return new_lat, new_long
 
 
 def color_mapper(k):
@@ -103,9 +128,9 @@ def pair_users(users):
                 potential_pair.append((row, row2))
         try:
             match = current.index(min(current))
+            pairs.append(potential_pair[match])
         except ValueError:
             continue
-        pairs.append(potential_pair[match])
         for item in users[index:]:
             if (item["name"] == pairs[-1][0]["name"] or
                     item["name"] == pairs[-1][1]["name"]):
@@ -120,10 +145,25 @@ def determine_best_route(user_pair):
     route_candidate_1 = create_route(user1, user2)
     route_candidate_2 = create_route(user1, user2)
 
-    driver, directions = select_driver(route_candidate_1, route_candidate_2)
+    driver, directions, time = select_driver(route_candidate_1, route_candidate_2)
+    if not driver:
+        driver = user1
+    else:
+        driver = user2
 
-    return directions
+    if check_carpool_efficiency(driver, directions, time):
+        return directions
+    else:
+        return None
 
+
+def check_carpool_efficiency(driver, carpool_directions, carpool_time):
+   driver_directions, driver_time = get_line_shape([(driver["home_latitude"],
+                                                     driver["home_longitude"]),
+                                                    (driver["work_latitude"],
+                                                     driver["work_longitude"])],
+                                                    time=True)
+   return not carpool_time >= (driver_time * 1.5)
 
 
 def select_driver(route_1, route_2):
@@ -131,6 +171,6 @@ def select_driver(route_1, route_2):
     route_2_directions, time_2 = get_line_shape(route_2, time=True)
 
     if (time_1 < time_2):
-        return 0, route_1_directions
+        return 0, route_1_directions, time_1
     else:
-        return 1, route_2_directions
+        return 1, route_2_directions, time_2
