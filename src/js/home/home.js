@@ -23,5 +23,5 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
     $location.hash('how');
     $anchorScroll();
-  }
+  };
 }]);

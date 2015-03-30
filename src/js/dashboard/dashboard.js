@@ -6,8 +6,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService', '$anchorScroll',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService, $anchorScroll){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'workDate', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService', '$anchorScroll', '$timeout',
+      function($log, $location, current, workDate, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService, $anchorScroll, $timeout){
 
   var self = this;
   self.current = current;
@@ -15,7 +15,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   if (current.name) {
     $locaton.path('/');
   }
-
+  self.schedule = workDate();
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
@@ -27,45 +27,32 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var response = {
       response: self.rideShare.you.accepted
     };
-    console.log('dashboard fired');
-    rideShareService.respond(response);
-    rideShareService.process();
-    self.getRideShares();
-  }
-
-  // self.rideShareRes = function(res) {
-  //   var response = {
-  //     response: res
-  //   };
-  //   self.rideShare.you.accepted = res;
-  //   rideShareService.respond(response).then(function(result){
-  //     $log.log('result');
-  //     $log.log(result);
-  //   });
-  //   rideShareService.process();
-  //   self.getRideShares();
-  // };
+    rideShareService.respond(response).then(function(data) {
+      rideShareService.process().then(function(data){
+        self.rideShare = data;
+      });
+    });
+  };
 
   self.editProfile = function() {
-    $location.hash('profile')
+    $location.hash('profile');
     $anchorScroll();
   };
 
   self.edit = function() {
-    console.log(self.current);
     userService.editUser(self.current.user).then(function(result) {
-      console.log(result);
+      $log.log(result);
     });
     //
     vehicleService.addVehicle(self.current.vehicles[0]).then(function(result) {
-      console.log(result);
+      $log.log(result);
     });
 
     workService.addWork(self.current.work[0], current.user).then(function(result) {
-      console.log(result);
+      $log.log(result);
       self.current.work[0] = result.data.work;
     });
-  }
+  };
 
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
@@ -76,13 +63,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       current.getSchedule();
     });
   };
-  self.addDate = function(dateItem) {
-    self.schedule.user_id = current.user.id;
-    console.log(self.schedule);
-    scheduleService.addDate(self.schedule).then(function(result) {
-      console.log(result);
+  self.addDate = function() {
+    $timeout(function() {
+      var arriveDate = new Date(self.schedule.utc_date.toDateString());
+      var departDate = new Date(self.schedule.utc_date.toDateString());
+      arriveDate.setHours(Math.floor(self.schedule.arrival_datetime / 60), self.schedule.arrival_datetime % 60, 0, 0);
+      departDate.setHours(Math.floor(self.schedule.departure_datetime / 60), self.schedule.departure_datetime % 60, 0, 0);
+      var newDate = {
+        user_id: current.user.id,
+        work_id: current.work[0].id,
+        arrival_datetime: arriveDate.toISOString(),
+        departure_datetime: departDate.toISOString()
+      };
+      scheduleService.addDate(newDate).then(function(result) {
+        self.current.schedule.push(result.data.calendar);
+      });
     });
-  }
+  };
+
+
   self.deleteDate = function(dateItem, index) {
     $log.log(index);
     scheduleService.deleteDate(dateItem).then(function(result) {
@@ -102,7 +101,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     encouragementService.getStat().then(function(data) {
       self.stat = data;
     });
-  }
+  };
   self.getStat();
 
 }]);

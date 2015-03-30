@@ -23,8 +23,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   $routeProvider.when('/dashboard', routeOptions);
 
-}]).controller('dashCtrl', ['$log', '$location', 'current', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService', '$anchorScroll',
-      function($log, $location, current, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService, $anchorScroll){
+}]).controller('dashCtrl', ['$log', '$location', 'current', 'workDate', 'userService', 'workService', 'vehicleService', 'scheduleService', 'rideShareService', 'encouragementService', '$anchorScroll', '$timeout',
+      function($log, $location, current, workDate, userService, workService, vehicleService, scheduleService, rideShareService, encouragementService, $anchorScroll, $timeout){
 
   var self = this;
   self.current = current;
@@ -32,7 +32,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   if (current.name) {
     $locaton.path('/');
   }
-
+  self.schedule = workDate();
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
@@ -44,45 +44,32 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     var response = {
       response: self.rideShare.you.accepted
     };
-    console.log('dashboard fired');
-    rideShareService.respond(response);
-    rideShareService.process();
-    self.getRideShares();
-  }
-
-  // self.rideShareRes = function(res) {
-  //   var response = {
-  //     response: res
-  //   };
-  //   self.rideShare.you.accepted = res;
-  //   rideShareService.respond(response).then(function(result){
-  //     $log.log('result');
-  //     $log.log(result);
-  //   });
-  //   rideShareService.process();
-  //   self.getRideShares();
-  // };
+    rideShareService.respond(response).then(function(data) {
+      rideShareService.process().then(function(data){
+        self.rideShare = data;
+      });
+    });
+  };
 
   self.editProfile = function() {
-    $location.hash('profile')
+    $location.hash('profile');
     $anchorScroll();
   };
 
   self.edit = function() {
-    console.log(self.current);
     userService.editUser(self.current.user).then(function(result) {
-      console.log(result);
+      $log.log(result);
     });
     //
     vehicleService.addVehicle(self.current.vehicles[0]).then(function(result) {
-      console.log(result);
+      $log.log(result);
     });
 
     workService.addWork(self.current.work[0], current.user).then(function(result) {
-      console.log(result);
+      $log.log(result);
       self.current.work[0] = result.data.work;
     });
-  }
+  };
 
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
@@ -93,13 +80,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       current.getSchedule();
     });
   };
-  self.addDate = function(dateItem) {
-    self.schedule.user_id = current.user.id;
-    console.log(self.schedule);
-    scheduleService.addDate(self.schedule).then(function(result) {
-      console.log(result);
+  self.addDate = function() {
+    $timeout(function() {
+      var arriveDate = new Date(self.schedule.utc_date.toDateString());
+      var departDate = new Date(self.schedule.utc_date.toDateString());
+      arriveDate.setHours(Math.floor(self.schedule.arrival_datetime / 60), self.schedule.arrival_datetime % 60, 0, 0);
+      departDate.setHours(Math.floor(self.schedule.departure_datetime / 60), self.schedule.departure_datetime % 60, 0, 0);
+      var newDate = {
+        user_id: current.user.id,
+        work_id: current.work[0].id,
+        arrival_datetime: arriveDate.toISOString(),
+        departure_datetime: departDate.toISOString()
+      };
+      scheduleService.addDate(newDate).then(function(result) {
+        self.current.schedule.push(result.data.calendar);
+      });
     });
-  }
+  };
+
+
   self.deleteDate = function(dateItem, index) {
     $log.log(index);
     scheduleService.deleteDate(dateItem).then(function(result) {
@@ -119,7 +118,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     encouragementService.getStat().then(function(data) {
       self.stat = data;
     });
-  }
+  };
   self.getStat();
 
 }]);
@@ -242,7 +241,7 @@ app.directive('mileageChart', function() {
             gauge: {
                label: {
                    format: function(value, ratio) {
-                       return '$' + value;
+                       return '$' + Math.floor(value);
                    },
                    min: 0,
                    max: 50,
@@ -293,16 +292,20 @@ app.directive('picker', function() {
   return {
       scope: {
           pickerType: '=?',
-          details: '=?'
+          details: '=?',
       },
       link: function(scope, element, attrs, model) {
         if(scope.pickerType==='date'){
           $(element).pickadate({
-            formatSubmit: 'yyyy/mm/dd'
+            formatSubmit: 'yyyy/mm/dd',
+            onSet: function(submit) {
+              scope.details = new Date( submit.select );
+            }
           });
         } else if (scope.pickerType==='time') {
-          $(element[0]).pickatime({
+          $(element).pickatime({
             onSet: function(time) {
+              console.log('set time');
               scope.details = time.select;
             }
           });
@@ -336,7 +339,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
     $location.hash('how');
     $anchorScroll();
-  }
+  };
 }]);
 
 app.directive('footerNav', function() {
@@ -512,10 +515,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   self.editWork = function() {
 
-  }
+  };
   self.editVehicle = function() {
-    
-  }
+
+  };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
     workService.deleteWork(workItem).then(function(result) {
@@ -702,18 +705,13 @@ app.factory('encouragementService', ['ajaxService', '$http', 'current', '$q', fu
 app.factory('workDate', [ function(){
 
   return function (spec) {
-    console.log(spec);
-    var departDate = new Date(spec.date);
-    var arriveDate = new Date(spec.date);
-    console.log(departDate);
-    console.log(arriveDate);
-    var date = {
-      user_id: spec.user_id || current.user.id,
-      work_id: spec.work_id || current.work[0].id,
+    spec = spec || {};
+    return {
+      user_id: spec.user_id || undefined,
+      work_id: spec.work_id || undefined,
       arrival_datetime: spec.arrival_datetime || undefined,
       departure_datetime: spec.departure_datetime || undefined
-    }
-    return date;
+    };
   };
 }]);
 
@@ -733,10 +731,6 @@ app.factory('Schedule', ['workDate','$log', 'current', function(workDate, $log, 
       var weekDate = today.getDate() + dateOffset + index;
       var departDate = new Date();
       var arriveDate = new Date();
-      $log.log(spec);
-      $log.log(spec);
-      var depart = spec.departing.split(':');
-      var arrive = spec.arriving.split(':');
       departDate.setUTCDate(weekDate);
       arriveDate.setUTCDate(weekDate);
       departDate.setHours(Math.floor(spec.depart_time / 60), spec.depart_time % 60, 0, 0);
@@ -815,7 +809,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
         currentSpec.work.forEach(function(work, index) {
           work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
-        })
+        });
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
         } else {
@@ -885,8 +879,7 @@ app.factory('scheduleService', ['ajaxService', '$http', 'workDate', function(aja
   return {
 
     addDate: function(date) {
-      console.log(workDate(date));
-      // ajaxService.call($http.post('/api/v1/user/calendar', date));
+      return ajaxService.call($http.post('/api/v1/user/calendar', date));
     },
     addDates: function(dates) {
         dates.forEach(function(date) {
@@ -1006,11 +999,10 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       });
     },
     respond: function(res) {
-        console.log('rideShare');
         res.carpool_id = rideShare.carpool_id;
         return ajaxService.call($http.post('/api/v1/user/carpool', res));
     },
-    process: function(result) {
+    process: function() {
       // are we passenger or driver?
       self.getStatus();
       if (rideShare.driver.info.id === currentSpec.user.id){
@@ -1022,7 +1014,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
         rideShare.you = self.isConfirmed(rideShare.passenger);
         rideShare.rideo = self.isConfirmed(rideShare.driver);
       }
-      return result;
+      return $q(function(resolve,reject) {
+        resolve(rideShare);
+      });
     },
 
     isConfirmed: function(person) {
@@ -1037,7 +1031,6 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
     },
 
     getStatus: function() {
-
       if (rideShare.driver.accepted === true && rideShare.passenger.accepted === true) {
         rideShare.status = 'confirmed';
       } else if (rideShare.driver.accepted === false && rideShare.passenger.accepted === false) {
@@ -1045,9 +1038,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       } else {
         rideShare.status = 'pending';
       }
-
-
-      return rideShare;
+      return $q(function(resolve, reject) {
+        resolve(rideShare);
+      });
     }
   };
   return self;

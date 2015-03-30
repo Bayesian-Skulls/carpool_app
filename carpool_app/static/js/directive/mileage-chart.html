@@ -8,8 +8,8 @@
         <img class="edmunds-logo"src="/static/img/edmunds.png"  alt="edmunds logo" />
       </a>
     </div>
-    <p>Based on your current drive to work and the estimated mpg for your vehicle we estimate you spend {{vm.cost.cost | currency}} per week in gas alone</p>
-    <p>You could cut that cost in half to {{vm.cost.half_cost | currency}}</p>
+    <p>Based on your current drive to work and the estimated mpg for your vehicle we estimate you spend {{(vm.cost.cost * 5) | currency}} per week in gas alone</p>
+    <p>You could cut that cost in half to {{vm.cost.half_cost * 5 | currency}}</p>
   </div>
 
 </div>

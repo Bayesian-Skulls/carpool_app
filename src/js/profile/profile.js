@@ -45,10 +45,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
   self.editWork = function() {
 
-  }
+  };
   self.editVehicle = function() {
-    
-  }
+
+  };
   self.deleteWork = function(workItem, index) {
     // IMPLEMENT 'are you sure?' if there are dates associated with this job
     workService.deleteWork(workItem).then(function(result) {

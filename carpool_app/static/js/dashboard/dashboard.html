@@ -7,6 +7,7 @@
         <a ng-if="vm.current.incomplete" class="registration-incomplete" href="#/register">registration incomplete</a>
         <div class="page-profile__card">
           <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          <button class="page-profile__editbtn" ng-click="vm.editProfile()">(EDIT)</button>
         </div>
         <div class="page-profile__card">
           <h5>PROFILE</h5>
@@ -21,45 +22,58 @@
           <p>I work at <span class="page-profile__fields">{{vm.current.work[0].name}}</span>
              in <span class="page-profile__fields">{{vm.current.work[0].city}}</span></p>
           </p>
-          <button ng-click="vm.editProfile()">EDIT</button>
         </div>
       </div>
-
-    <h3 class="dashboard-section__title">Upcoming {{ vm.rideShare.driver.arrival | date: 'MMMM dd'}}</h3>
-    <div class="dashboard-section-container">
+    <div ng-show="!vm.rideShare.driver" class="dashboard-section__title">
+      <h3>DASHBOARD</h3>
+    </div>
+    <div ng-show="vm.rideShare.driver" class="dashboard-section__title">
+      <h3>UPCOMING RIDESHARE</h3>
+    </div>
+    <div ng-show="vm.rideShare.driver" class="rideshare-date-section">
+      <p>{{ vm.rideShare.driver.arrival | date: 'MMMM dd'}}</p>
+    </div>
+    <div ng-show="vm.rideShare.driver" class="rideshare-status-section" ng-class="{unconfirmed: vm.rideShare.you.status !== 'confirmed'}">
+      <p>
+        <div ng-show="vm.rideShare.you" class="rideshare-status-switch">
+          <label class="label-switch">
+            <input ng-change="vm.rideShareResponse()" type="checkbox" ng-model="vm.rideShare.you.accepted"/>
+            <div class="checkbox"></div>
+          </label>
+          <span ng-if="vm.rideShare.you.status === 'unconfirmed'">Are You Going? Confirm Here.</span>
+          <span ng-if="vm.rideShare.you.status === 'confirmed'">You have confirmed.</span>
+          <span ng-if="vm.rideShare.you.status === 'declined'">You have declined. Need to change?</span>
+        </div>
+      </p>
+    </div>
+    <div class="dashboard-section-container rideshare-container">
     <!-- Section for displaying Ride Shares -->
       <div ng-show="vm.rideShare.driver" class="carpool-details">
         <div class="dashboard-section__map-info">
           <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:250px; height:250px;"></div>
         </div>
         <div class="dashboard-section__ride-info">
-          <p>YOUR STATUS</p>
-          <label class="label-switch">
-            <input ng-change="vm.rideShareResponse()" type="checkbox" ng-model="vm.rideShare.you.accepted"/>
-            <div class="checkbox"></div>
-          </label>
           <h4>Riding with {{vm.rideShare.rideo.info.name}}</h4>
-          <p>
-            You’re {{ vm.rideShare.role }} and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
-          </p>
-          <h5>contact info:</h5>
+          <p>{{vm.rideShare.rideo.info.name}} status: {{vm.rideShare.rideo.status}}</p>
           <p ng-if="vm.cohort.info.phone_number">phone: {{ vm.rideShare.rideo.info.phone_number }}</p>
           <p>email: {{ vm.rideShare.rideo.info.email }}</p>
-          <p class="dashboard-section__status">{{vm.current.user.name}}:
-            {{vm.rideShare.you.status}}
-          <button ng-hide="vm.rideShare.you.accepted === true" class="clear-button confirm-button" ng-click="vm.rideShareRes(true)"><i class="fa fa-check"></i> confirm</button>
-          <button ng-hide="vm.rideShare.you.accepted === false" class="clear-button decline-button" ng-click="vm.rideShareRes(false)"><i class="fa fa-times"></i> decline</button>
+          <p>facebook: <a href="http://www.facebook.com/{{ vm.current.user.facebook_id }}">facebook.com/{{ vm.current.user.facebook_id }}</a></p>
+          <p ng-if="vm.rideShare.role === 'driver'">
+            You’re driving and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
           </p>
-          <p>{{vm.rideShare.rideo.info.name}}:
-            {{vm.rideShare.rideo.status}}
+          <p ng-if="vm.rideShare.role === 'passenger'">
+            You’re {{ vm.rideShare.role }} and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
           </p>
-          <p>current status: {{vm.rideShare.status}}</p>
+          <div class="rideshare-status">
+            <p>ridshare status: {{vm.rideShare.status}}</p>
+          </div>
         </div>
         <div class="dashboard-dates">
+          <h5>UPCOMING DATES </h5>
           <ul>
             <li class="dashboard-dates__date" ng-repeat="date in vm.current.schedule">
               <p>
-                {{ date.depart | date:"MMM, dd" }} <br>
+                {{ date.departure_datetime | date:"MMM, dd" }} <br>
                 DEPART: {{ date.departure_datetime | date: 'h:mma' }} <br>
                 RETURN: {{ date.arrival_datetime | date: 'h:mma' }}
                 <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.deleteDate(date)"><i class="fa fa-trash"></i></button>
@@ -71,13 +85,14 @@
               NEW DATE
             </h5>
             <label class="dashboard-input__label" for="schedule-date">date</label>
-            <input class="register-input dashboard-input" name="schedule-date" ng-model="vm.schedule.date" details="vm.schedule.arrive_time" picker picker-type="'date'">
+            <input class="register-input dashboard-input" name="schedule-date" ng-model="vm.schedule.date" details="vm.schedule.utc_date" picker picker-type="'date'">
 
             <label class="dashboard-input__label" for="schedule-arrive">from</label>
-            <input class="register-input dashboard-input" name="schedule-arrive" ng-model="vm.schedule.arriving" details="vm.schedule.arrive_time" picker picker-type="'time'">
+            <input picker class="register-input dashboard-input" type="text" name="schedule-arrive" ng-model="vm.schedule.arriving" details="vm.schedule.arrival_datetime" picker-type="'time'">
 
             <label class="dashboard-input__label" for="schedule-depart">to</label>
-            <input class="register-input dashboard-input" name="schedule-depart" ng-model="vm.schedule.departing" details="vm.schedule.depart_time" picker picker-type="'time'">
+            <input picker class="register-input dashboard-input" type="text" name="schedule-depart" ng-model="vm.schedule.departing" details="vm.schedule.departure_datetime" picker-type="'time'">
+
 
             <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.addDate()"><i class="fa fa-plus"></i></button>
           </div>
@@ -126,6 +141,13 @@
             Their address is
             <input googleplace name="work-address" details="vm.newWork" class="register-input dashboard-input address-input" type="text" ng-model="vm.current.work[0].address" autcomplete="false">.
           </p>
+          <!-- <p ng-repeat="work in vm.current.work">
+            <h5 for="work-name">Your Work</h5>
+            I work for <input class="register-input dashboard-input" type="text" name="workName" ng-model="work.name" placeholder="Business Name">.
+            Their address is
+            <input googleplace name="work-address" details="vm.newWork" class="register-input dashboard-input address-input" type="text" ng-model="work.address" autcomplete="false">.
+          </p> -->
+
           <p>
           </p>
           <h5>My Ride</h5>

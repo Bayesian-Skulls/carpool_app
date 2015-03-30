@@ -7,7 +7,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.work = result.data.work;
         currentSpec.work.forEach(function(work, index) {
           work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
-        })
+        });
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
         } else {

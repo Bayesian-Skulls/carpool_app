@@ -17,11 +17,10 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       });
     },
     respond: function(res) {
-        console.log('rideShare');
         res.carpool_id = rideShare.carpool_id;
         return ajaxService.call($http.post('/api/v1/user/carpool', res));
     },
-    process: function(result) {
+    process: function() {
       // are we passenger or driver?
       self.getStatus();
       if (rideShare.driver.info.id === currentSpec.user.id){
@@ -33,7 +32,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
         rideShare.you = self.isConfirmed(rideShare.passenger);
         rideShare.rideo = self.isConfirmed(rideShare.driver);
       }
-      return result;
+      return $q(function(resolve,reject) {
+        resolve(rideShare);
+      });
     },
 
     isConfirmed: function(person) {
@@ -48,7 +49,6 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
     },
 
     getStatus: function() {
-
       if (rideShare.driver.accepted === true && rideShare.passenger.accepted === true) {
         rideShare.status = 'confirmed';
       } else if (rideShare.driver.accepted === false && rideShare.passenger.accepted === false) {
@@ -56,9 +56,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
       } else {
         rideShare.status = 'pending';
       }
-
-
-      return rideShare;
+      return $q(function(resolve, reject) {
+        resolve(rideShare);
+      });
     }
   };
   return self;

@@ -25,7 +25,7 @@ app.directive('mileageChart', function() {
             gauge: {
                label: {
                    format: function(value, ratio) {
-                       return '$' + value;
+                       return '$' + Math.floor(value);
                    },
                    min: 0,
                    max: 50,
