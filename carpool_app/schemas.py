@@ -1,5 +1,4 @@
 from marshmallow import Schema, fields, ValidationError
-from .models import User, Work
 
 
 class UserSchema(Schema):
