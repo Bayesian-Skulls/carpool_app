@@ -1,8 +1,6 @@
-import os
 import json
 import re
 import urllib.request as url
-import seeder
 import random
 from faker import Faker
 
@@ -14,9 +12,9 @@ with open("carpool_app/config.cfg") as file:
 
 
 def get_line_shape(points, time=False):
-    base_url = "http://open.mapquestapi.com/directions/v2/route?key={}"\
-               "&callback=renderAdvancedNarrative&outFormat=json&routeType="\
-               "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw"\
+    base_url = "http://open.mapquestapi.com/directions/v2/route?key={}" \
+               "&callback=renderAdvancedNarrative&outFormat=json&routeType=" \
+               "fastest&timeType=1&enhancedNarrative=false&shapeFormat=raw" \
                "&generalize=0&locale=en_US&unit=m".format(key)
 
     for index, point in enumerate(points):
@@ -58,13 +56,34 @@ def create_users():
                       "1129 Harvey St Raleigh, NC 27608",
                       "1507 Oberlin Rd Raleigh, NC 27608",
                       "499 N Driver St Durham, NC 27703",
-                      "2107 Hart St Durham, NC 27703"]
+                      "2107 Hart St Durham, NC 27703",
+                      "1118 Carroll St Durham, NC 27707",
+                      "1502 Southwood Dr Durham, NC 27707",
+                      "2920 Millbrook Green Dr Raleigh, NC 27604",
+                      "2198 Harrod St Raleigh, NC 27604",
+                      "2201 Sierra Dr Raleigh, NC 27603",
+                      "656 Maywood Ave Raleigh, NC 27603",
+                      "210 Hampton Woods Ln Cary, NC 27607",
+                      "598 Webster St Cary, NC 27511",
+                      "201 E Rosemary St Chapel Hill, NC 27514",
+                      "313 Caldwell St Chapel Hill, NC 27516"]
+
     work_addresses = ["334 Blackwell Street Durham, NC 27701",
                       "318 Blackwell St Durham, NC 27701",
                       "100 SAS Campus Dr Cary, NC 27513",
                       "1505 N Harrison Ave Cary, NC 27513",
                       "3600 Glenwood Ave Raleigh, NC 27612",
-                      "2211 Summit Park Ln Raleigh, NC 27612"]
+                      "2211 Summit Park Ln Raleigh, NC 27612",
+                      "100 E Davie St Raleigh, NC 27601",
+                      "511 W Hargett St Raleigh, NC 27603",
+                      "115 N Duke St Durham, NC 27701",
+                      "201 W Main St Durham, NC 27701",
+                      "4205 S Miami Blvd Durham, NC 27703",
+                      "5111 Chin Page Rd Durham, NC 27703",
+                      "5404 Durham-Chapel Hill Blvd Durham, NC 27707",
+                      "4600 old Chapel Hill rd Durham, NC 27707",
+                      "1002 9th St Durham, NC 27705",
+                      "1058 W Club Blvd Durham, NC 27701"]
     users_list = []
     for index, address in enumerate(home_addresses):
 
@@ -81,14 +100,14 @@ def create_users():
 
 
 def get_lat_long(address):
-    base_url = "http://open.mapquestapi.com/geocoding/v1/address?key={}"\
+    base_url = "http://open.mapquestapi.com/geocoding/v1/address?key={}" \
                "&location={}".format(key, address)
 
     request = url.urlopen(base_url)
     request = str(request.read(), encoding="utf-8")
     data = json.loads(request)
-
     for item in data["results"]:
+
         for location in item["locations"]:
             new_lat = location["latLng"]["lat"]
             new_long = location["latLng"]["lng"]
@@ -100,7 +119,7 @@ def color_mapper(k):
     for _ in range(k):
         r = lambda: random.randint(0, 255)
         colors.append('#%02X%02X%02X' % (r(), r(), r()))
-
+        
     def color_gen(x):
         # Generate list of random colors that match number of carpools
         return colors[x]
@@ -135,7 +154,7 @@ def pair_users(users):
             continue
         for item in users[index:]:
             if (item["name"] == pairs[-1][0]["name"] or
-                    item["name"] == pairs[-1][1]["name"]):
+                        item["name"] == pairs[-1][1]["name"]):
 
                 item["matched"] = True
 
@@ -145,7 +164,7 @@ def pair_users(users):
 def determine_best_route(user_pair):
     user1, user2 = user_pair
     route_candidate_1 = create_route(user1, user2)
-    route_candidate_2 = create_route(user1, user2)
+    route_candidate_2 = create_route(user2, user1)
 
     driver, directions, time = select_driver(route_candidate_1,
                                              route_candidate_2)
@@ -155,15 +174,18 @@ def determine_best_route(user_pair):
         driver = user2
 
     if check_carpool_efficiency(driver, directions, time):
-        return directions
+        return directions, driver
     else:
-        return None
+        return None, None
 
 
 def check_carpool_efficiency(driver, carpool_directions, carpool_time):
-    driver_directions, driver_time = get_line_shape([
-        (driver["home_latitude"], driver["home_longitude"]),
-        (driver["work_latitude"], driver["work_longitude"])], time=True)
+    driver_directions, driver_time = get_line_shape([(driver["home_latitude"],
+                                                      driver["home_longitude"]),
+                                                     (driver["work_latitude"],
+                                                      driver["work_longitude"])],
+                                                    time=True)
+
     return not carpool_time >= (driver_time * 1.5)
 
 
