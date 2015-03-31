@@ -15,6 +15,10 @@ app.directive('mainNav', function() {
       var self = this;
       self.current = current;
 
+      // if(!self.current.user.name) {
+      //   $location.path('/');
+      // }
+
       self.logout = function() {
         userService.logout().then(function () {
           $location.path('/');

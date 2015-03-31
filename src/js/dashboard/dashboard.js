@@ -54,7 +54,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
     workService.addWork(self.current.work[0], current.user).then(function(result) {
       $log.log(result);
-      self.current.work[0] = result.data.work;
+      // self.current.work[0] = result.data.work;
     });
   };
 
@@ -74,14 +74,15 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       arriveDate.setHours(Math.floor(self.schedule.arrival_datetime / 60), self.schedule.arrival_datetime % 60, 0, 0);
       departDate.setHours(Math.floor(self.schedule.departure_datetime / 60), self.schedule.departure_datetime % 60, 0, 0);
       var newDate = {
-        user_id: current.user.id,
-        work_id: current.work[0].id,
+        user_id: self.current.user.id,
+        work_id: self.current.work[0].id,
         arrival_datetime: arriveDate.toISOString(),
         departure_datetime: departDate.toISOString()
       };
       scheduleService.addDate(newDate).then(function(result) {
         self.current.schedule.push(result.data.calendar);
       });
+      self.schedule = workDate();
     });
   };
 
@@ -107,5 +108,11 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     });
   };
   self.getStat();
+
+  self.fixError = function() {
+    console.log('fired');
+    $location.hash(self.current.errorURL);
+    $anchorScroll();
+  }
 
 }]);

@@ -13,21 +13,24 @@ $dashShadow: 0px 2px 5px #444;
 
   .page-content {
     margin-bottom: 2em;
-
   }
 }
 
 .dashboard-section-container {
   background-color: $primary-color;
-  padding: 2em;
-  padding-top: 4em;
   @include span-columns(12);
   span {
     font-weight: 700;
     color: #ccc;
   }
-
 }
+@media only screen and (min-width: 768px) {
+  .dashboard-section-container {
+    padding: 2em;
+    padding-top: 4em;
+  }
+}
+
 .rideshare-container {
   padding-top: 0;
   @media only screen and (min-width: 768px) {
@@ -91,8 +94,10 @@ $dashShadow: 0px 2px 5px #444;
 
 .dashboard-chart {
   @include span-columns(12);
+  padding: 1em;
   @media only screen and (min-width: 768px) {
     @include span-columns(8);
+    padding: 0;
   }
 }
 
@@ -110,6 +115,7 @@ $dashShadow: 0px 2px 5px #444;
 .dashboard-stats {
   @include span-columns(12);
   text-align: left;
+  padding: 1em;
   @media only screen and (min-width: 768px) {
     @include span-columns(4);
   }
@@ -157,7 +163,11 @@ $dashShadow: 0px 2px 5px #444;
 
 .dashboard-dates {
   margin-top: 4em;
+  padding: 1em;
   @include span-columns(12);
+  @media only screen and (min-width: 768px ) {
+    padding: 0;
+  }
 }
 
 .dashboard-dates__date {
@@ -182,8 +192,10 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .dashboard-input__label {
+  display: inline-block;
   color: #fff;
   font-size: 1em;
+
 }
 
 .dashboard-dates__new {
@@ -338,11 +350,13 @@ $dashShadow: 0px 2px 5px #444;
   background-color: $secondary-color;
 }
 
+.disabled {
+  background-color: $primary-color;
+}
+
 .registration-incomplete {
-  font-family: 'Open Sans';
+  background-color: $secondary-color;
   font-weight: bold;
-  position: absolute;
   bottom: .5em;
   right: 2em;
-  color: $secondary-color !important;
 }

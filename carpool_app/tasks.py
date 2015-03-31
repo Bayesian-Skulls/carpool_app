@@ -171,7 +171,7 @@ def check_carpool_efficiency(driver, carpool_directions):
                                          driver["work"]["longitude"])])
     carpool_time = carpool_directions['route']['time']
     driver_time = driver_directions['route']['time']
-    return not carpool_time >= (driver_time * 1.5)
+    return not carpool_time >= (driver_time * 5)
 
 
 def select_driver(route_1, route_2):
@@ -320,7 +320,6 @@ def get_gas_prices(driver_id):
     api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
         "reg/Price/{}.json".format(driver_lat, driver_lon,
                                    current_app.config["MYGASFEEDAPI"])
-    print(api_call_url)
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
@@ -411,7 +410,7 @@ def format_money(cost):
         return cost
 
 
-def user_money(user_id):
+def route_coords(user_id):
     """get the coordinates of a user's home and workplace"""
     driver = User.query.get(user_id)
     home = (driver.latitude, driver.longitude)
@@ -459,7 +458,6 @@ def get_rider_phone_numbers(carpool):
 
 def generate_sms_message(phone_number):
     """create and send sms message"""
-    print(phone_number)
     client = TwilioRestClient(current_app.config["ACCOUNT_SID"],
                               current_app.config["AUTH_TOKEN"])
     message = client.messages.create(body="You trip for tomorrow has been"
@@ -490,7 +488,7 @@ def get_total_carpool_cost(carpool_id):
               (carpool["driver"]["work"]["latitude"],
                carpool["driver"]["work"]["longitude"])]
     user_id = carpool["driver"]["info"]["id"]
-    operands = get_operands(*user_money(user_id))
+    operands = get_operands(*route_coords(user_id))
     operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
     return calculate_trip_cost(distance, *operands)

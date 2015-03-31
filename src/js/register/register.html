@@ -34,6 +34,8 @@
             <select>
             from <input class="register-input" name="schedule-returning" ng-model="vm.schedule.arriving" details="vm.schedule.arrive_time" picker picker-type="'time'">
             to <input class="register-input" name="schedule-departing" ng-model="vm.schedule.departing" details="vm.schedule.depart_time" picker picker-type="'time'">
+            <div id="root-picker-outlet"></div>
+
           </p>
           <button class="register-button" ng-click="vm.addWorkFields()">NEXT &rarr;</button>
         </div>
@@ -48,6 +50,6 @@
           <button class="register-button" ng-click="vm.addVehicle()">REGISTER</button>
         </div>
       </form>
-    </div>    
+    </div>
   </div>
 </div>

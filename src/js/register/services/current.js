@@ -10,6 +10,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         });
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
+          currentSpec.errorMsg = 'You don\'t have a workplace. Please add one.';
+          currentSpec.errorURL = 'profile';
         } else {
         }
       });
@@ -20,6 +22,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
           currentSpec.vehicles = result.data.vehicles;
           if(currentSpec.vehicles.length <= 0) {
             currentSpec.incomplete = true;
+            currentSpec.errorMsg = 'You don\'t have a vehicle. Please add one.';
+            currentSpec.errorURL = 'profile';
           }
         });
       } catch(e) {
@@ -31,6 +35,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         currentSpec.schedule = result.data.calendars;
         if(currentSpec.schedule.length <= 0) {
           currentSpec.incomplete = true;
+          currentSpec.errorMsg = 'You don\'t have any dates on the calendar. Please add one.';
+          currentSpec.errorURL = 'dates';
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }

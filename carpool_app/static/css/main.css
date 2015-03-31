@@ -2549,7 +2549,6 @@ nav li {
 
 .page-section {
   overflow: auto;
-  padding: 1em;
   color: #fff; }
 
 .hidden {
@@ -2588,6 +2587,9 @@ nav li {
 
 @-webkit-keyframes pullDown {
   0% {
+    opacity: 0; }
+
+  75% {
     opacity: 0;
     -webkit-transform: translate3d(0, -100%, 0);
     transform: translate3d(0, -100%, 0); }
@@ -2599,6 +2601,9 @@ nav li {
 
 @keyframes pullDown {
   0% {
+    opacity: 0; }
+
+  75% {
     opacity: 0;
     -webkit-transform: translate3d(0, -100%, 0);
     transform: translate3d(0, -100%, 0); }
@@ -2608,9 +2613,37 @@ nav li {
     -webkit-transform: none;
     transform: none; } }
 
-@-webkit-keyframes fadeInDown { }
+@-webkit-keyframes zoomIn {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(.3, .3, .3);
+    transform: scale3d(.3, .3, .3); }
 
-@keyframes fadeInDown { }
+  50% {
+    opacity: 1; } }
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(.3, .3, .3);
+    transform: scale3d(.3, .3, .3); }
+
+  50% {
+    opacity: 1; } }
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0; }
+
+  100% {
+    opacity: 1; } }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0; }
+
+  100% {
+    opacity: 1; } }
 
 .label-switch {
   border-radius: 24px;
@@ -2683,7 +2716,9 @@ nav li {
   background-position: top; }
   .hero .hero-logo {
     max-width: 500px;
-    margin-bottom: 1em; }
+    margin-bottom: 1em;
+    -webkit-animation: zoomIn .5s forwards;
+    animation: zoomIn .5s forwards; }
   .hero .hero-inner {
     max-width: 68em;
     margin-left: auto;
@@ -2755,8 +2790,8 @@ nav li {
   line-height: 1.4em;
   margin: 1em auto;
   max-width: 333px;
-  -webkit-animation: pullDown .5s forwards;
-  animation: pullDown .5s forwards; }
+  -webkit-animation: pullDown 1s forwards;
+  animation: pullDown 1s forwards; }
 
 .page-info-heading {
   margin-top: 2em;
@@ -2797,7 +2832,9 @@ nav li {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  margin: 0 auto; }
+  margin: 0 auto;
+  -webkit-animation: fadeIn 4s forwards;
+  animation: fadeIn 4s forwards; }
   .home-page-content::after {
     clear: both;
     content: "";
@@ -2827,8 +2864,9 @@ nav li {
   background-color: transparent;
   width: 16em; }
 
-.address-input {
-  min-width: 33em; }
+@media only screen and (min-width: 768px) {
+  .address-input {
+    min-width: 33em; } }
 
 .schedule-week {
   display: block;
@@ -2954,8 +2992,6 @@ select {
 
 .dashboard-section-container {
   background-color: #627F83;
-  padding: 2em;
-  padding-top: 4em;
   float: left;
   display: block;
   margin-right: 2.35765%;
@@ -2965,6 +3001,11 @@ select {
   .dashboard-section-container span {
     font-weight: 700;
     color: #ccc; }
+
+@media only screen and (min-width: 768px) {
+  .dashboard-section-container {
+    padding: 2em;
+    padding-top: 4em; } }
 
 .rideshare-container {
   padding-top: 0; }
@@ -3053,7 +3094,8 @@ select {
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 100%; }
+  width: 100%;
+  padding: 1em; }
   .dashboard-chart:last-child {
     margin-right: 0; }
   @media only screen and (min-width: 768px) {
@@ -3061,7 +3103,8 @@ select {
       float: left;
       display: block;
       margin-right: 2.35765%;
-      width: 65.88078%; }
+      width: 65.88078%;
+      padding: 0; }
       .dashboard-chart:last-child {
         margin-right: 0; } }
 
@@ -3078,7 +3121,8 @@ select {
   display: block;
   margin-right: 2.35765%;
   width: 100%;
-  text-align: left; }
+  text-align: left;
+  padding: 1em; }
   .dashboard-stats:last-child {
     margin-right: 0; }
   @media only screen and (min-width: 768px) {
@@ -3138,12 +3182,16 @@ select {
 
 .dashboard-dates {
   margin-top: 4em;
+  padding: 1em;
   float: left;
   display: block;
   margin-right: 2.35765%;
   width: 100%; }
   .dashboard-dates:last-child {
     margin-right: 0; }
+  @media only screen and (min-width: 768px) {
+    .dashboard-dates {
+      padding: 0; } }
 
 .dashboard-dates__date {
   box-sizing: border-box;
@@ -3180,6 +3228,7 @@ select {
     margin-top: 0; }
 
 .dashboard-input__label {
+  display: inline-block;
   color: #fff;
   font-size: 1em; }
 
@@ -3326,13 +3375,14 @@ select {
 .unconfirmed {
   background-color: #8C3A37; }
 
+.disabled {
+  background-color: #627F83; }
+
 .registration-incomplete {
-  font-family: 'Open Sans';
+  background-color: #8C3A37;
   font-weight: bold;
-  position: absolute;
   bottom: .5em;
-  right: 2em;
-  color: #8C3A37 !important; }
+  right: 2em; }
 
 /* Profile Page*/
 .profile-dates {
