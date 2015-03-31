@@ -247,12 +247,45 @@ def send_unconfirmed_email(carpool_users):
     return jsonify({"results": results}), 200
 
 
+def send_carpool_confirmed_email(carpool_id):
+    """ send email to users with directions for carpools"""
+    results = []
+    carpool = Carpool.query.get_or_404(carpool_id)
+    mandrill_client = mandrill.Mandrill(current_app.config["MANDRILL_KEY"])
+    carpool_details = carpool.details
+    current_user = User.query.get_or_404(
+        carpool_details["driver"]["info"]["id"])
+    date = datetime.strptime(carpool_details["driver"]["arrival"],
+        "%Y-%m-%dT%H:%M:%S.%fZ")
+    date = date.strftime("%B %d")
+    data = generate_mandrill_request(current_user, "carpool_confirmed")
+    links = create_google_maps_link(carpool_details["driver"]["info"]["id"],
+                                    carpool_details["passenger"]["info"]["id"])
+    content = [{"name": "DATE",
+                "content": date},
+               {"name": "LINK1",
+                "content": links[0]},
+               {"name": "LINK2",
+                "content": links[1]},
+               {"name": "LINK3",
+                "content": links[2]},
+               {"name": "LINK4",
+                "content": links[3]}]
+    results.append(mandrill_client.messages.send_template(
+        template_name="rideo-template-1", template_content=content,
+        message=data, async=False, ip_pool='Main Pool'))
+    return jsonify({"results": results}), 200
+
+
 def generate_mandrill_request(user, email_type):
     """generate mandrill email"""
     if email_type == "carpool_created":
-        subject = "Carpool Information from RIDEO"
+        subject = "Ride Share Information from RIDEO"
     elif email_type == "unconfirmed_carpool":
         subject = "A Message from RIDEO"
+    elif email_type == "carpool_confirmed":
+        subject = "Ride Share Confirmed"
+
     data = {"subject": subject,
             "to": [{
                    "email": user.email,
@@ -287,7 +320,6 @@ def get_gas_prices(driver_id):
     api_call_url = "http://api.mygasfeed.com/stations/radius/{}/{}/5/" \
         "reg/Price/{}.json".format(driver_lat, driver_lon,
                                    current_app.config["MYGASFEEDAPI"])
-    print(api_call_url)
     errors = 0
     while errors < 3:
         request = url.urlopen(api_call_url).read().decode("utf-8")
@@ -378,7 +410,7 @@ def format_money(cost):
         return cost
 
 
-def user_money(user_id):
+def route_coords(user_id):
     """get the coordinates of a user's home and workplace"""
     driver = User.query.get(user_id)
     home = (driver.latitude, driver.longitude)
@@ -426,7 +458,6 @@ def get_rider_phone_numbers(carpool):
 
 def generate_sms_message(phone_number):
     """create and send sms message"""
-    print(phone_number)
     client = TwilioRestClient(current_app.config["ACCOUNT_SID"],
                               current_app.config["AUTH_TOKEN"])
     message = client.messages.create(body="You trip for tomorrow has been"
@@ -457,7 +488,7 @@ def get_total_carpool_cost(carpool_id):
               (carpool["driver"]["work"]["latitude"],
                carpool["driver"]["work"]["longitude"])]
     user_id = carpool["driver"]["info"]["id"]
-    operands = get_operands(*user_money(user_id))
+    operands = get_operands(*route_coords(user_id))
     operands = operands[1:]
     distance = get_directions(points)["route"]["distance"]
     return calculate_trip_cost(distance, *operands)

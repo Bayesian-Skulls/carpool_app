@@ -8,10 +8,10 @@ from ..schemas import UserSchema, WorkSchema, VehicleSchema, CalendarSchema
 from ..extensions import db
 
 from ..tasks import (build_carpools, get_rider_phone_numbers,
-                     send_confirm_email, user_money,
+                     send_confirm_email, route_coords,
                      get_mpg, get_vehicle_api_id,
                      calculate_trip_cost, get_operands, get_total_carpool_cost,
-                     generate_sms_message)
+                     generate_sms_message, send_carpool_confirmed_email)
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -343,7 +343,7 @@ def accept_decline_carpool(user_id=None):
 def get_user_cost():
     """get the cost of a user driving to work alone"""
     user_id = current_user.id
-    return calculate_trip_cost(*get_operands(*user_money(user_id)))
+    return calculate_trip_cost(*get_operands(*route_coords(user_id)))
 
 
 @api.route('/<carpool_id>/carpool_cost')
@@ -372,12 +372,12 @@ def test_sms(phone_number):
 @api.route('/<user_id>/cost', methods=["GET"])
 def test_cost(user_id):
     """test the trip calculator"""
-    return calculate_trip_cost(*get_operands(*user_money(user_id)))
+    return calculate_trip_cost(*get_operands(*route_coords(user_id)))
 
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([23, 23])
+    return send_carpool_confirmed_email(120)
 
 
 @api.route('/test/user/<int:user_id>')
