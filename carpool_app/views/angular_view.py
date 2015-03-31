@@ -11,7 +11,7 @@ from ..tasks import (build_carpools, get_rider_phone_numbers,
                      send_confirm_email, user_money,
                      get_mpg, get_vehicle_api_id,
                      calculate_trip_cost, get_operands, get_total_carpool_cost,
-                     generate_sms_message)
+                     generate_sms_message, send_carpool_confirmed_email)
 
 
 angular_view = Blueprint("angular_view", __name__, static_folder='../static')
@@ -375,7 +375,7 @@ def test_cost(user_id):
 
 @api.route('/test2')
 def test_email():
-    return send_confirm_email([23, 23])
+    return send_carpool_confirmed_email(120)
 
 
 @api.route('/test/user/<int:user_id>')
