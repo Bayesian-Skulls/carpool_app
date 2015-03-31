@@ -6,13 +6,15 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
         currentSpec.work.forEach(function(work, index) {
-          work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+          if(result.data.work[index].street_number){
+            work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+          }
         });
+          // currentSpec.work[0].address = undefined;
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
           currentSpec.errorMsg = 'You don\'t have a workplace. Please add one.';
           currentSpec.errorURL = 'profile';
-        } else {
         }
       });
     },

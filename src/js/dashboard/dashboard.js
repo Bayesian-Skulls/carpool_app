@@ -16,16 +16,22 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
   self.schedule = workDate();
+
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
+      userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
+        self.rideShare.rideo.photo = result.data;
+        $log.log(self.rideShare.rideo);
+      });
       rideShareService.getCost().then(function(result) {
-        console.log(result);
+        $log.log(result);
         self.rideShare.cost = result;
       });
     });
   };
   self.getRideShares();
+
 
   self.rideShareResponse = function() {
     var response = {
@@ -43,6 +49,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $anchorScroll();
   };
 
+  // quick conditional for the submissions form
+  self.submitted = false;
+
   self.edit = function() {
     userService.editUser(self.current.user).then(function(result) {
       $log.log(result);
@@ -56,6 +65,11 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       $log.log(result);
       // self.current.work[0] = result.data.work;
     });
+    self.submitted = true;
+    $timeout(function() {
+      self.submitted = false;
+
+    }, 3000);
   };
 
   self.deleteWork = function(workItem, index) {
@@ -113,6 +127,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     console.log('fired');
     $location.hash(self.current.errorURL);
     $anchorScroll();
-  }
+  };
+
 
 }]);

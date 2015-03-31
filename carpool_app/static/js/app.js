@@ -33,16 +33,22 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
   self.schedule = workDate();
+
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
+      userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
+        self.rideShare.rideo.photo = result.data;
+        $log.log(self.rideShare.rideo);
+      });
       rideShareService.getCost().then(function(result) {
-        console.log(result);
+        $log.log(result);
         self.rideShare.cost = result;
       });
     });
   };
   self.getRideShares();
+
 
   self.rideShareResponse = function() {
     var response = {
@@ -60,6 +66,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $anchorScroll();
   };
 
+  // quick conditional for the submissions form
+  self.submitted = false;
+
   self.edit = function() {
     userService.editUser(self.current.user).then(function(result) {
       $log.log(result);
@@ -73,6 +82,11 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       $log.log(result);
       // self.current.work[0] = result.data.work;
     });
+    self.submitted = true;
+    $timeout(function() {
+      self.submitted = false;
+
+    }, 3000);
   };
 
   self.deleteWork = function(workItem, index) {
@@ -130,7 +144,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     console.log('fired');
     $location.hash(self.current.errorURL);
     $anchorScroll();
-  }
+  };
+
 
 }]);
 
@@ -208,8 +223,6 @@ app.directive('maps', function() {
             });
           });
         });
-
-
       }],
       link: function(scope, element, attrs, model) {
         //  create an object for options
@@ -238,15 +251,21 @@ app.directive('mileageChart', function() {
         var self = this;
         encouragementService.getCost().then(function(result) {
           self.cost = result.data;
-          console.log(self.cost);
           self.cost.cost = self.cost.cost * 5;
           self.cost.half_cost = self.cost.half_cost * 5;
-          console.log(self.cost);
           $scope.showLevel(self.cost.cost, self.cost.half_cost);
         });
+
+        self.with = false;
+
+        self.showHide = function() {
+          self.with = !self.with;
+        };
+
       }],
       controllerAs: 'vm',
-      link: function(scope, element, attrs, model) {
+      link: function(scope, element, attrs, ctrl) {
+
         var chart = c3.generate({
             bindto: element[0].querySelector('.chart'),
             data: {
@@ -264,16 +283,17 @@ app.directive('mileageChart', function() {
                    max: 50,
                    unites: ' %'
                },
+               max: 25,
             },
             tooltip: {
               show: false
             },
             color: {
-                pattern: ['#FFF', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
+                pattern: ['#FFF', '#FFF', '#FFF', '#FFF'], // the three color levels for the percentage values.
                 threshold: {
                    unit: 'value', // percentage is default
                    max: 50, // 100 is default
-                    values: [30, 60, 90, 100]
+                  values: [30, 60, 90, 100]
                 }
             },
         });
@@ -283,24 +303,27 @@ app.directive('mileageChart', function() {
 
         // switch between values every 3 seconds
         function showLevel(cost, halfCost) {
-          chart.load({
-              columns: [['data', cost]]
-          });
-          setTimeout(function () {
+          scope.$apply(function () {
+            console.log('TOGGLING');
+            ctrl.showHide();
             chart.load({
-                columns: [['data', halfCost]]
+              columns: [['data', cost]]
             });
-            setTimeout(function() {
-              showLevel(cost, halfCost);
-            }, 5000);
+          });
+
+          setTimeout(function () {
+            scope.$apply(function () {
+              ctrl.showHide();
+              chart.load({
+                columns: [['data', halfCost]]
+              });
+              setTimeout(function() {
+                showLevel(cost, halfCost);
+              }, 5000);
+            });
           }, 5000);
         }
         scope.showLevel = showLevel;
-
-
-
-
-
       }
   };
 });
@@ -357,11 +380,11 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 
   self.showInfo = function(info) {
-    console.log(info);
-    self.pageInfo = info;
 
-    $location.hash('how');
-    $anchorScroll();
+    $('.home-page-wrapper').animate({
+      scrollTop: $('#' + info).offset().top
+    }, 500);
+    
   };
 }]);
 
@@ -835,13 +858,15 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       return workService.getWork(currentSpec.user.id).then(function(result) {
         currentSpec.work = result.data.work;
         currentSpec.work.forEach(function(work, index) {
-          work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+          if(result.data.work[index].street_number){
+            work.address = result.data.work[index].street_number + ' ' + result.data.work[index].street + ' ' + result.data.work[index].city + ' ' + result.data.work[index].state + ' ' + result.data.work[index].zip_code;
+          }
         });
+          // currentSpec.work[0].address = undefined;
         if(currentSpec.work.length <= 0) {
           currentSpec.incomplete = true;
           currentSpec.errorMsg = 'You don\'t have a workplace. Please add one.';
           currentSpec.errorURL = 'profile';
-        } else {
         }
       });
     },
@@ -962,6 +987,10 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
       return ajaxService.call($http.get('/facebook/photo'));
     },
 
+    getUserPhoto: function(facebookID) {
+      return ajaxService.call($http.get('/facebook/photo/' + facebookID));
+    },
+
     logout: function() {
       return ajaxService.call($http.get('/api/v1/logout'));
     }
@@ -972,7 +1001,7 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
 
 }]);
 
-app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $http) {
+app.factory('vehicleService', ['ajaxService', 'Vehicle', '$http', '$q', function(ajaxService, Vehicle, $http, $q) {
 
   return {
 
@@ -981,7 +1010,17 @@ app.factory('vehicleService', ['ajaxService', '$http', function(ajaxService, $ht
     },
 
     getVehicles: function() {
-        return ajaxService.call($http.get('/api/v1/user/vehicle'));
+        return ajaxService.call($http.get('/api/v1/user/vehicle')).then(function(result) {
+          return $q(function(resolve, reject) {
+            if(result.data.vehicles.length === 0) {
+              result.data.vehicles.push(Vehicle());
+              console.log(result);
+              resolve(result);
+            } else {
+              resolve(result);
+            }
+          });
+        });
     },
     deleteVehicle: function(car) {
         return ajaxService.call($http.delete('/api/v1/user/vehicle/' + car.id));
@@ -1024,8 +1063,8 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
         });
       }
       return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
-        console.log(rideShare);
         rideShare = results.data.carpool;
+        console.log(rideShare);
         self.process();
         return $q(function(resolve, reject) {
           resolve(results.data.carpool);

@@ -18,10 +18,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   };
 
   self.showInfo = function(info) {
-    console.log(info);
-    self.pageInfo = info;
 
-    $location.hash('how');
-    $anchorScroll();
+    $('.home-page-wrapper').animate({
+      scrollTop: $('#' + info).offset().top
+    }, 500);
+    
   };
 }]);

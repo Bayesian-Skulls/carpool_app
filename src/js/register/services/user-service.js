@@ -18,6 +18,10 @@ app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http)
       return ajaxService.call($http.get('/facebook/photo'));
     },
 
+    getUserPhoto: function(facebookID) {
+      return ajaxService.call($http.get('/facebook/photo/' + facebookID));
+    },
+
     logout: function() {
       return ajaxService.call($http.get('/api/v1/logout'));
     }

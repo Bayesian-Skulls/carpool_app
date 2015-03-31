@@ -24,8 +24,6 @@ app.directive('maps', function() {
             });
           });
         });
-
-
       }],
       link: function(scope, element, attrs, model) {
         //  create an object for options

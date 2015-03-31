@@ -27,8 +27,16 @@
         <p>registration incomplete: <br>
           {{vm.current.errorMsg}}</p>
       </div>
-    <div ng-show="!vm.rideShare.driver" class="dashboard-section__title">
-      <h3>DASHBOARD</h3>
+    <div ng-show="!vm.rideShare.driver" class="dashboard-section">
+      <div ng-show="!vm.rideShare.driver" class="dashboard-section__title">
+        <h3>DASHBOARD</h3>
+        <p>
+          CONGRATS, YOU'RE SAVING THE WORLD!
+        </p>
+      </div>
+    </div>
+    <div ng-show="!vm.rideShare.driver" class="rideshare-date-section">
+        <p class="subtitle">You don't have any dates yet. We create them 18 hours before your scheduled rideshare.</p>
     </div>
     <div ng-show="vm.rideShare.driver" class="dashboard-section__title">
       <h3>UPCOMING RIDESHARE</h3>
@@ -54,22 +62,43 @@
       <div ng-show="vm.rideShare.driver" class="carpool-details">
         <div class="dashboard-section__map-info">
           <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:250px; height:250px;"></div>
+          <!-- <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.info.latitude}},{{vm.rideShare.driver.info.longitude}}">DRIVER HOME</a>
+          <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.info.latitude}},{{vm.rideShare.passenger.info.longitude}}">PASSENGER HOME</a>
+          <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.work.latitude}},{{vm.rideShare.driver.work.longitude}}">DRIVER WORK</a>
+          <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.work.latitude}},{{vm.rideShare.passenger.work.longitude}}">PASSENGER WORK</a> -->
+
         </div>
         <div class="dashboard-section__ride-info">
-          <h4>Riding with {{vm.rideShare.rideo.info.name}}</h4>
-          <p><span>{{vm.rideShare.rideo.info.name}} status:</span> {{vm.rideShare.rideo.status}}</p>
-          <p ng-if="vm.cohort.info.phone_number"><span>phone:</span> {{ vm.rideShare.rideo.info.phone_number }}</p>
-          <p><span>email:</span> {{ vm.rideShare.rideo.info.email }}</p>
-          <p><span>facebook:</span> <a href="http://www.facebook.com/{{ vm.current.user.facebook_id }}">facebook.com/{{ vm.current.user.facebook_id }}</a></p>
-          <p ng-if="vm.rideShare.role === 'driver'">
-            <span>You’re driving</span> and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
-          </p>
-          <p ng-if="vm.rideShare.role === 'passenger'">
-            <span>You’re {{ vm.rideShare.role }}</span> and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
-          </p>
-          <p>
-            <span>Suggested RideShare Amount:</span> {{ vm.rideShare.cost.half_cost | currency}}
-          </p>
+          <div class="rideshare-duties">
+            <h4>Riding with {{vm.rideShare.rideo.info.name}}</h4>
+            <p ng-if="vm.rideShare.role === 'driver'">
+              <span>You’re driving</span> and you need to pick up {{ vm.rideShare.rideo.info.name }} at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+            </p>
+            <p ng-if="vm.rideShare.role === 'passenger'">
+              <span>You’re {{ vm.rideShare.role }}</span> and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
+            </p>
+            <p>
+              <span>Suggested RideShare Amount:</span> {{ vm.rideShare.cost.half_cost | currency}}
+            </p>
+          </div>
+          <div class="rideshare-profile__photo">
+            <a href="http://www.facebook.com/{{ vm.rideShare.rideo.info.facebook_id }}">
+              <img class="page-profile__photo" ng-src="{{vm.rideShare.rideo.photo}}" alt="" />
+            </a>
+            <p class="rideshare-profile__icons">
+              <a href="http://www.facebook.com/{{ vm.rideShare.rideo.info.facebook_id }}">
+                <i class="fa fa-facebook-square"></i>
+              </a>
+              <a href="mailto:{{vm.rideShare.rideo.info.email}}">
+                <i class="fa fa-envelope-square"></i>
+              </a>
+            <p ng-if="vm.cohort.info.phone_number"><span>phone:</span> {{ vm.rideShare.rideo.info.phone_number }}</p>
+            <!-- <p><span>email:</span> {{ vm.rideShare.rideo.info.email }}</p> -->
+
+            <p><span>status:</span><br>
+              {{vm.rideShare.rideo.status}}</p>
+            </p>
+          </div>
           <div class="rideshare-status">
             <p><span>ridshare status:</span> {{vm.rideShare.status}}</p>
           </div>
@@ -77,6 +106,7 @@
       </div>
       <div id="dates" class="dashboard-dates">
         <h4>UPCOMING DATES </h4>
+        <p class="subtitle">Check your current dates, delete, and make new rideshare dates below.</p>
         <ul>
           <li ng-hide="date.arrival_datetime.slice(0, 10) === vm.rideShare.driver.arrival.slice(0, 10)" class="dashboard-dates__date" ng-repeat="date in vm.current.schedule">
             <p>
@@ -87,7 +117,6 @@
             </p>
           </li>
         </ul>
-      </div>
       <div class="dashboard-dates__date dashboard-dates__new">
         <h5>NEW DATE</h5>
         <label class="dashboard-input__label" for="schedule-date">date
@@ -105,6 +134,7 @@
 
 
         <button class="dashboard-form__button dashboard-dates__button" ng-click="vm.addDate()"><i class="fa fa-plus"></i></button>
+      </div>
       </div>
 
     </div>
@@ -145,11 +175,13 @@
           </p>
           <p>
             <h5 for="work-name">Your Work</h5>
-            I work for <input class="register-input dashboard-input" type="text" name="workName" ng-model="vm.current.work[0].name" placeholder="Business Name">.
-            Their address is
-            <input googleplace name="work-address" details="vm.current.work[0]" class="register-input dashboard-input address-input" type="text" ng-model="vm.current.work[0].address" autcomplete="false">.
+            <p>
+              I work for <input class="register-input dashboard-input" type="text" name="workName" ng-model="vm.current.work[0].name" placeholder="Business Name">.
+              Their address is
+              <input googleplace name="work-address" details="vm.current.work[0]" class="register-input dashboard-input address-input" type="text" ng-model="vm.current.work[0].address" autcomplete="false">.
+            </p>
 
-            <button ng-click="vm.deleteWork(vm.current.work[0], 0)" name="button"></button>
+            <!-- <button ng-click="vm.deleteWork(vm.current.work[0], 0)" name="button"></button> -->
           </p>
           <p>
           </p>
@@ -161,6 +193,9 @@
             <input class="register-input dashboard-input" ng-model="car.plate_number" type="text" name="name" placeholder="XXX-XXXX">
           </p>
           <button class="dashboard-form__button" ng-click="vm.edit()">SUBMIT CHANGES</button>
+          <p ng-show="vm.submitted" class="subtitle">
+            CHANGES SUBMITTED
+          </p>
         </div>
       </form>
     </div>

@@ -9,15 +9,21 @@ app.directive('mileageChart', function() {
         var self = this;
         encouragementService.getCost().then(function(result) {
           self.cost = result.data;
-          console.log(self.cost);
           self.cost.cost = self.cost.cost * 5;
           self.cost.half_cost = self.cost.half_cost * 5;
-          console.log(self.cost);
           $scope.showLevel(self.cost.cost, self.cost.half_cost);
         });
+
+        self.with = false;
+
+        self.showHide = function() {
+          self.with = !self.with;
+        };
+
       }],
       controllerAs: 'vm',
-      link: function(scope, element, attrs, model) {
+      link: function(scope, element, attrs, ctrl) {
+
         var chart = c3.generate({
             bindto: element[0].querySelector('.chart'),
             data: {
@@ -35,16 +41,17 @@ app.directive('mileageChart', function() {
                    max: 50,
                    unites: ' %'
                },
+               max: 25,
             },
             tooltip: {
               show: false
             },
             color: {
-                pattern: ['#FFF', '#FFF', '#FFF', '#AAA'], // the three color levels for the percentage values.
+                pattern: ['#FFF', '#FFF', '#FFF', '#FFF'], // the three color levels for the percentage values.
                 threshold: {
                    unit: 'value', // percentage is default
                    max: 50, // 100 is default
-                    values: [30, 60, 90, 100]
+                  values: [30, 60, 90, 100]
                 }
             },
         });
@@ -54,24 +61,27 @@ app.directive('mileageChart', function() {
 
         // switch between values every 3 seconds
         function showLevel(cost, halfCost) {
-          chart.load({
-              columns: [['data', cost]]
-          });
-          setTimeout(function () {
+          scope.$apply(function () {
+            console.log('TOGGLING');
+            ctrl.showHide();
             chart.load({
-                columns: [['data', halfCost]]
+              columns: [['data', cost]]
             });
-            setTimeout(function() {
-              showLevel(cost, halfCost);
-            }, 5000);
+          });
+
+          setTimeout(function () {
+            scope.$apply(function () {
+              ctrl.showHide();
+              chart.load({
+                columns: [['data', halfCost]]
+              });
+              setTimeout(function() {
+                showLevel(cost, halfCost);
+              }, 5000);
+            });
           }, 5000);
         }
         scope.showLevel = showLevel;
-
-
-
-
-
       }
   };
 });

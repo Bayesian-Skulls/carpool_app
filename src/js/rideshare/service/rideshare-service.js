@@ -9,8 +9,8 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
         });
       }
       return ajaxService.call($http.get('/api/v1/user/carpool')).then(function(results) {
-        console.log(rideShare);
         rideShare = results.data.carpool;
+        console.log(rideShare);
         self.process();
         return $q(function(resolve, reject) {
           resolve(results.data.carpool);
