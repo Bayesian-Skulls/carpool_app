@@ -23,8 +23,8 @@
   position: relative;
   background-color: #fff;
   border-radius: 50%;
-  height: 11em;
-  width: 11em;
+  height: 9em;
+  width: 9em;
   display: inline-block;
   box-shadow: $cardShadow;
 
@@ -59,6 +59,7 @@
   // }
   max-width: 30em;
   margin: 5em auto;
+  padding: 2em;
   // animation: pullDown 1s ease-in forwards;
 }
 
@@ -66,6 +67,7 @@
   @include outer-container(980px);
   text-align: center;
   margin: 0 auto;
+  padding: 2em;
   animation: fadeIn 4s forwards;
 }
 .home-page-wrapper {

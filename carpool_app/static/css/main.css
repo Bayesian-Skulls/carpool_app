@@ -2539,6 +2539,7 @@ nav li {
   margin: 0 .5em; }
 
 .page-content {
+  position: relative;
   max-width: 980px;
   margin-left: auto;
   margin-right: auto; }
@@ -2644,6 +2645,62 @@ nav li {
 
   100% {
     opacity: 1; } }
+
+.loader {
+  margin: 6em auto;
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-left: 1.1em solid #ffffff;
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear; }
+
+.loader, .loader:after {
+  border-radius: 50%;
+  width: 10em;
+  height: 10em; }
+
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
+.welcome-loader {
+  display: none;
+  background: #444;
+  position: absolute;
+  padding: 5em;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  text-align: center; }
+
+.welcomeLoaderShowing {
+  display: inline-block; }
+
+.welcome-inner {
+  display: none; }
+
+.welcomeInnerShowing {
+  display: inline-block; }
 
 .label-switch {
   border-radius: 24px;
@@ -2800,8 +2857,8 @@ nav li {
   position: relative;
   background-color: #fff;
   border-radius: 50%;
-  height: 11em;
-  width: 11em;
+  height: 9em;
+  width: 9em;
   display: inline-block;
   box-shadow: .15em .15em .5em #364649; }
   .page-info-heading p {
@@ -2826,7 +2883,8 @@ nav li {
 
 .page-info-paragraph {
   max-width: 30em;
-  margin: 5em auto; }
+  margin: 5em auto;
+  padding: 2em; }
 
 .home-page-content {
   max-width: 980px;
@@ -2834,6 +2892,7 @@ nav li {
   margin-right: auto;
   text-align: center;
   margin: 0 auto;
+  padding: 2em;
   -webkit-animation: fadeIn 4s forwards;
   animation: fadeIn 4s forwards; }
   .home-page-content::after {
@@ -3042,11 +3101,26 @@ select {
   text-align: center;
   display: inline-block;
   margin-right: 2.35765%;
-  padding: 2em; }
+  padding: 2em;
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 100%; }
+  .dashboard-section__map-info:last-child {
+    margin-right: 0; }
   @media only screen and (min-width: 768px) {
     .dashboard-section__map-info {
       float: left;
-      padding: 0; } }
+      padding: 1em;
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 31.76157%; }
+      .dashboard-section__map-info:last-child {
+        margin-right: 0; } }
+
+#map {
+  display: inline-block; }
 
 .dashboard-section__ride-info {
   text-align: left;
@@ -3059,20 +3133,12 @@ select {
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 100%; }
+  width: 100%;
+  margin-right: 0; }
   .dashboard-section__ride-info h4 {
     margin-bottom: 1em; }
   .dashboard-section__ride-info:last-child {
     margin-right: 0; }
-  @media only screen and (min-width: 768px) {
-    .dashboard-section__ride-info {
-      float: left;
-      display: block;
-      margin-right: 2.35765%;
-      width: 48.82117%;
-      margin-top: 0; }
-      .dashboard-section__ride-info:last-child {
-        margin-right: 0; } }
   @media only screen and (min-width: 915px) {
     .dashboard-section__ride-info {
       float: left;
@@ -3082,6 +3148,12 @@ select {
       margin-top: 0; }
       .dashboard-section__ride-info:last-child {
         margin-right: 0; } }
+
+.dashboard-section__map-links {
+  padding: .5em 1em;
+  background-color: #4c6366;
+  display: inline-block;
+  margin-top: .5em; }
 
 .dashboard-section__response {
   float: left;
@@ -3209,12 +3281,18 @@ select {
   width: 48.82117%; }
   .dashboard-dates__date:last-child {
     margin-right: 0; }
+  .dashboard-dates__date:nth-child(2n) {
+    margin-right: 0; }
   @media only screen and (min-width: 560px) {
     .dashboard-dates__date {
       float: left;
       display: block;
       margin-right: 2.35765%;
       width: 31.76157%; }
+      .dashboard-dates__date:nth-child(2n) {
+        margin-right: 2.35765%; }
+      .dashboard-dates__date:nth-child(3n) {
+        margin-right: 0; }
       .dashboard-dates__date:last-child {
         margin-right: 0; } }
   @media only screen and (min-width: 915px) {
@@ -3223,8 +3301,16 @@ select {
       display: block;
       margin-right: 2.35765%;
       width: 18.11388%; }
+      .dashboard-dates__date:nth-child(3n) {
+        margin-right: 2.35765%; }
+      .dashboard-dates__date:nth-child(5n) {
+        margin-right: 0; }
       .dashboard-dates__date:last-child {
-        margin-right: 0; } }
+        margin-right: 0; }
+      .dashboard-dates__date:nth-child(5n) {
+        margin-right: 0; }
+      .dashboard-dates__date:nth-child(5n+1) {
+        clear: left; } }
   .dashboard-dates__date h5 {
     margin-top: 0; }
 
@@ -3436,34 +3522,3 @@ select {
 
 .profile-page {
   background-color: #fff; }
-
-body {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  overflow: hidden; }
-
-.page-wrapper {
-  transition: all .5s ease-in; }
-
-.page-wrapper.ng-enter, .page-wrapper.ng-leave {
-  opacity: 0;
-  width: 100%; }
-
-.page-wrapper.ng-enter {
-  position: relative;
-  left: 100%; }
-
-.page-wrapper.ng-leave {
-  position: absolute;
-  left: -100%; }
-
-.page-wrapper.ng-enter.ng-enter-active {
-  left: 0;
-  opacity: 1; }
-
-.page-wrapper.ng-leave.ng-leave-active {
-  left: -50%;
-  opacity: 1; }

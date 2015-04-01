@@ -1,6 +1,5 @@
 <div class="page-wrapper dashboard-wrapper">
   <div class="page-content">
-
     <main-nav class="page-header"></main-nav>
     <!-- Profile Section -->
       <div class="page-profile page-section">
@@ -62,11 +61,6 @@
       <div ng-show="vm.rideShare.driver" class="carpool-details">
         <div class="dashboard-section__map-info">
           <div maps id="map" details="vm.current.rideShare" class="dashboard-section__map" style="width:250px; height:250px;"></div>
-          <!-- <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.info.latitude}},{{vm.rideShare.driver.info.longitude}}">DRIVER HOME</a>
-          <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.info.latitude}},{{vm.rideShare.passenger.info.longitude}}">PASSENGER HOME</a>
-          <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.work.latitude}},{{vm.rideShare.driver.work.longitude}}">DRIVER WORK</a>
-          <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.work.latitude}},{{vm.rideShare.passenger.work.longitude}}">PASSENGER WORK</a> -->
-
         </div>
         <div class="dashboard-section__ride-info">
           <div class="rideshare-duties">
@@ -76,10 +70,27 @@
             </p>
             <p ng-if="vm.rideShare.role === 'passenger'">
               <span>You’re {{ vm.rideShare.role }}</span> and {{ vm.rideShare.rideo.info.name }} is slated to pick you up at {{ vm.rideShare.driver.arrival | date: 'HH:mma' }}.
-            </p>
-            <p>
+            </p><br>
+            <!-- <p>
               <span>Suggested RideShare Amount:</span> {{ vm.rideShare.cost.half_cost | currency}}
+            </p> -->
+            <p>
+              <span>DIRECTIONS</span><br>
+              <button class="dashboard-section__map-links">
+                <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.info.latitude}},{{vm.rideShare.driver.info.longitude}}">DRIVER HOME</a>
+              </button>
+              <button class="dashboard-section__map-links">
+                <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.info.latitude}},{{vm.rideShare.passenger.info.longitude}}">PASSENGER HOME</a>
+              </button><br>
+              <button class="dashboard-section__map-links">
+                <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.work.latitude}},{{vm.rideShare.driver.work.longitude}}">DRIVER WORK</a>
+              </button>
+              <button class="dashboard-section__map-links">
+                <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.work.latitude}},{{vm.rideShare.passenger.work.longitude}}">PASSENGER WORK</a>
+              </button>
             </p>
+
+
           </div>
           <div class="rideshare-profile__photo">
             <a href="http://www.facebook.com/{{ vm.rideShare.rideo.info.facebook_id }}">
@@ -201,4 +212,8 @@
     </div>
   </div>
   <footer-nav></footer-nav>
+  <div ng-class="{welcomeLoaderShowing: vm.loading}" class="welcome-loader">
+    <h4>LOADING</h4>
+    <div class="loader">Loading...</div>
+  </div>
 </div>

@@ -30,6 +30,7 @@ nav li {
 }
 
 .page-content {
+  position: relative;
   @include outer-container(980px);
 }
 

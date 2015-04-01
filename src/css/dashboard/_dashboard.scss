@@ -60,11 +60,19 @@ $dashShadow: 0px 2px 5px #444;
   display: inline-block;
   margin-right: 2.35765%;
   padding: 2em;
+  // background-color: darken($primary-color, 10%);
+  @include span-columns(12);
   @media only screen and (min-width: 768px) {
     float: left;
-    padding: 0;
+    padding: 1em;
+    @include span-columns(4);
+
   }
 }
+#map {
+  display: inline-block;
+}
+
 .dashboard-section__ride-info {
   text-align: left;
   display: inline-block;
@@ -77,14 +85,18 @@ $dashShadow: 0px 2px 5px #444;
     margin-bottom: 1em;
   }
   @include span-columns(12);
-  @media only screen and (min-width: 768px) {
-    @include span-columns(6);
-    margin-top: 0;
-  }
+  @include omega();
   @media only screen and (min-width: 915px) {
     @include span-columns(8);
     margin-top: 0;
   }
+}
+
+.dashboard-section__map-links {
+  padding: .5em 1em;
+  background-color: darken($primary-color, 10%);
+  display: inline-block;
+  margin-top: .5em;
 }
 
 .dashboard-section__response {
@@ -182,11 +194,32 @@ $dashShadow: 0px 2px 5px #444;
   position: relative;
   margin-top: .5em;
   @include span-columns(6);
+  // @include omega(2n);
+  &:nth-child(2n) {
+    margin-right: 0;
+  }
+
   @media only screen and (min-width: 560px) {
+    &:nth-child(2n) {
+      margin-right: 2.35765%;
+    }
+    &:nth-child(3n) {
+      margin-right: 0;
+    }
     @include span-columns(4);
+
   }
   @media only screen and (min-width: 915px) {
+    &:nth-child(3n) {
+      margin-right: 2.35765%;
+    }
+    &:nth-child(5n) {
+      margin-right: 0;
+    }
+
     @include span-columns(2.4);
+    @include omega(5n);
+
   }
   h5 {
     margin-top: 0;
@@ -389,6 +422,15 @@ $dashShadow: 0px 2px 5px #444;
   color: #ccc;
   font-size: .75em;
 }
+
+// .ng-animate
+// .without-remove
+//
+// .with-add
+// .with
+//
+// .without-remove-active
+// .with-add-active
 
 .registration-incomplete {
   background-color: $secondary-color;

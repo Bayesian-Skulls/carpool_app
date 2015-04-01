@@ -35,7 +35,7 @@ app.directive('mileageChart', function() {
             gauge: {
                label: {
                    format: function(value, ratio) {
-                       return '$' + Math.floor(value);
+                       return '$' + Math.floor(value) + '/week';
                    },
                    min: 0,
                    max: 50,
@@ -54,9 +54,6 @@ app.directive('mileageChart', function() {
                   values: [30, 60, 90, 100]
                 }
             },
-        });
-        chart.load({
-            columns: [['data', 0]]
         });
 
         // switch between values every 3 seconds

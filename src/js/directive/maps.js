@@ -17,8 +17,8 @@ app.directive('maps', function() {
                 locations: [
                   { latLng: { lat: rideShare.driver.info.latitude, lng: rideShare.driver.info.longitude }},
                   { latLng: { lat: rideShare.passenger.info.latitude, lng: rideShare.passenger.info.longitude }},
-                  { latLng: { lat: rideShare.driver.work.latitude, lng: rideShare.driver.work.longitude }},
-                  { latLng: { lat: rideShare.passenger.work.latitude, lng: rideShare.passenger.work.longitude }}
+                  { latLng: { lat: rideShare.passenger.work.latitude, lng: rideShare.passenger.work.longitude }},
+                  { latLng: { lat: rideShare.driver.work.latitude, lng: rideShare.driver.work.longitude }}
                 ]
               }
             });

@@ -12,6 +12,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   var self = this;
   self.current = current;
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+  self.loading = true;
   if (current.name) {
     $locaton.path('/');
   }
@@ -23,6 +24,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
         $log.log(self.rideShare.rideo);
+        self.loading= false;
       });
       rideShareService.getCost().then(function(result) {
         $log.log(result);

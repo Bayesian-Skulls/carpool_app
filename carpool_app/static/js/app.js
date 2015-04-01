@@ -29,6 +29,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   var self = this;
   self.current = current;
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
+  self.loading = true;
   if (current.name) {
     $locaton.path('/');
   }
@@ -40,6 +41,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
         $log.log(self.rideShare.rideo);
+        self.loading= false;
       });
       rideShareService.getCost().then(function(result) {
         $log.log(result);
@@ -216,8 +218,8 @@ app.directive('maps', function() {
                 locations: [
                   { latLng: { lat: rideShare.driver.info.latitude, lng: rideShare.driver.info.longitude }},
                   { latLng: { lat: rideShare.passenger.info.latitude, lng: rideShare.passenger.info.longitude }},
-                  { latLng: { lat: rideShare.driver.work.latitude, lng: rideShare.driver.work.longitude }},
-                  { latLng: { lat: rideShare.passenger.work.latitude, lng: rideShare.passenger.work.longitude }}
+                  { latLng: { lat: rideShare.passenger.work.latitude, lng: rideShare.passenger.work.longitude }},
+                  { latLng: { lat: rideShare.driver.work.latitude, lng: rideShare.driver.work.longitude }}
                 ]
               }
             });
@@ -277,7 +279,7 @@ app.directive('mileageChart', function() {
             gauge: {
                label: {
                    format: function(value, ratio) {
-                       return '$' + Math.floor(value);
+                       return '$' + Math.floor(value) + '/week';
                    },
                    min: 0,
                    max: 50,
@@ -296,9 +298,6 @@ app.directive('mileageChart', function() {
                   values: [30, 60, 90, 100]
                 }
             },
-        });
-        chart.load({
-            columns: [['data', 0]]
         });
 
         // switch between values every 3 seconds
