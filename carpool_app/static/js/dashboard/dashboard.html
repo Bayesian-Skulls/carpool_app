@@ -103,15 +103,15 @@
               <a href="mailto:{{vm.rideShare.rideo.info.email}}">
                 <i class="fa fa-envelope-square"></i>
               </a>
-            <p ng-if="vm.cohort.info.phone_number"><span>phone:</span> {{ vm.rideShare.rideo.info.phone_number }}</p>
-            <!-- <p><span>email:</span> {{ vm.rideShare.rideo.info.email }}</p> -->
-
+            <a ng-if="vm.cohort.info.phone_number" href="mailto:{{vm.rideShare.rideo.info.email}}">
+              <i class="fa fa-phone-square"></i>
+            </a>
             <p><span>status:</span><br>
               {{vm.rideShare.rideo.status}}</p>
             </p>
           </div>
           <div class="rideshare-status">
-            <p><span>ridshare status:</span> {{vm.rideShare.status}}</p>
+            <p><span>rideshare status:</span> {{vm.rideShare.status}}</p>
           </div>
         </div>
       </div>
@@ -213,6 +213,7 @@
   </div>
   <footer-nav></footer-nav>
   <div ng-class="{welcomeLoaderShowing: vm.loading}" class="welcome-loader">
+    <img class="page-nav-logo" src="static/img/rideo.svg" alt="RIDEO ridshare service" />
     <h4>LOADING</h4>
     <div class="loader">Loading...</div>
   </div>

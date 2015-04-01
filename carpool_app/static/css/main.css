@@ -3469,9 +3469,10 @@ select {
 .fa-quote-left {
   color: #aaa; }
 
-.fa-facebook-square, .fa-envelope-square {
+.fa-facebook-square, .fa-envelope-square, .fa-phone-square {
   color: #fff;
-  margin-right: 1em;
+  margin-right: .5em;
+  margin-left: .5em;
   font-size: 1.5em; }
 
 .edmunds-wrapper {
@@ -3522,3 +3523,50 @@ select {
 
 .profile-page {
   background-color: #fff; }
+
+.page-wrapper.ng-enter, .page-wrapper.ng-leave {
+  background: white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0; }
+
+.page-wrapper.ng-enter {
+  -webkit-animation: 0.5s fade-in;
+  animation: 0.5s fade-in;
+  z-index: 100;
+  background-color: red !important; }
+
+.page-wrapper.ng-leave {
+  -webkit-animation: 0.5s fade-out;
+  animation: 0.5s fade-out;
+  z-index: 99;
+  background-color: green !important; }
+
+@keyframes fade-in {
+  from {
+    opacity: 0; }
+
+  to {
+    opacity: 1; } }
+
+@-webkit-keyframes fade-in {
+  from {
+    opacity: 0; }
+
+  to {
+    opacity: 1; } }
+
+@keyframes fade-out {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }
+
+@-webkit-keyframes fade-out {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }

@@ -384,9 +384,11 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .fa-facebook-square,
-.fa-envelope-square {
+.fa-envelope-square,
+.fa-phone-square {
   color: #fff;
-  margin-right: 1em;
+  margin-right: .5em;
+  margin-left: .5em;
   font-size: 1.5em;
 }
 
