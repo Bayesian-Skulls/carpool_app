@@ -218,12 +218,13 @@ def send_confirm_email(carpool_users):
         content = [{"name": "TEXT1",
                     "content": "Thank you for choosing RIDEO!"},
                    {"name": "TEXT2",
-                    "content": "Your carpool for tomorrow has been assigned.\n"
-                               "Your carpool buddy for tomorrow is {}".format(
+                    "content": "Your rideshare for tomorrow has"
+                               " been assigned.\n"
+                               "Your rideshare buddy for tomorrow is {}".format(
                                    User.query.get(
                                        carpool_users[index-1]).name)}]
         results.append(mandrill_client.messages.send_template(
-            template_name="untitled-template", template_content=content,
+            template_name="new-rideo", template_content=content,
             message=data, async=False, ip_pool='Main Pool'))
     return jsonify({"results": results}), 200
 
@@ -242,7 +243,7 @@ def send_unconfirmed_email(carpool_users):
                                "was not confirmed for tomorrow."
                     }]
         results.append(mandrill_client.messages.send_template(
-            template_name="untitled-template", template_content=content,
+            template_name="uncontitled-template", template_content=content,
             message=data, async=False, ip_pool='Main Pool'))
     return jsonify({"results": results}), 200
 
