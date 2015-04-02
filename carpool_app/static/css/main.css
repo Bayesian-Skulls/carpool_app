@@ -2954,6 +2954,9 @@ select {
 .register-page-wrapper {
   background-color: #8C3A37; }
 
+.register-section p {
+  padding: .5em; }
+
 /* Navigation */
 .sliding-menu-content {
   position: fixed;

@@ -43,10 +43,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
           self.rideShare.rideo.photo = result.data;
       });
-      rideShareService.getCost().then(function(result) {
-        $log.log(result);
-        self.cost = result;
-      });
+    });
+    rideShareService.getSingleCost().then(function(result) {
+      $log.log(result);
+      self.cost = result.data;
     });
   };
   self.getRideShares();
@@ -446,34 +446,6 @@ app.directive('picker', function() {
   };
 });
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/home/home.html',
-    controller: 'HomeCtrl',
-    controllerAs: 'vm',
-  };
-  $routeProvider.when('/', routeOptions);
-
-}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', '$anchorScroll', function($log, $location, current, Work, $anchorScroll){
-  var self = this;
-  current.page = '/';
-  self.current = current;
-  self.newWork = Work();
-
-  self.register = function() {
-    self.current.work = self.newWork;
-    $location.path('/facebook/login');
-  };
-
-  self.showInfo = function(info) {
-
-    $('.home-page-wrapper').animate({
-      scrollTop: $('#' + info).offset().top
-    }, 500);
-    
-  };
-}]);
-
 app.directive('footerNav', function() {
 
   return {
@@ -603,6 +575,34 @@ app.directive('mainNav', function() {
 
 
 });
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/home/home.html',
+    controller: 'HomeCtrl',
+    controllerAs: 'vm',
+  };
+  $routeProvider.when('/', routeOptions);
+
+}]).controller('HomeCtrl', ['$log', '$location', 'current', 'Work', '$anchorScroll', function($log, $location, current, Work, $anchorScroll){
+  var self = this;
+  current.page = '/';
+  self.current = current;
+  self.newWork = Work();
+
+  self.register = function() {
+    self.current.work = self.newWork;
+    $location.path('/facebook/login');
+  };
+
+  self.showInfo = function(info) {
+
+    $('.home-page-wrapper').animate({
+      scrollTop: $('#' + info).offset().top
+    }, 500);
+    
+  };
+}]);
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   var routeOptions = {
@@ -1211,6 +1211,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
           resolve( rideShare.cost = results.data );
         });
       });
+    },
+    getSingleCost: function() {
+      return ajaxService.call($http.get('/api/v1/cost'));
     }
   };
   return self;

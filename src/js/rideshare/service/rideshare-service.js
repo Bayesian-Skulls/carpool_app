@@ -67,6 +67,9 @@ app.factory('rideShareService', ['ajaxService', '$http', '$q', function(ajaxServ
           resolve( rideShare.cost = results.data );
         });
       });
+    },
+    getSingleCost: function() {
+      return ajaxService.call($http.get('/api/v1/cost'));
     }
   };
   return self;

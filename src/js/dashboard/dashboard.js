@@ -26,10 +26,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
           self.rideShare.rideo.photo = result.data;
       });
-      rideShareService.getCost().then(function(result) {
-        $log.log(result);
-        self.cost = result;
-      });
+    });
+    rideShareService.getSingleCost().then(function(result) {
+      $log.log(result);
+      self.cost = result.data;
     });
   };
   self.getRideShares();
