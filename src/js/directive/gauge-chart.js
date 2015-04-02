@@ -57,7 +57,6 @@ app.directive('gaugeChart', function() {
         var chartData;
         var dataIndex = 0;
         function setData() {
-          console.log(scope.data.cost);
           if (!scope.data.cost) {
             setTimeout(function() {
               setData();

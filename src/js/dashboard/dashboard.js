@@ -28,7 +28,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       });
     });
     rideShareService.getSingleCost().then(function(result) {
-      $log.log(result);
       self.cost = result.data;
     });
   };
