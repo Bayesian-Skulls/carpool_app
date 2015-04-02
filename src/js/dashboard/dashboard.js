@@ -22,9 +22,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
+      self.loading= false;
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
-        self.loading= false;
       });
       rideShareService.getCost().then(function(result) {
         $log.log(result);
