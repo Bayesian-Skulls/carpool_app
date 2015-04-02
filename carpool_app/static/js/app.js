@@ -224,7 +224,6 @@ app.directive('gaugeChart', function() {
         setData();
 
         function toggleChartData() {
-          console.log(chartData);
           dataIndex = (dataIndex + 1) % chartData.length;
           ctrl.showHide();
           chart.load({
@@ -751,6 +750,25 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
+
+}]);
+
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
@@ -775,25 +793,6 @@ app.factory('StringUtil', function() {
     }
   };
 });
-
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/rideshare/rideshare.html',
-    controller: 'rideCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/rideshare', routeOptions);
-
-}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
-      function($log, $location, current, rideShareService){
-
-  var self = this;
-
-  rideShareService.getRideShares().then(function(result) {
-    $log.log(result);
-  });
-
-}]);
 
 app.factory('encouragementService', ['ajaxService', '$http', 'current', '$q', function(ajaxService, $http, current, $q) {
 

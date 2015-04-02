@@ -71,7 +71,6 @@ app.directive('gaugeChart', function() {
         setData();
 
         function toggleChartData() {
-          console.log(chartData);
           dataIndex = (dataIndex + 1) % chartData.length;
           ctrl.showHide();
           chart.load({

@@ -2570,12 +2570,14 @@ nav li {
 
 .page-wrapper {
   height: 100%;
-  overflow: auto;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   background-color: #627F83; }
+  @media only screen and (min-width: 768px) {
+    .page-wrapper {
+      overflow: auto; } }
 
 .page-footer {
   text-align: center;
@@ -2820,10 +2822,13 @@ nav li {
   font-size: 1.2em;
   color: #627F83;
   background-color: #fff;
-  width: 16em; }
+  width: 10em; }
   .hero-button:hover {
     background-color: rgba(255, 255, 255, 0.3);
     color: #fff; }
+  @media only screen and (min-width: 768px) {
+    .hero-button {
+      width: 14em; } }
 
 .page-info {
   float: left;
@@ -2922,8 +2927,10 @@ nav li {
   margin: .2em 0;
   border: none;
   border-bottom: 1px dashed #aaa;
-  background-color: transparent;
-  width: 16em; }
+  background-color: transparent; }
+  @media only screen and (min-width: 768px) {
+    .register-input {
+      width: 16em; } }
 
 @media only screen and (min-width: 768px) {
   .address-input {
@@ -3048,8 +3055,9 @@ select {
   background-color: #83A9AE;
   background: linear-gradient(rgba(131, 169, 174, 0.7), rgba(98, 127, 131, 0.7)), url('../img/symphony.png');
   text-align: center; }
-  .dashboard-wrapper .page-content {
-    margin-bottom: 2em; }
+  @media only screen and (min-width: 768px) {
+    .dashboard-wrapper .page-content {
+      margin-bottom: 2em; } }
 
 .dashboard-section-container {
   background-color: #627F83;
@@ -3449,6 +3457,9 @@ select {
   margin-right: 2.35765%;
   width: 31.76157%;
   float: right; }
+  .rideshare-profile__photo .page-profile__photo-wrapper {
+    width: auto;
+    height: auto; }
   .rideshare-profile__photo .page-profile__photo {
     margin-left: 0; }
   .rideshare-profile__photo:last-child {
@@ -3506,7 +3517,7 @@ select {
     margin-right: 0; }
 
 .edmunds-logo {
-  width: 6em;
+  width: 4em;
   margin: 1em; }
   @media only screen and (min-width: 500px) {
     .edmunds-logo {

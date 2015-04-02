@@ -63,9 +63,12 @@
   font-size: 1.2em;
   color: $primary-color;
   background-color: #fff;
-  width: 16em;
+  width: 10em;
   &:hover {
     background-color: rgba(255, 255, 255, .3);
     color: #fff;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 14em;
   }
 }

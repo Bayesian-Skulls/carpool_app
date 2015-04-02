@@ -14,7 +14,9 @@ $dashShadow: 0px 2px 5px #444;
   text-align: center;
 
   .page-content {
-    margin-bottom: 2em;
+    @media only screen and (min-width: 768px) {
+      margin-bottom: 2em;
+    }
   }
 }
 
@@ -357,6 +359,10 @@ $dashShadow: 0px 2px 5px #444;
 
 .rideshare-profile__photo {
   text-align: center;
+  .page-profile__photo-wrapper {
+    width: auto;
+    height: auto;
+  }
   .page-profile__photo {
     margin-left: 0;
   }
@@ -417,7 +423,7 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .edmunds-logo {
-  width: 6em;
+  width: 4em;
   margin: 1em;
   @media only screen and (min-width: 500px) {
     width: 7em;
