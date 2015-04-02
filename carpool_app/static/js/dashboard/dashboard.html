@@ -4,7 +4,7 @@
     <!-- Profile Section -->
       <div class="page-profile page-section">
         <div class="page-profile__card">
-          <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          <img class="page-profile__photo" ng-click="vm.editProfile()" ng-src="{{vm.current.photo}}" alt="user-profile"/>
           <button class="page-profile__editbtn" ng-click="vm.editProfile()">(EDIT)</button>
         </div>
         <div class="page-profile__card">
@@ -88,6 +88,10 @@
               <button class="dashboard-section__map-links">
                 <a href="https://www.google.com/maps/dir/{{vm.rideShare.passenger.work.latitude}},{{vm.rideShare.passenger.work.longitude}}">PASSENGER WORK</a>
               </button>
+              <button class="dashboard-section__map-links">
+                <a href="https://www.google.com/maps/dir/{{vm.rideShare.driver.info.latitude}},{{vm.rideShare.driver.info.longitude}}/{{vm.rideShare.passenger.info.latitude}},{{vm.rideShare.passenger.info.longitude}}/{{vm.rideShare.driver.work.latitude}},{{vm.rideShare.driver.work.longitude}}/{{vm.rideShare.passenger.work.latitude}},{{vm.rideShare.passenger.work.longitude}}">COMBINED</a>
+              </button>
+
             </p>
 
 
@@ -152,7 +156,8 @@
 
     <div class="dashboard-section-container">
         <div class="dashboard-section dashboard-chart">
-          <mileage-chart></mileage-chart>
+          <!-- <mileage-chart></mileage-chart> -->
+          <gauge-chart class="chart" data="vm.cost"></gauge-chart>
         </div>
         <div class="dashboard-section dashboard-stats">
           <h5>Did you know?</h5>

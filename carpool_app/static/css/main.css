@@ -2522,9 +2522,10 @@ label {
   box-sizing: border-box; }
 
 a {
-  text-decoration: none; }
+  text-decoration: none;
+  color: #fff; }
   a:visited {
-    color: inherit; }
+    color: #a7bbbd; }
 
 .page-logo {
   margin-bottom: .5em; }
@@ -3189,6 +3190,9 @@ select {
 .chart.c3 {
   min-height: 18em; }
 
+.c3-wrapper {
+  min-height: 30em; }
+
 .dashboard-stats {
   float: left;
   display: block;
@@ -3348,8 +3352,11 @@ select {
   background-color: #fff;
   padding: 2em;
   color: #4c6366;
-  text-align: left;
-  position: relative; }
+  position: relative;
+  text-align: center; }
+  @media only screen and (min-width: 768px) {
+    .page-profile {
+      text-align: left; } }
 
 .page-profile__photo {
   width: 100%;
@@ -3525,21 +3532,14 @@ select {
   background-color: #fff; }
 
 .page-wrapper.ng-enter, .page-wrapper.ng-leave {
-  background: white;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0; }
+  transition: opacity 5s ease-in;
+  opacity: .3; }
 
 .page-wrapper.ng-enter {
-  -webkit-animation: 0.5s fade-in;
-  animation: 0.5s fade-in;
-  z-index: 100;
-  background-color: red !important; }
+  background-color: red !important;
+  opacity: .7; }
 
 .page-wrapper.ng-leave {
-  -webkit-animation: 0.5s fade-out;
-  animation: 0.5s fade-out;
   z-index: 99;
   background-color: green !important; }
 

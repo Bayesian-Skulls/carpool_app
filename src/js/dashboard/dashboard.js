@@ -17,18 +17,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     $locaton.path('/');
   }
   self.schedule = workDate();
+  self.cost = {};
 
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
-        $log.log(self.rideShare.rideo);
         self.loading= false;
       });
       rideShareService.getCost().then(function(result) {
         $log.log(result);
-        self.rideShare.cost = result;
+        self.cost = result;
       });
     });
   };

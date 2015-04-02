@@ -6,8 +6,9 @@ $container-width: 768px;
 
 a {
   text-decoration: none;
+  color: #fff;
   &:visited {
-    color: inherit;
+    color: lighten($primary-color, 25%);
   }
 }
 

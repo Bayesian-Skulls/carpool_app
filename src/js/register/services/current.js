@@ -42,7 +42,6 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
         } else {
           currentSpec.schedule = scheduleService.processDates(currentSpec.schedule);
         }
-        $log.log(currentSpec);
       });
     },
     getRideShares: function() {

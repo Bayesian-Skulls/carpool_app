@@ -126,6 +126,10 @@ $dashShadow: 0px 2px 5px #444;
   min-height: 18em;
 }
 
+.c3-wrapper {
+  min-height: 30em;
+}
+
 .dashboard-stats {
   @include span-columns(12);
   text-align: left;
@@ -264,10 +268,12 @@ $dashShadow: 0px 2px 5px #444;
   background-color: #fff;
   padding: 2em;
   color: darken($primary-color, 10%);
-  text-align: left;
   position: relative;
+  text-align: center;
+  @media only screen and (min-width: 768px) {
+    text-align: left;
+  }
 }
-
 
 .page-profile__photo {
   width: 100%;
@@ -424,15 +430,6 @@ $dashShadow: 0px 2px 5px #444;
   color: #ccc;
   font-size: .75em;
 }
-
-// .ng-animate
-// .without-remove
-//
-// .with-add
-// .with
-//
-// .without-remove-active
-// .with-add-active
 
 .registration-incomplete {
   background-color: $secondary-color;

@@ -136,18 +136,18 @@ def determine_best_route(user_pair):
                                       user1["user"]["longitude"]),
                                      (user2["user"]["latitude"],
                                       user2["user"]["longitude"]),
-                                     (user1["work"]["latitude"],
-                                      user1["work"]["longitude"]),
-                                     (user2["work"]["latitude"],
-                                      user2["work"]["longitude"]))
-    route_candidate_2 = create_route((user2["user"]["latitude"],
-                                      user2["user"]["longitude"]),
-                                     (user1["user"]["latitude"],
-                                      user1["user"]["longitude"]),
                                      (user2["work"]["latitude"],
                                       user2["work"]["longitude"]),
                                      (user1["work"]["latitude"],
                                       user1["work"]["longitude"]))
+    route_candidate_2 = create_route((user2["user"]["latitude"],
+                                      user2["user"]["longitude"]),
+                                     (user1["user"]["latitude"],
+                                      user1["user"]["longitude"]),
+                                     (user1["work"]["latitude"],
+                                      user1["work"]["longitude"]),
+                                     (user2["work"]["latitude"],
+                                      user2["work"]["longitude"]))
 
     driver, directions = select_driver(route_candidate_1, route_candidate_2)
 
