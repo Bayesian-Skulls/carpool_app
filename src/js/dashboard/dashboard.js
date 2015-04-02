@@ -19,10 +19,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   self.schedule = workDate();
   self.cost = {};
 
+  self.loading= false;
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
-      self.loading= false;
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
       });
