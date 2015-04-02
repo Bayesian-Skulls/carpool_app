@@ -60,6 +60,7 @@ $dashShadow: 0px 2px 5px #444;
   display: inline-block;
   margin-right: 2.35765%;
   padding: 2em;
+  animation: fadeIn 4s forwards;
   // background-color: darken($primary-color, 10%);
   @include span-columns(12);
   @media only screen and (min-width: 768px) {
@@ -278,9 +279,19 @@ $dashShadow: 0px 2px 5px #444;
 .page-profile__photo {
   width: 100%;
   max-width: 9em;
+  animation: fadeIn 2s forwards;
+}
+
+.page-profile__photo-wrapper {
+  width: 9em;
+  height: 9em;
   border-radius: 50%;
+  overflow: hidden;
   margin-left: 1em;
   display: inline-block;
+  background-color: darken($primary-color, 15%);
+  border: 3px solid darken($primary-color, 20%);
+  animation: zoomIn 1s forwards;
 }
 
 .page-profile__editbtn {

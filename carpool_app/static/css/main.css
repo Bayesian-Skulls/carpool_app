@@ -3103,6 +3103,8 @@ select {
   display: inline-block;
   margin-right: 2.35765%;
   padding: 2em;
+  -webkit-animation: fadeIn 4s forwards;
+  animation: fadeIn 4s forwards;
   float: left;
   display: block;
   margin-right: 2.35765%;
@@ -3361,9 +3363,20 @@ select {
 .page-profile__photo {
   width: 100%;
   max-width: 9em;
+  -webkit-animation: fadeIn 2s forwards;
+  animation: fadeIn 2s forwards; }
+
+.page-profile__photo-wrapper {
+  width: 9em;
+  height: 9em;
   border-radius: 50%;
+  overflow: hidden;
   margin-left: 1em;
-  display: inline-block; }
+  display: inline-block;
+  background-color: #415557;
+  border: 3px solid #364649;
+  -webkit-animation: zoomIn 1s forwards;
+  animation: zoomIn 1s forwards; }
 
 .page-profile__editbtn {
   background-color: transparent;

@@ -28,18 +28,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   var self = this;
   self.current = current;
+  self.loading = current.loading;
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
-  self.loading = true;
   if (current.name) {
     $locaton.path('/');
   }
   self.schedule = workDate();
   self.cost = {};
 
+  self.loading= false;
   self.getRideShares = function() {
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
-      self.loading= false;
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
         self.rideShare.rideo.photo = result.data;
       });
@@ -973,6 +973,7 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       }
     },
     getSchedule: function() {
+      currentSpec.loading = false;
       return scheduleService.getSchedule().then(function(result) {
         currentSpec.schedule = result.data.calendars;
         if(currentSpec.schedule.length <= 0) {
@@ -1001,6 +1002,8 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
   };
 
   currentSpec.user = User();
+  currentSpec.loading = true;
+
   // Get our current User and if one exists, populate the user object data
   userService.getCurrent().then(function(result) {
     if (result.status === 200){
@@ -1009,7 +1012,9 @@ app.factory('current', ['User', 'userService','$log', 'Work', 'workService', 've
       userService.getPhoto().then(function(result){
         currentSpec.photo = result.data;
       });
-      currentSpec.getStatus();
+      currentSpec.getStatus().then(function(data) {
+        currentSpec.loading = false;
+      });
     } else {
       $log.log('sorry bra, no user');
     }

@@ -11,8 +11,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
   var self = this;
   self.current = current;
+  self.loading = current.loading;
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
-  self.loading = true;
   if (current.name) {
     $locaton.path('/');
   }

@@ -4,7 +4,9 @@
     <!-- Profile Section -->
       <div class="page-profile page-section">
         <div class="page-profile__card">
-          <img class="page-profile__photo" ng-click="vm.editProfile()" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          <div class="page-profile__photo-wrapper">
+            <img class="page-profile__photo" ng-click="vm.editProfile()" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          </div>
           <button class="page-profile__editbtn" ng-click="vm.editProfile()">(EDIT)</button>
         </div>
         <div class="page-profile__card">
@@ -98,7 +100,9 @@
           </div>
           <div class="rideshare-profile__photo">
             <a href="http://www.facebook.com/{{ vm.rideShare.rideo.info.facebook_id }}">
-              <img class="page-profile__photo" ng-src="{{vm.rideShare.rideo.photo}}" alt="" />
+              <div class="page-profile__photo-wrapper">
+                <img class="page-profile__photo" ng-src="{{vm.rideShare.rideo.photo}}" alt="" />
+              </div>
             </a>
             <p class="rideshare-profile__icons">
               <a href="http://www.facebook.com/{{ vm.rideShare.rideo.info.facebook_id }}">
@@ -217,7 +221,7 @@
     </div>
   </div>
   <footer-nav></footer-nav>
-  <div ng-class="{welcomeLoaderShowing: vm.loading}" class="welcome-loader">
+  <div ng-class="{welcomeLoaderShowing: vm.current.loading}" class="welcome-loader">
     <img class="page-nav-logo" src="static/img/rideo.svg" alt="RIDEO ridshare service" />
     <h4>LOADING</h4>
     <div class="loader">Loading...</div>
