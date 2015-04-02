@@ -54,11 +54,10 @@ app.directive('gaugeChart', function() {
         });
 
 
-        // var cost = 0;
-        // var halfCost = 50;
         var chartData;
         var dataIndex = 0;
         function setData() {
+          console.log(scope.data.cost);
           if (!scope.data.cost) {
             setTimeout(function() {
               setData();

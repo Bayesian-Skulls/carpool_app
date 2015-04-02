@@ -41,7 +41,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     rideShareService.getRideShares().then(function(result) {
       self.rideShare = result;
       userService.getUserPhoto(self.rideShare.rideo.info.facebook_id).then(function(result){
-        self.rideShare.rideo.photo = result.data;
+          self.rideShare.rideo.photo = result.data;
       });
       rideShareService.getCost().then(function(result) {
         $log.log(result);
@@ -207,11 +207,10 @@ app.directive('gaugeChart', function() {
         });
 
 
-        // var cost = 0;
-        // var halfCost = 50;
         var chartData;
         var dataIndex = 0;
         function setData() {
+          console.log(scope.data.cost);
           if (!scope.data.cost) {
             setTimeout(function() {
               setData();
@@ -752,25 +751,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 
 }]);
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  var routeOptions = {
-    templateUrl: '/static/js/rideshare/rideshare.html',
-    controller: 'rideCtrl',
-    controllerAs: 'vm'
-  };
-  $routeProvider.when('/rideshare', routeOptions);
-
-}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
-      function($log, $location, current, rideShareService){
-
-  var self = this;
-
-  rideShareService.getRideShares().then(function(result) {
-    $log.log(result);
-  });
-
-}]);
-
 app.factory('ajaxService', ['$log', function($log) {
 
   return {
@@ -795,6 +775,25 @@ app.factory('StringUtil', function() {
     }
   };
 });
+
+app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  var routeOptions = {
+    templateUrl: '/static/js/rideshare/rideshare.html',
+    controller: 'rideCtrl',
+    controllerAs: 'vm'
+  };
+  $routeProvider.when('/rideshare', routeOptions);
+
+}]).controller('rideCtrl', ['$log', '$location', 'current', 'rideShareService',
+      function($log, $location, current, rideShareService){
+
+  var self = this;
+
+  rideShareService.getRideShares().then(function(result) {
+    $log.log(result);
+  });
+
+}]);
 
 app.factory('encouragementService', ['ajaxService', '$http', 'current', '$q', function(ajaxService, $http, current, $q) {
 
@@ -1059,7 +1058,7 @@ app.factory('scheduleService', ['ajaxService', '$http', 'workDate', function(aja
 
 }]);
 
-app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
+app.factory('userService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
 
   return {
 

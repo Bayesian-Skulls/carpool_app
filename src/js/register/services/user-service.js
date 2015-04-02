@@ -1,4 +1,4 @@
-app.factory('userService', ['ajaxService', '$http', function(ajaxService, $http) {
+app.factory('userService', ['ajaxService', '$http', '$q', function(ajaxService, $http, $q) {
 
   return {
 

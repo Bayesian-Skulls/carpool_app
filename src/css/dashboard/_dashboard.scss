@@ -63,7 +63,7 @@ $dashShadow: 0px 2px 5px #444;
   animation: fadeIn 4s forwards;
   // background-color: darken($primary-color, 10%);
   @include span-columns(12);
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 915px) {
     float: left;
     padding: 1em;
     @include span-columns(4);

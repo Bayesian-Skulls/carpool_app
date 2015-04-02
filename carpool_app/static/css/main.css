@@ -3111,7 +3111,7 @@ select {
   width: 100%; }
   .dashboard-section__map-info:last-child {
     margin-right: 0; }
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 915px) {
     .dashboard-section__map-info {
       float: left;
       padding: 1em;
@@ -3543,18 +3543,6 @@ select {
 
 .profile-page {
   background-color: #fff; }
-
-.page-wrapper.ng-enter, .page-wrapper.ng-leave {
-  transition: opacity 5s ease-in;
-  opacity: .3; }
-
-.page-wrapper.ng-enter {
-  background-color: red !important;
-  opacity: .7; }
-
-.page-wrapper.ng-leave {
-  z-index: 99;
-  background-color: green !important; }
 
 @keyframes fade-in {
   from {
