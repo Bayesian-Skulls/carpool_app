@@ -66,6 +66,8 @@ manager = Manager(app)
 
 @manager.command
 def email_unconfirmed_carpools():
+    """Sends e-mail to alert user if two hours before departure if their carpool is still
+    unconfirmed"""
     delta = timedelta(hours=2)
     delta_2 = timedelta(hours=2, minutes=30)
     target_time = datetime.now().replace(second=0, microsecond=0) + delta

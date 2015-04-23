@@ -54,8 +54,6 @@ app.directive('gaugeChart', function() {
         });
 
 
-        // var cost = 0;
-        // var halfCost = 50;
         var chartData;
         var dataIndex = 0;
         function setData() {
@@ -72,7 +70,6 @@ app.directive('gaugeChart', function() {
         setData();
 
         function toggleChartData() {
-          console.log(chartData);
           dataIndex = (dataIndex + 1) % chartData.length;
           ctrl.showHide();
           chart.load({

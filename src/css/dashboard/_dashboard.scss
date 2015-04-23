@@ -14,7 +14,9 @@ $dashShadow: 0px 2px 5px #444;
   text-align: center;
 
   .page-content {
-    margin-bottom: 2em;
+    @media only screen and (min-width: 768px) {
+      margin-bottom: 2em;
+    }
   }
 }
 
@@ -60,9 +62,10 @@ $dashShadow: 0px 2px 5px #444;
   display: inline-block;
   margin-right: 2.35765%;
   padding: 2em;
+  animation: fadeIn 4s forwards;
   // background-color: darken($primary-color, 10%);
   @include span-columns(12);
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 915px) {
     float: left;
     padding: 1em;
     @include span-columns(4);
@@ -278,9 +281,19 @@ $dashShadow: 0px 2px 5px #444;
 .page-profile__photo {
   width: 100%;
   max-width: 9em;
+  animation: fadeIn 2s forwards;
+}
+
+.page-profile__photo-wrapper {
+  width: 9em;
+  height: 9em;
   border-radius: 50%;
+  overflow: hidden;
   margin-left: 1em;
   display: inline-block;
+  background-color: darken($primary-color, 15%);
+  border: 3px solid darken($primary-color, 20%);
+  animation: zoomIn 1s forwards;
 }
 
 .page-profile__editbtn {
@@ -346,6 +359,10 @@ $dashShadow: 0px 2px 5px #444;
 
 .rideshare-profile__photo {
   text-align: center;
+  .page-profile__photo-wrapper {
+    width: auto;
+    height: auto;
+  }
   .page-profile__photo {
     margin-left: 0;
   }
@@ -406,7 +423,7 @@ $dashShadow: 0px 2px 5px #444;
 }
 
 .edmunds-logo {
-  width: 6em;
+  width: 4em;
   margin: 1em;
   @media only screen and (min-width: 500px) {
     width: 7em;
