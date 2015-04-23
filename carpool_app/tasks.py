@@ -432,7 +432,7 @@ def get_operands(user_id, points):
 def calculate_trip_cost(distance, mpg, gas_price):
     """use vehicle and user info to calculate the true cost of
     travel per day"""
-    cost = round((float(distance) * 2) * gas_price / mpg, 2)
+    cost = round((float(distance) * 2) * gas_price / mpg, 2) * 7
     half = round((cost / 2), 2)
     total_cost = format_money(str(cost))
     half_cost = format_money(str(half))
