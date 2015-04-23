@@ -29,7 +29,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
   var self = this;
   self.current = current;
   self.weekdays = ['mon', 'tues', 'wed', 'thurs', 'fri', 'sat', 'sun'];
-  self.loading = true;
+  self.loading = false;
   if (current.name) {
     $locaton.path('/');
   }

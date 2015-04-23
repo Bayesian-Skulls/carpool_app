@@ -3,9 +3,24 @@ import re
 import urllib.request as url
 import random
 from faker import Faker
-
+from bokeh.palettes import brewer
+from bokeh.sampledata import us_counties
 
 fake = Faker()
+
+colors = brewer["Spectral"][11] + brewer["PiYG"][5]
+county_xs=[
+   us_counties.data[code]['lons'] for code in us_counties.data
+   if us_counties.data[code]['state'] == 'nc'
+]
+county_ys=[
+   us_counties.data[code]['lats'] for code in us_counties.data
+   if us_counties.data[code]['state'] == 'nc'
+]
+
+
+
+
 with open("carpool_app/config.cfg") as file:
     file_data = file.read()
     key = re.findall(r'MAPQUESTAPI="(.+)"', file_data)[0]
