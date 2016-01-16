@@ -3024,8 +3024,7 @@ nav li {
     display: table; }
 
 .home-page-wrapper {
-  background: linear-gradient(rgba(98, 127, 131, 0.7), #627f83), url("../img/concrete_seamless.png");
-  background-attachment: fixed; }
+  background: linear-gradient(rgba(98, 127, 131, 0.7), #627f83), url("../img/concrete_seamless.png"); }
 
 /* Register Page */
 .register-form {
