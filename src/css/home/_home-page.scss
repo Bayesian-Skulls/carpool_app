@@ -53,14 +53,10 @@
 }
 
 .page-info-paragraph {
-  // @include span-columns(12);
-  // @media only screen and (min-width: 768px) {
-  //   @include span-columns(6);
-  // }
   max-width: 30em;
   margin: 5em auto;
   padding: 2em;
-  // animation: pullDown 1s ease-in forwards;
+
 }
 
 .home-page-content {
@@ -74,8 +70,3 @@
   background: linear-gradient(rgba(98, 127, 131, .7), rgba(98, 127, 131, 1)), url('../img/concrete_seamless.png');
 
 }
-// body.body-default {
-//   overflow: auto;
-//   background: linear-gradient(rgba(98, 127, 131, .7), rgba(98, 127, 131, 1)), url('../img/homepageimg.jpg');
-//   background-attachment: fixed;
-// }
