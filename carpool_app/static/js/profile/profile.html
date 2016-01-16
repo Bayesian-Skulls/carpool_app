@@ -1,1 +1,38 @@
-<div class="profile-page-wrapper page-wrapper"><div class=page-content><main-nav page-header=""></main-nav><div class="page-section profile-page"><img class=page-profile__photo ng-src={{vm.current.photo}} alt=user-profile><h5>Your Profile</h5><h5>{{vm.current.user.name}}</h5><a href=#>(edit)</a><ul class=page-profile__fields><li><i class="fa fa-envelope">{{vm.current.user.email}}</i></li><li><i class="fa fa-map-marker">{{vm.current.user.address}}</i></li><li><i class="fa fa-phone">{{vm.current.user.phone_number}}</i></li><li ng-repeat="car in vm.current.vehicles"><i class="fa fa-car"></i> {{car.year}} {{car.make}} {{car.model}}<br>license plate {{car.plate_number}}</li><li ng-repeat="work in vm.current.work">{{work.name}} {{work.address}}</li></ul><p></p><button class=register-button ng-click=vm.addVehicle()>UPDATE PROFILE</button><div><h5>Scheduled Dates</h5><ul><li class=profile-dates ng-repeat="date in vm.current.schedule"><p>{{ date.depart | date:"MMM, dd" }}<br>LEAVE: {{ date.arrival_datetime | date: 'h:mma' }}<br>RETURN: {{ date.departure_datetime | date: 'h:mma' }} <button ng-click=vm.deleteDate(date)>X</button></p></li></ul></div></div></div><footer-nav></footer-nav></div>
+<div class="profile-page-wrapper page-wrapper">
+  <div class="page-content">
+    <main-nav page-header></main-nav>
+      <div class="page-section profile-page">
+        <img class="page-profile__photo" ng-src="{{vm.current.photo}}" alt="user-profile"/>
+          <h5>Your Profile</h5>
+            <h5>{{vm.current.user.name}}</h5><a href="#">(edit)</a>
+            <ul class="page-profile__fields">
+              <li><i class="fa fa-envelope"> {{vm.current.user.email}}</i></li>
+              <li><i class="fa fa-map-marker"> {{vm.current.user.address}}</i></li>
+              <li><i class="fa fa-phone"> {{vm.current.user.phone_number}}</i></li>
+              <li ng-repeat="car in vm.current.vehicles">
+                <i class="fa fa-car"></i> {{car.year}} {{car.make}} {{car.model}} <br>
+                license plate {{car.plate_number}}</li>
+              <li ng-repeat="work in vm.current.work">
+                {{work.name}} {{work.address}}
+                <!-- <button ng-click="vm.deleteWork(work)">X</button> -->
+              </li>
+            </ul>
+          </p>
+          <button class="register-button" ng-click="vm.addVehicle()">UPDATE PROFILE</button>
+          <div>
+            <h5>Scheduled Dates</h5>
+            <ul>
+              <li class="profile-dates" ng-repeat="date in vm.current.schedule">
+                <p>
+                  {{ date.depart | date:"MMM, dd" }} <br>
+                  LEAVE: {{ date.arrival_datetime | date: 'h:mma' }} <br>
+                  RETURN: {{ date.departure_datetime | date: 'h:mma' }}
+                  <button ng-click="vm.deleteDate(date)">X</button>
+                </p>
+              </li>
+            </ul>
+          </div>
+      </div>
+  </div>
+  <footer-nav></footer-nav>
+</div>

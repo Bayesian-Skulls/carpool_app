@@ -1,1 +1,11 @@
-<footer class=page-footer><nav><ul><li class=footer-nav__li><a href="#/">Home</a></li><li class=footer-nav__li ng-hide=vm.current.user.email><a href=/facebook/login>Register</a></li><li class=footer-nav__li ng-show=vm.current.user.name><a href=#/dashboard>Dashboard</a></li><li class=footer-nav__li ng-show=!vm.current.user.name><a href=/facebook/login>Login</a></li><li class=footer-nav__li ng-show=vm.current.user.name ng-click=vm.logout()><a href=#>Logout</a></li></ul></nav></footer>
+<footer class="page-footer">
+  <nav class="">
+    <ul>
+      <li class="footer-nav__li" ><a href="#/">Home</a></li>
+      <li class="footer-nav__li" ng-hide="vm.current.user.email"><a href="/facebook/login">Register</a></li>
+      <li class="footer-nav__li" ng-show="vm.current.user.name"><a href="#/dashboard">Dashboard</a></li>
+      <li class="footer-nav__li" ng-show="!vm.current.user.name"><a href="/facebook/login">Login</a></li>
+      <li class="footer-nav__li" ng-show="vm.current.user.name" ng-click="vm.logout()"><a href="#">Logout</a></li>
+    </ul>
+  </nav>
+</footer>

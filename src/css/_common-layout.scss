@@ -26,10 +26,6 @@ nav li {
   margin: 0 .5em;
 }
 
-.root-content {
-  // @include outer-container(100%);
-}
-
 .page-content {
   position: relative;
   @include outer-container(980px);
@@ -61,15 +57,13 @@ nav li {
 }
 
 .page-wrapper {
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: $primary-color;
-  @media only screen and (min-width: 768px) {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: $primary-color;
     overflow: auto;  
-  }
 }
 
 // Conditional body colors
